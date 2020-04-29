@@ -91,6 +91,22 @@ function simulate(omc:: OMJulia.OMCSession, name::String, settings:: Dict{String
         throw(MoSTError("Simulation of $name failed", es))
     end
 end
+
+function regressionTest(name:: String, refdir:: String)
+    actname = "$(name)_res.csv"
+    refname = joinpath(refdir, outname)
+    actvars = OMJulia.sendExpression(omc, "readSimulationResultVars(\"$actname\")")
+    refvars = OMJulia.sendExpression(omc, "readSimulationResultVars(\"$refname\")")
+    missingRef = setdiff(Set(actvars), Set(refvars))
+    @test isempty(missingRef)
+    # if variable sets differ, we should only check the variables that are present in both files
+    vars = collect(intersect(Set(actvars), Set(refvars)))
+    varsStr = join(map(x -> "\"$x\"", vars), ", ")
+    cmd = "diffSimulationResults(\"$outname\", \"$refname\", \"$(name)_diff.log\", vars={ $varsStr })"
+    eq, ineqAr = OMJulia.sendExpression(omc, cmd)
+    @test isempty(ineqAr)
+end
+
 function testmodel(omc, name; override=Dict())
     r = OMJulia.sendExpression(omc, "loadModel($name)")
     @test r
