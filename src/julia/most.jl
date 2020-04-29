@@ -57,9 +57,9 @@ function getSimulationSettings(omc:: OMJulia.OMCSession, name:: String; override
     settings = Dict(
         "startTime"=>values[1], "stopTime"=>values[2],
         "tolerance"=>values[3], "numberOfIntervals"=>values[4],
-        "outputFormat"=>"\"csv\""
+        "outputFormat"=>"\"csv\"", variableFilter="\".*\""
     )
-    settings["variableFilter"] = moescape(getVariableFilter(omc, name))
+    settings["variableFilter"] = "\"$(moescape(getVariableFilter(omc, name)))\""
     for x in keys(settings)
         if x in keys(override)
             settings[x] = override[x]
