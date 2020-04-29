@@ -107,49 +107,13 @@ function regressionTest(name:: String, refdir:: String)
     @test isempty(ineqAr)
 end
 
-function testmodel(omc, name; override=Dict())
-    r = OMJulia.sendExpression(omc, "loadModel($name)")
-    @test r
-    es = OMJulia.sendExpression(omc, "getErrorString()")
-    @test es == ""
-    values = OMJulia.sendExpression(omc, "getSimulationOptions($name)")
-    settings = Dict(
-        "startTime"=>values[1], "stopTime"=>values[2],
-        "tolerance"=>values[3], "numberOfIntervals"=>values[4],
-        "outputFormat"=>"\"csv\"", "variableFilter"=>"\".*\""
-    )
-    for x in keys(settings)
-        if x in keys(override)
-            settings[x] = override[x]
-        end
-    end
-    # extract variable filter if present as vendor-specific annotation
-    csann = OMJulia.sendExpression(omc, "getAnnotationNamedModifiers($name, \"__ChrisS_testing\")")
-    varfilter = ".*"
-    if "testedVariableFilter" in csann
-        varfilter = OMJulia.sendExpression(omc, "getAnnotationModifierValue($name, \"__ChrisS_testing\", \"testedVariableFilter\")")
-        settings["variableFilter"] = "\"$varfilter\""
-    end
-    setstring = join(("$k=$v" for (k,v) in settings), ", ")
-    r = OMJulia.sendExpression(omc, "simulate($name, $setstring)")
-    @test !occursin("| warning |", r["messages"])
-    @test !startswith(r["messages"], "Simulation execution failed")
-    es = OMJulia.sendExpression(omc, "getErrorString()")
-    @test es == ""
-    println(es)
-
+function testmodel(omc, name; override=Dict(), refdir="../regRefData")
+    @test loadModel(omc, name)
+    @test simulate(omc, name, getSimulationSettings(omc, name; override=override))
+    
     # compare simulation results to regression data
-    if isfile("../regRefData/$(name)_res.csv")
-        actvars = OMJulia.sendExpression(omc, "readSimulationResultVars(\"$(name)_res.csv\")")
-        refvars = OMJulia.sendExpression(omc, "readSimulationResultVars(\"../regRefData/$(name)_res.csv\")")
-        missingRef = setdiff(Set(actvars), Set(refvars))
-        @test isempty(missingRef)
-        # if variable sets differ, we should only check the variables that are present in both files
-        vars = collect(intersect(Set(actvars), Set(refvars)))
-        varsStr = join(map(x -> "\"$x\"", vars), ", ")
-        cmd = "diffSimulationResults(\"$(name)_res.csv\", \"../regRefData/$(name)_res.csv\", \"$(name)_diff.log\", vars={ $varsStr })"
-        eq, ineqAr = OMJulia.sendExpression(omc, cmd)
-        @test isempty(ineqAr)
+    if isfile("$(joinpath(regdir, name))_res.csv")
+        regressionTest(name, refdir)
     else
         write(Base.stderr, "WARNING: no reference data for regression test of $name\n")
     end
