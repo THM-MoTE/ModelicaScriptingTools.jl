@@ -1,6 +1,13 @@
 using Base.Filesystem
 using Test
 
+struct MoSTError <: Exception
+    msg:: String
+    omc:: String
+end
+
+Base.showerror(io::IO, e::MoSTError) = print(io, msg, "OMC error string:\n", omc)
+
 # move to parent directory of this file
 moroot = dirname(@__DIR__)
 cd(moroot)
