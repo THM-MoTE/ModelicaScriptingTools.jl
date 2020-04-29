@@ -59,6 +59,7 @@ function getSimulationSettings(omc:: OMJulia.OMCSession, name:: String; override
         "tolerance"=>values[3], "numberOfIntervals"=>values[4],
         "outputFormat"=>"\"csv\""
     )
+    settings["variableFilter"] = moescape(getVariableFilter(omc, name))
     for x in keys(settings)
         if x in keys(override)
             settings[x] = override[x]
