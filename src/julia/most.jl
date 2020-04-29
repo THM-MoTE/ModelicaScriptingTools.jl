@@ -19,6 +19,8 @@ Pkg.instantiate()
 # end of ugly workaround
 using OMJulia
 
+MoSTError(omc:: OMJulia.OMCSession, msg:: String) = MoSTError(msg, OMJulia.sendExpression(omc, "getErrorString()"))
+
 # create outdir and move working directory there to capture OMC outputs
 outdir = "out"
 if !ispath(outdir)
