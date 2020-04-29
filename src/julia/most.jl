@@ -26,7 +26,6 @@ outdir = "out"
 if !ispath(outdir)
     mkdir(outdir)
 end
-cd(outdir)
 
 function loadModel(omc:: OMJulia.OMCSession, name:: String)
     success = OMJulia.sendExpression(omc, "loadModel($name)")
@@ -110,7 +109,7 @@ end
 function testmodel(omc, name; override=Dict(), refdir="../regRefData")
     @test loadModel(omc, name)
     @test simulate(omc, name, getSimulationSettings(omc, name; override=override))
-    
+
     # compare simulation results to regression data
     if isfile("$(joinpath(regdir, name))_res.csv")
         regressionTest(name, refdir)
@@ -119,14 +118,36 @@ function testmodel(omc, name; override=Dict(), refdir="../regRefData")
     end
 end
 
-omc = OMJulia.OMCSession()
-try
+function setupOMCSession(outdir, modeldir; quiet=false)
+    # create sessions
+    omc = OMJulia.OMCSession()
+    # move to output directory
+    OMJulia.sendExpression(omc, "cd(\"$(moescape(outdir))\"")
+    # set modelica path
     mopath = OMJulia.sendExpression(omc, "getModelicaPath()")
-    mopath = "$mopath:$(escape_string(moroot))"
-    println("Setting MODELICAPATH to ", mopath)
+    mopath = "$mopath:$(moescape(abspath(modelidr)))"
+    if !quiet
+        println("Setting MODELICAPATH to ", mopath)
+    end
     OMJulia.sendExpression(omc, "setModelicaPath(\"$mopath\")")
     # load Modelica standard library
     OMJulia.sendExpression(omc, "loadModel(Modelica)")
+    return omc
+end
+
+function closeOMCSession(omc:: OMJulia.OMCSession; quiet=false)
+    if !quiet
+        println("Closing OMC session")
+    end
+    sleep(1)
+    OMJulia.sendExpression(omc, "quit()", parsed=false)
+    if !quiet
+        println("Done")
+    end
+end
+
+try
+    omc = setupOMCSession(outdir, moroot)
     @testset "Simulate examples" begin
         @testset "HHmono" begin
             testmodel(omc, "HHmodelica.CompleteModels.HHmono")
@@ -142,8 +163,5 @@ try
         end
     end
 finally
-    println("Closing OMC session")
-    sleep(1)
-    OMJulia.sendExpression(omc, "quit()", parsed=false)
-    println("Done")
+    closeOMCSession(omc)
 end
