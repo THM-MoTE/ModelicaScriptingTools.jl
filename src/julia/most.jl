@@ -28,6 +28,14 @@ if !ispath(outdir)
 end
 cd(outdir)
 
+function loadModel(omc:: OMJulia.OMCSession, name:: String)
+    success = OMJulia.sendExpression(omc, "loadModel($name)")
+    es = OMJulia.sendExpression()
+    if !success || length(es) > 0
+        throw(MoSTException("Could not load $name", es))
+    end
+end
+
 function testmodel(omc, name; override=Dict())
     r = OMJulia.sendExpression(omc, "loadModel($name)")
     @test r
