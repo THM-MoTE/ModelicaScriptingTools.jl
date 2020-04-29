@@ -36,6 +36,21 @@ function loadModel(omc:: OMJulia.OMCSession, name:: String)
     end
 end
 
+function getSimulationSettings(omc:: OMJulia.OMCSession, name:: String; override=Dict())
+    values = OMJulia.sendExpression(omc, "getSimulationOptions($name)")
+    settings = Dict(
+        "startTime"=>values[1], "stopTime"=>values[2],
+        "tolerance"=>values[3], "numberOfIntervals"=>values[4],
+        "outputFormat"=>"\"csv\"", "variableFilter"=>"\".*\""
+    )
+    for x in keys(settings)
+        if x in keys(override)
+            settings[x] = override[x]
+        end
+    end
+    return settings
+end
+
 function testmodel(omc, name; override=Dict())
     r = OMJulia.sendExpression(omc, "loadModel($name)")
     @test r
