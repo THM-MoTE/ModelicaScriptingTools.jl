@@ -36,6 +36,22 @@ function loadModel(omc:: OMJulia.OMCSession, name:: String)
     end
 end
 
+function moescape(s:: String)
+    rep = Dict(
+        '\\' => "\\\\",
+        '"' => "\\\"",
+        '?' => "\\?",
+        '\a' => "\\a",
+        '\b' => "\\b",
+        '\f' => "\\f",
+        '\n' => "\\n",
+        '\r' => "\\r",
+        '\t' => "\\t",
+        '\v' => "\\v",
+    )
+    return join([(x in keys(rep) ? rep[x] : x) for x in s])
+end
+
 function getSimulationSettings(omc:: OMJulia.OMCSession, name:: String; override=Dict())
     values = OMJulia.sendExpression(omc, "getSimulationOptions($name)")
     settings = Dict(
