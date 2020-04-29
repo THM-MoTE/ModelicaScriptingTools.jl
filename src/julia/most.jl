@@ -77,6 +77,20 @@ function getVariableFilter(omc:: OMJulia.OMCSession, name::String)
     return varfilter
 end
 
+function simulate(omc:: OMJulia.OMCSession, name::String, settings:: Dict{String, Any})
+    setstring = join(("$k=$v" for (k,v) in settings), ", ")
+    r = OMJulia.sendExpression(omc, "simulate($name, $setstring)")
+    if startswith(r["messages"], "Simulation execution failed")
+        throw(MoSTError("Simulation of $name failed", r["messages"]))
+    end
+    if occursin("| warning |", r["messages"])
+        throw(MoSTError("Simulation of $name produced warning", r["messages"]))
+    end
+    es = OMJulia.sendExpression(omc, "getErrorString()")
+    if length(es) > 0
+        throw(MoSTError("Simulation of $name failed", es))
+    end
+end
 function testmodel(omc, name; override=Dict())
     r = OMJulia.sendExpression(omc, "loadModel($name)")
     @test r
