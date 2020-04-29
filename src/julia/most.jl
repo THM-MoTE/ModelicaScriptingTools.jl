@@ -41,7 +41,7 @@ function getSimulationSettings(omc:: OMJulia.OMCSession, name:: String; override
     settings = Dict(
         "startTime"=>values[1], "stopTime"=>values[2],
         "tolerance"=>values[3], "numberOfIntervals"=>values[4],
-        "outputFormat"=>"\"csv\"", "variableFilter"=>"\".*\""
+        "outputFormat"=>"\"csv\""
     )
     for x in keys(settings)
         if x in keys(override)
@@ -49,6 +49,15 @@ function getSimulationSettings(omc:: OMJulia.OMCSession, name:: String; override
         end
     end
     return settings
+end
+
+function getVariableFilter(omc:: OMJulia.OMCSession, name::String)
+    csann = OMJulia.sendExpression(omc, "getAnnotationNamedModifiers($name, \"__ChrisS_testing\")")
+    varfilter = ".*"
+    if "testedVariableFilter" in csann
+        varfilter = OMJulia.sendExpression(omc, "getAnnotationModifierValue($name, \"__ChrisS_testing\", \"testedVariableFilter\")")
+    end
+    return varfilter
 end
 
 function testmodel(omc, name; override=Dict())
