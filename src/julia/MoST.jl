@@ -92,7 +92,7 @@ module MoST
         @test isempty(ineqAr)
     end
 
-    function testmodel(omc, name; override=Dict(), refdir="regRefData")
+    function testmodel(omc, name; override=Dict(), refdir="../regRefData")
         @test isnothing(loadModel(omc, name))
         @test isnothing(simulate(omc, name, getSimulationSettings(omc, name; override=override)))
 
