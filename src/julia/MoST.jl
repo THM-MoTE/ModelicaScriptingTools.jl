@@ -79,7 +79,7 @@ module MoST
 
     function regressionTest(name:: String, refdir:: String)
         actname = "$(name)_res.csv"
-        refname = joinpath(refdir, outname)
+        refname = joinpath(refdir, actname)
         actvars = OMJulia.sendExpression(omc, "readSimulationResultVars(\"$actname\")")
         refvars = OMJulia.sendExpression(omc, "readSimulationResultVars(\"$refname\")")
         missingRef = setdiff(Set(actvars), Set(refvars))
