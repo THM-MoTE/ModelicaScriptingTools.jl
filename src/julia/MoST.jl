@@ -77,7 +77,7 @@ module MoST
         end
     end
 
-    function regressionTest(name:: String, refdir:: String)
+    function regressionTest(omc:: OMJulia.OMCSession, name:: String, refdir:: String)
         actname = "$(name)_res.csv"
         refname = joinpath(refdir, actname)
         actvars = OMJulia.sendExpression(omc, "readSimulationResultVars(\"$actname\")")
@@ -98,7 +98,7 @@ module MoST
 
         # compare simulation results to regression data
         if isfile("$(joinpath(refdir, name))_res.csv")
-            regressionTest(name, refdir)
+            regressionTest(omc, name, refdir)
         else
             write(Base.stderr, "WARNING: no reference data for regression test of $name\n")
         end
