@@ -42,7 +42,7 @@ module MoST
         settings = Dict(
             "startTime"=>values[1], "stopTime"=>values[2],
             "tolerance"=>values[3], "numberOfIntervals"=>values[4],
-            "outputFormat"=>"\"csv\"", variableFilter="\".*\""
+            "outputFormat"=>"\"csv\"", "variableFilter"=>"\".*\""
         )
         settings["variableFilter"] = "\"$(moescape(getVariableFilter(omc, name)))\""
         for x in keys(settings)
