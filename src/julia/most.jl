@@ -1,5 +1,6 @@
 using Base.Filesystem
 using Test
+using OMJulia # note: needs 0.1.1 (unreleased) -> install from Github
 
 struct MoSTError <: Exception
     msg:: String
@@ -8,24 +9,7 @@ end
 
 Base.showerror(io::IO, e::MoSTError) = print(io, msg, "OMC error string:\n", omc)
 
-# move to parent directory of this file
-moroot = dirname(@__DIR__)
-cd(moroot)
-
-# ugly workaround for using latest OMJulia with libgit2-julia incompatibility
-using Pkg
-Pkg.activate("3rdparty/OMJulia.jl")
-Pkg.instantiate()
-# end of ugly workaround
-using OMJulia
-
 MoSTError(omc:: OMJulia.OMCSession, msg:: String) = MoSTError(msg, OMJulia.sendExpression(omc, "getErrorString()"))
-
-# create outdir and move working directory there to capture OMC outputs
-outdir = "out"
-if !ispath(outdir)
-    mkdir(outdir)
-end
 
 function loadModel(omc:: OMJulia.OMCSession, name:: String)
     success = OMJulia.sendExpression(omc, "loadModel($name)")
@@ -67,7 +51,7 @@ function getSimulationSettings(omc:: OMJulia.OMCSession, name:: String; override
     return settings
 end
 
-function getVariableFilter(omc:: OMJulia.OMCSession, name::String)
+function getVariableFilter(omc:: OMJulia.OMCSession, name:: String)
     csann = OMJulia.sendExpression(omc, "getAnnotationNamedModifiers($name, \"__ChrisS_testing\")")
     varfilter = ".*"
     if "testedVariableFilter" in csann
@@ -144,24 +128,4 @@ function closeOMCSession(omc:: OMJulia.OMCSession; quiet=false)
     if !quiet
         println("Done")
     end
-end
-
-try
-    omc = setupOMCSession(outdir, moroot)
-    @testset "Simulate examples" begin
-        @testset "HHmono" begin
-            testmodel(omc, "HHmodelica.CompleteModels.HHmono")
-        end
-        @testset "HHmodHier" begin
-            testmodel(omc, "HHmodelica.CompleteModels.HHmodHier")
-        end
-        @testset "HHmodular" begin
-            testmodel(omc, "HHmodelica.CompleteModels.HHmodular")
-        end
-        @testset "HHmodular1p" begin
-            testmodel(omc, "HHmodelica.CompleteModels.HHmodular1p")
-        end
-    end
-finally
-    closeOMCSession(omc)
 end
