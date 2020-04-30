@@ -92,9 +92,9 @@ module MoST
         @test isempty(ineqAr)
     end
 
-    function testmodel(omc, name; override=Dict(), refdir="../regRefData")
-        @test loadModel(omc, name)
-        @test simulate(omc, name, getSimulationSettings(omc, name; override=override))
+    function testmodel(omc, name; override=Dict(), refdir="regRefData")
+        @test isnothing(loadModel(omc, name))
+        @test isnothing(simulate(omc, name, getSimulationSettings(omc, name; override=override)))
 
         # compare simulation results to regression data
         if isfile("$(joinpath(refdir, name))_res.csv")
