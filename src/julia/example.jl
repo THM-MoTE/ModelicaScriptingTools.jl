@@ -1,5 +1,9 @@
 include("./MoST.jl")
 using .MoST
 
-omc = MoST.setupOMCSession("../../out", "../../res")
+if !isdir("out")
+    mkdir("out")
+end
+omc = MoST.setupOMCSession("out", "res")
 MoST.loadModel(omc, "Example")
+MoST.closeOMCSession(omc)
