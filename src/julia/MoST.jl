@@ -97,7 +97,7 @@ module MoST
         @test simulate(omc, name, getSimulationSettings(omc, name; override=override))
 
         # compare simulation results to regression data
-        if isfile("$(joinpath(regdir, name))_res.csv")
+        if isfile("$(joinpath(refdir, name))_res.csv")
             regressionTest(name, refdir)
         else
             write(Base.stderr, "WARNING: no reference data for regression test of $name\n")
