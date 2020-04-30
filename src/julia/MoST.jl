@@ -17,7 +17,7 @@ module MoST
         success = OMJulia.sendExpression(omc, "loadModel($name)")
         es = OMJulia.sendExpression(omc, "getErrorString()")
         if !success || length(es) > 0
-            throw(MoSTException("Could not load $name", es))
+            throw(MoSTError("Could not load $name", es))
         end
     end
 
