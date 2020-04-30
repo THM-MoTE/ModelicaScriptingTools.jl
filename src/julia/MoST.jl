@@ -9,7 +9,7 @@ module MoST
         omc:: String
     end
 
-    Base.showerror(io::IO, e::MoSTError) = print(io, e.msg, "OMC error string:\n", e.omc)
+    Base.showerror(io::IO, e::MoSTError) = print(io, e.msg, "\n---\nOMC error string:\n", e.omc)
 
     MoSTError(omc:: OMJulia.OMCSession, msg:: String) = MoSTError(msg, OMJulia.sendExpression(omc, "getErrorString()"))
 
