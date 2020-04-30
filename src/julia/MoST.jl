@@ -1,8 +1,9 @@
-using Base.Filesystem
-using Test
-using OMJulia # note: needs 0.1.1 (unreleased) -> install from Github
-
 module MoST
+    using Base.Filesystem
+    using Test
+    using OMJulia # note: needs 0.1.1 (unreleased) -> install from Github
+
+
     struct MoSTError <: Exception
         msg:: String
         omc:: String
