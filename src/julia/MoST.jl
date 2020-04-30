@@ -86,10 +86,16 @@ module MoST
         @test isempty(missingRef)
         # if variable sets differ, we should only check the variables that are present in both files
         vars = collect(intersect(Set(actvars), Set(refvars)))
+        @test !isempty(vars)
         varsStr = join(map(x -> "\"$x\"", vars), ", ")
-        cmd = "diffSimulationResults(\"$outname\", \"$refname\", \"$(name)_diff.log\", vars={ $varsStr })"
-        eq, ineqAr = OMJulia.sendExpression(omc, cmd)
-        @test isempty(ineqAr)
+        cmd = "diffSimulationResults(\"$actname\", \"$refname\", \"$(name)_diff.log\", vars={ $varsStr })"
+        res = OMJulia.sendExpression(omc, cmd)
+        if isnothing(res)
+            unequalVars = ["no result"]
+        else
+            unequalVars = res[2]
+        end
+        @test isempty(unequalVars)
     end
 
     function testmodel(omc, name; override=Dict(), refdir="../regRefData")
