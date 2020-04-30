@@ -108,10 +108,10 @@ module MoST
         # create sessions
         omc = OMJulia.OMCSession()
         # move to output directory
-        OMJulia.sendExpression(omc, "cd(\"$(moescape(outdir))\"")
+        OMJulia.sendExpression(omc, "cd(\"$(moescape(outdir))\")")
         # set modelica path
         mopath = OMJulia.sendExpression(omc, "getModelicaPath()")
-        mopath = "$mopath:$(moescape(abspath(modelidr)))"
+        mopath = "$mopath:$(moescape(abspath(modeldir)))"
         if !quiet
             println("Setting MODELICAPATH to ", mopath)
         end
