@@ -125,8 +125,27 @@ module MoST
         if !quiet
             println("Closing OMC session")
         end
-        sleep(1)
-        OMJulia.sendExpression(omc, "quit()", parsed=false)
+        sleep(1) # somewhat alleviates issue #32 (freeze on quit())
+        try
+            # parsed=false is currently unreleased solution to issue #22
+            # that only works when OMJulia is installed directly from github
+            OMJulia.sendExpression(omc, "quit()", parsed=false)
+        catch e
+            if !isa(e, MethodError) # only catch MethodErrors
+                rethrow()
+            end
+            # meathod error means we have version 0.1.0
+            # => perform workaround for issue #22 in version 0.1.0 of OMJulia
+            # https://github.com/OpenModelica/OMJulia.jl/issues/22
+            try
+                OMJulia.sendExpression(omc, "quit()")
+            catch e
+                # ParseError is expected
+                if !isa(e, OMJulia.Parser.ParseError)
+                    rethrow()
+                end
+            end
+        end
         if !quiet
             println("Done")
         end
