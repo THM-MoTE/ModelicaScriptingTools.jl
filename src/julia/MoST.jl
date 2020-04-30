@@ -19,6 +19,20 @@ module MoST
         if !success || length(es) > 0
             throw(MoSTError("Could not load $name", es))
         end
+        success = OMJulia.sendExpression(omc, "isModel($name)")
+        if !success
+            throw(MoSTError("Model $name not found in MODELICAPATH", ""))
+        end
+        check = OMJulia.sendExpression(omc, "checkModel($name)")
+        es = OMJulia.sendExpression(omc, "getErrorString()")
+        if !startswith(check, "Check of $name completed successfully")
+            throw(MoSTError("Model check of $name failed", join([check, es], "\n")))
+        end
+        inst = OMJulia.sendExpression(omc, "instantiateModel($name)")
+        es = OMJulia.sendExpression(omc, "getErrorString()")
+        if length(es) > 0
+            throw(MoSTError("Model $name could not be instantiated", es))
+        end
     end
 
     function moescape(s:: String)
