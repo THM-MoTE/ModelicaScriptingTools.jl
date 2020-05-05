@@ -98,6 +98,8 @@ module MoST
         refvars = OMJulia.sendExpression(omc, "readSimulationResultVars(\"$refname\")")
         missingRef = setdiff(Set(actvars), Set(refvars))
         @test isempty(missingRef)
+        missingAct = setfidd(Set(refvars), Set(actvars))
+        @test isempty(missingAct)
         # if variable sets differ, we should only check the variables that are present in both files
         vars = collect(intersect(Set(actvars), Set(refvars)))
         @test !isempty(vars)
