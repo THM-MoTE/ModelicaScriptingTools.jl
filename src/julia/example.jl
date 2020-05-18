@@ -16,7 +16,7 @@ try
     MoST.simulate(omc, "Example", MoST.getSimulationSettings(omc, "Example"))
     cp("out/Example_res.csv", "regRefData/Example_res.csv"; force=true)
     @testset "Example" begin
-        MoST.testmodel(omc, "Example")
+        MoST.testmodel(omc, "Example", regRelTol=1e-4)
     end
 finally
     MoST.closeOMCSession(omc)

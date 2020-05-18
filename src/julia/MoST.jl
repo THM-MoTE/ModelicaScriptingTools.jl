@@ -91,7 +91,7 @@ module MoST
         end
     end
 
-    function regressionTest(omc:: OMJulia.OMCSession, name:: String, refdir:: String)
+    function regressionTest(omc:: OMJulia.OMCSession, name:: String, refdir:: String; relTol:: Real = 1e-3)
         actname = "$(name)_res.csv"
         refname = joinpath(refdir, actname)
         actvars = OMJulia.sendExpression(omc, "readSimulationResultVars(\"$actname\")")
@@ -104,7 +104,7 @@ module MoST
         vars = collect(intersect(Set(actvars), Set(refvars)))
         @test !isempty(vars)
         varsStr = join(map(x -> "\"$x\"", vars), ", ")
-        cmd = "diffSimulationResults(\"$actname\", \"$refname\", \"$(name)_diff\", vars={ $varsStr })"
+        cmd = "diffSimulationResults(\"$actname\", \"$refname\", \"$(name)_diff\", vars={ $varsStr }, relTol=$relTol)"
         res = OMJulia.sendExpression(omc, cmd)
         if isnothing(res)
             unequalVars = ["no result"]
@@ -114,14 +114,14 @@ module MoST
         @test isempty(unequalVars)
     end
 
-    function testmodel(omc, name; override=Dict(), refdir="../regRefData")
+    function testmodel(omc, name; override=Dict(), refdir="../regRefData", regRelTol:: Real= 1e-3)
         @test isnothing(loadModel(omc, name))
         @test isnothing(simulate(omc, name, getSimulationSettings(omc, name; override=override)))
 
         # compare simulation results to regression data
         wd = OMJulia.sendExpression(omc, "cd()")
         if isfile("$(joinpath(wd, refdir, name))_res.csv")
-            regressionTest(omc, name, refdir)
+            regressionTest(omc, name, refdir; relTol=regRelTol)
         else
             write(Base.stderr, "WARNING: no reference data for regression test of $name\n")
         end
