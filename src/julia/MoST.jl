@@ -1,6 +1,7 @@
 module MoST
     using Base.Filesystem
     using Test
+    using CSV
     using OMJulia # note: needs 0.1.1 (unreleased) -> install from Github
 
 
@@ -103,14 +104,11 @@ module MoST
         # if variable sets differ, we should only check the variables that are present in both files
         vars = collect(intersect(Set(actvars), Set(refvars)))
         @test !isempty(vars)
-        varsStr = join(map(x -> "\"$x\"", vars), ", ")
-        cmd = "diffSimulationResults(\"$actname\", \"$refname\", \"$(name)_diff\", vars={ $varsStr }, relTol=$relTol)"
-        res = OMJulia.sendExpression(omc, cmd)
-        if isnothing(res)
-            unequalVars = ["no result"]
-        else
-            unequalVars = res[2]
-        end
+
+        wd = OMJulia.sendExpression(omc, "cd()")
+        actdata = CSV.read(joinpath(wd, actname))
+        refdata = CSV.read(joinpath(wd, refname))
+        unequalVars = filter(x -> !isapprox(actdata[!,Symbol(x)], refdata[!,Symbol(x)]; rtol=relTol), vars)
         @test isempty(unequalVars)
     end
 
