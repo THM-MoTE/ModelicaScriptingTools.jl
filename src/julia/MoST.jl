@@ -92,7 +92,7 @@ module MoST
         end
     end
 
-    function regressionTest(omc:: OMJulia.OMCSession, name:: String, refdir:: String; relTol:: Real = 1e-3)
+    function regressionTest(omc:: OMJulia.OMCSession, name:: String, refdir:: String; relTol:: Real = 1e-6)
         actname = "$(name)_res.csv"
         refname = joinpath(refdir, actname)
         actvars = OMJulia.sendExpression(omc, "readSimulationResultVars(\"$actname\")")
@@ -116,7 +116,7 @@ module MoST
         @test isempty(unequalVars)
     end
 
-    function testmodel(omc, name; override=Dict(), refdir="../regRefData", regRelTol:: Real= 1e-3)
+    function testmodel(omc, name; override=Dict(), refdir="../regRefData", regRelTol:: Real= 1e-6)
         @test isnothing(loadModel(omc, name))
         @test isnothing(simulate(omc, name, getSimulationSettings(omc, name; override=override)))
 
