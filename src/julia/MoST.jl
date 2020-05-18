@@ -108,7 +108,11 @@ module MoST
         wd = OMJulia.sendExpression(omc, "cd()")
         actdata = CSV.read(joinpath(wd, actname))
         refdata = CSV.read(joinpath(wd, refname))
-        unequalVars = filter(x -> !isapprox(actdata[!,Symbol(x)], refdata[!,Symbol(x)]; rtol=relTol), vars)
+        # check if length is equal
+        @test size(actdata, 1) == size(refdata, 1)
+        n = min(size(actdata, 1), size(refdata, 1))
+        # find unequal variables
+        unequalVars = filter(x -> !isapprox(actdata[1:n,Symbol(x)], refdata[1:n,Symbol(x)]; rtol=relTol), vars)
         @test isempty(unequalVars)
     end
 
