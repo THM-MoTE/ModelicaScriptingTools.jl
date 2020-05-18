@@ -119,7 +119,8 @@ module MoST
         @test isnothing(simulate(omc, name, getSimulationSettings(omc, name; override=override)))
 
         # compare simulation results to regression data
-        if isfile("$(joinpath(refdir, name))_res.csv")
+        wd = OMJulia.sendExpression(omc, "cd()")
+        if isfile("$(joinpath(wd, refdir, name))_res.csv")
             regressionTest(omc, name, refdir)
         else
             write(Base.stderr, "WARNING: no reference data for regression test of $name\n")
