@@ -104,7 +104,7 @@ module MoST
         vars = collect(intersect(Set(actvars), Set(refvars)))
         @test !isempty(vars)
         varsStr = join(map(x -> "\"$x\"", vars), ", ")
-        cmd = "diffSimulationResults(\"$actname\", \"$refname\", \"$(name)_diff.log\", vars={ $varsStr })"
+        cmd = "diffSimulationResults(\"$actname\", \"$refname\", \"$(name)_diff\", vars={ $varsStr })"
         res = OMJulia.sendExpression(omc, cmd)
         if isnothing(res)
             unequalVars = ["no result"]
