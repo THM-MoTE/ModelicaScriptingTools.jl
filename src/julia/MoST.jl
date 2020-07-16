@@ -52,6 +52,32 @@ module MoST
         return join([(x in keys(rep) ? rep[x] : x) for x in s])
     end
 
+    function mounescape(io:: IO, s:: String)
+        rev = Dict(
+            "\\\\" => '\\',
+            "\\\"" => '"',
+            "\\?" => '?',
+            "\\a" => '\a',
+            "\\b" => '\b',
+            "\\f" => '\f',
+            "\\n" => '\n',
+            "\\r" => '\r',
+            "\\t" => '\t',
+            "\\v" => '\v'
+        )
+        i = Iterators.Stateful(s)
+        while !isempty(i)
+            c = popfirst!(i)
+            if c != '\\' || isempty(i)
+                print(io, c)
+            else
+                nxt = popfirst!(i)
+                print(io, rev[join([c, nxt])])
+            end
+        end
+    end
+    mounescape(s::String) = sprint(mounescape, s; sizehint=lastindex(s))
+
     function getSimulationSettings(omc:: OMJulia.OMCSession, name:: String; override=Dict())
         values = OMJulia.sendExpression(omc, "getSimulationOptions($name)")
         settings = Dict(
@@ -92,12 +118,16 @@ module MoST
         end
     end
 
-    function regressionTest(omc:: OMJulia.OMCSession, name:: String, refdir:: String; relTol:: Real = 1e-6)
+    function regressionTest(omc:: OMJulia.OMCSession, name:: String, refdir:: String; relTol:: Real = 1e-6, variableFilter:: String = "")
         actname = "$(name)_res.csv"
         refname = joinpath(refdir, actname)
         actvars = OMJulia.sendExpression(omc, "readSimulationResultVars(\"$actname\")")
         refvars = OMJulia.sendExpression(omc, "readSimulationResultVars(\"$refname\")")
         missingRef = setdiff(Set(actvars), Set(refvars))
+        # ignore variables without reference if they should not have been selected in the first place
+        if length(variableFilter) > 0
+            missingRef = filter(x -> match(variableFilter,x), missingRef)
+        end
         @test isempty(missingRef)
         missingAct = setdiff(Set(refvars), Set(actvars))
         @test isempty(missingAct)
@@ -118,12 +148,14 @@ module MoST
 
     function testmodel(omc, name; override=Dict(), refdir="../regRefData", regRelTol:: Real= 1e-6)
         @test isnothing(loadModel(omc, name))
-        @test isnothing(simulate(omc, name, getSimulationSettings(omc, name; override=override)))
+        settings = getSimulationSettings(omc, name; override=override)
+        varfilter = mounescape(settings["variableFilter"][2:end-1])
+        @test isnothing(simulate(omc, name, settings))
 
         # compare simulation results to regression data
         wd = OMJulia.sendExpression(omc, "cd()")
         if isfile("$(joinpath(wd, refdir, name))_res.csv")
-            regressionTest(omc, name, refdir; relTol=regRelTol)
+            regressionTest(omc, name, refdir; relTol=regRelTol, variableFilter=varfilter)
         else
             write(Base.stderr, "WARNING: no reference data for regression test of $name\n")
         end
