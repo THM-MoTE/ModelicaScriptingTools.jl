@@ -126,7 +126,8 @@ module MoST
         missingRef = setdiff(Set(actvars), Set(refvars))
         # ignore variables without reference if they should not have been selected in the first place
         if length(variableFilter) > 0
-            missingRef = filter(x -> match("^$(variableFilter)\$",x), missingRef)
+            varEx = Regex("^$(variableFilter)\$")
+            missingRef = filter(x -> occursin(varEx,x), missingRef)
         end
         @test isempty(missingRef)
         missingAct = setdiff(Set(refvars), Set(actvars))
