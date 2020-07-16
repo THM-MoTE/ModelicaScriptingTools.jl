@@ -126,7 +126,10 @@ module MoST
         missingRef = setdiff(Set(actvars), Set(refvars))
         # ignore variables without reference if they should not have been selected in the first place
         if length(variableFilter) > 0
-            varEx = Regex("^$(variableFilter)\$")
+            # NOTE: OpenModelica only adds ^ and $, but not the group
+            # we still add the group because it is the correct way to make a
+            # regex exact
+            varEx = Regex("^($(variableFilter))\$")
             missingRef = filter(x -> occursin(varEx,x), missingRef)
         end
         @test isempty(missingRef)
