@@ -69,6 +69,45 @@ end
             end
         end
         @testset "simulate" begin
+            mopath = sendExpression(omc, "getModelicaPath()")
+            @testset "simulate correct model" begin
+                loadModel(omc, "Example")
+                @test_nowarn simulate(omc, "Example")
+            end
+            @testset "simulate model with arithmetic error" begin
+                loadModel(omc, "ArithmeticError")
+                expected = MoSTError(
+                    "Simulation of ArithmeticError failed",
+                    string("Simulation execution failed for model: ArithmeticError\n",
+                    "LOG_SUCCESS       | info    | The initialization finished successfully without homotopy method.\n",
+                    "assert            | debug   | division by zero at time 1.000000000200016, (a=1) / (b=0), ",
+                    "where divisor b expression is: x\n")
+                )
+                @test_throws expected simulate(omc, "ArithmeticError")
+            end
+            @testset "simulate model with initialization warning" begin
+                loadModel(omc, "MissingInitialValue")
+                expected = MoSTError(
+                    "Simulation of MissingInitialValue failed",
+                    string("Warning: The initial conditions are not fully specified. ",
+                    "For more information set -d=initialization. ",
+                    "In OMEdit Tools->Options->Simulation->OMCFlags, ",
+                    "in OMNotebook call setCommandLineOptions(\"-d=initialization\").\n"
+                    )
+                )
+                @test_throws expected simulate(omc, "MissingInitialValue")
+            end
+            @testset "simulate model with inconsistent units" begin
+                loadModel(omc, "InconsistentUnits")
+                expected = MoSTError(
+                    "Simulation of InconsistentUnits failed",
+                    string("Warning: The following equation is INCONSISTENT due to specified unit information: sub.alias = r\n",
+                    "The units of following sub-expressions need to be equal:",
+                    "\n- sub-expression \"r\" has unit \"A\"",
+                    "\n- sub-expression \"sub.alias\" has unit \"V\"\n")
+                )
+                @test_throws expected simulate(omc, "InconsistentUnits")
+            end
         end
         @testset "regressionTest" begin
         end
