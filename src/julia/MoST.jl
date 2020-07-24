@@ -3,7 +3,7 @@ module MoST
     using Test
     using CSV
     using OMJulia # note: needs 0.1.1 (unreleased) -> install from Github
-
+    using ZMQ # only needed for sendExpressionRaw which is a workaround for OMJulia bugs
 
     struct MoSTError <: Exception
         msg:: String
