@@ -229,4 +229,13 @@ function closeOMCSession(omc:: OMJulia.OMCSession; quiet=false)
     end
 end
 
+function withOMC(f:: Function, outdir, modeldir; quiet=false, checkunits=true)
+    omc = setupOMCSession(outdir, modeldir; quiet=quiet, checkunits=checkunits)
+    try
+        f(omc)
+    finally
+        closeOMCSession(omc)
+    end
+end
+
 end
