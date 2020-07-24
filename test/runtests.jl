@@ -1,6 +1,6 @@
 using ModelicaScriptingTools: setupOMCSession, loadModel, simulate,
     getSimulationSettings, testmodel, closeOMCSession, withOMC, moescape,
-    mounescape, MoSTError
+    mounescape, MoSTError, regressionTest
 using Test: @testset, @test, @test_nowarn, @test_throws
 using OMJulia: sendExpression
 
@@ -110,6 +110,12 @@ end
             end
         end
         @testset "regressionTest" begin
+            # setup simulation and reference data
+            loadModel(omc, "Example")
+            simulate(omc, "Example")
+            cp("out/Example_res.csv", "regRefData/Example_res.csv"; force=true)
+            # we can only test correct regression test here
+            regressionTest(omc, "Example", "../regRefData"; relTol=1e-3, variableFilter="r")
         end
         @testset "testmodel" begin
             loadModel(omc, "Example")
