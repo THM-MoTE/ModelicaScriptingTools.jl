@@ -133,6 +133,7 @@ function simulate(omc:: OMJulia.OMCSession, name::String, settings:: Dict{String
         throw(MoSTError("Simulation of $name failed", es))
     end
 end
+simulate(omc:: OMJulia.OMCSession, name::String) = simulate(omc, name, getSimulationSettings(omc, name))
 
 function regressionTest(omc:: OMJulia.OMCSession, name:: String, refdir:: String; relTol:: Real = 1e-6, variableFilter:: String = "")
     actname = "$(name)_res.csv"
