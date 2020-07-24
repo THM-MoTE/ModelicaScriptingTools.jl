@@ -8,6 +8,20 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+[nothing]
+
+### Changed
+
+[nothing]
+
+### Fixed
+
+[nothing]
+
+## [1.1.0]
+
+### Added
+
 * `regressionTest` accepts new optional argument `variableFilter`
 * unit checking is enabled by default using the OMC flag `--preOptModules+=unitChecking`
 * unit checking can be disabled by calling `setupOMCSession(odir,mdir; checkunits=false)`
