@@ -72,10 +72,10 @@ end
         end
         @testset "regressionTest" begin
         end
-        loadModel(omc, "Example")
-        simulate(omc, "Example", getSimulationSettings(omc, "Example"))
-        cp("out/Example_res.csv", "regRefData/Example_res.csv"; force=true)
-        @testset "Example" begin
+        @testset "testmodel" begin
+            loadModel(omc, "Example")
+            simulate(omc, "Example", getSimulationSettings(omc, "Example"))
+            cp("out/Example_res.csv", "regRefData/Example_res.csv"; force=true)
             testmodel(omc, "Example", regRelTol=1e-4)
         end
     end
