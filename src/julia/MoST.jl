@@ -12,11 +12,11 @@ module MoST
 
     Base.showerror(io::IO, e::MoSTError) = print(io, e.msg, "\n---\nOMC error string:\n", e.omc)
 
-    MoSTError(omc:: OMJulia.OMCSession, msg:: String) = MoSTError(msg, OMJulia.sendExpression(omc, "getErrorString()"))
+    MoSTError(omc:: OMJulia.OMCSession, msg:: String) = MoSTError(msg, getErrorString(omc))
 
     function loadModel(omc:: OMJulia.OMCSession, name:: String)
         success = OMJulia.sendExpression(omc, "loadModel($name)")
-        es = OMJulia.sendExpression(omc, "getErrorString()")
+        es = getErrorString(omc)
         if !success || length(es) > 0
             throw(MoSTError("Could not load $name", es))
         end
@@ -25,12 +25,12 @@ module MoST
             throw(MoSTError("Model $name not found in MODELICAPATH", ""))
         end
         check = OMJulia.sendExpression(omc, "checkModel($name)")
-        es = OMJulia.sendExpression(omc, "getErrorString()")
+        es = getErrorString(omc)
         if !startswith(check, "Check of $name completed successfully")
             throw(MoSTError("Model check of $name failed", join([check, es], "\n")))
         end
         inst = OMJulia.sendExpression(omc, "instantiateModel($name)")
-        es = OMJulia.sendExpression(omc, "getErrorString()")
+        es = getErrorString(omc)
         if length(es) > 0
             throw(MoSTError("Model $name could not be instantiated", es))
         end
@@ -78,6 +78,18 @@ module MoST
     end
     mounescape(s::String) = sprint(mounescape, s; sizehint=lastindex(s))
 
+    function getErrorString(omc:: OMJulia.OMCSession)
+        es = sendExpressionRaw(omc, "getErrorString()")
+        return strip(strip(mounescape(es)),'"')
+    end
+
+    function sendExpressionRaw(omc:: OMJulia.OMCSession, expr)
+        # FIXME this function should be replaced by sendExpression(omc, parsed=false)
+        ZMQ.send(omc.socket, expr)
+        message=ZMQ.recv(omc.socket)
+        return unsafe_string(message)
+    end
+
     function getSimulationSettings(omc:: OMJulia.OMCSession, name:: String; override=Dict())
         values = OMJulia.sendExpression(omc, "getSimulationOptions($name)")
         settings = Dict(
@@ -112,7 +124,7 @@ module MoST
         if occursin("| warning |", r["messages"])
             throw(MoSTError("Simulation of $name produced warning", r["messages"]))
         end
-        es = OMJulia.sendExpression(omc, "getErrorString()")
+        es = getErrorString(omc)
         if length(es) > 0
             throw(MoSTError("Simulation of $name failed", es))
         end
