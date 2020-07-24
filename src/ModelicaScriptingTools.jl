@@ -114,7 +114,7 @@ function getVariableFilter(omc:: OMJulia.OMCSession, name:: String)
     end
     varfilter = ".*"
     if "testedVariableFilter" in mostann
-        varfilter = OMJulia.sendExpression(omc, "getAnnotationModifierValue($name, \"__ChrisS_testing\", \"testedVariableFilter\")")
+        varfilter = OMJulia.sendExpression(omc, "getAnnotationModifierValue($name, \"__MoST_experiment\", \"testedVariableFilter\")")
     end
     return varfilter
 end
