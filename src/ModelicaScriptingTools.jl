@@ -1,4 +1,4 @@
-module MoST
+module ModelicaScriptingTools
     using Base.Filesystem
     using Test
     using CSV
