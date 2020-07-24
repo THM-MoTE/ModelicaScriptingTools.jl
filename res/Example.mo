@@ -1,7 +1,7 @@
 model Example
-  Real r(start=0, fixed=true);
+  Modelica.SIunits.Voltage r(start=0, fixed=true);
   model ExSub
-    Real alias;
+    Modelica.SIunits.Voltage alias;
   end ExSub;
   ExSub sub(alias=r);
 equation
