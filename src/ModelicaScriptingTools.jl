@@ -109,6 +109,9 @@ end
 
 function getVariableFilter(omc:: OMJulia.OMCSession, name:: String)
     csann = OMJulia.sendExpression(omc, "getAnnotationNamedModifiers($name, \"__ChrisS_testing\")")
+    if isnothing(csann)
+        throw(MoSTError("Model $name not found", ""))
+    end
     varfilter = ".*"
     if "testedVariableFilter" in csann
         varfilter = OMJulia.sendExpression(omc, "getAnnotationModifierValue($name, \"__ChrisS_testing\", \"testedVariableFilter\")")
