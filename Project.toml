@@ -1,0 +1,8 @@
+name = "ModelicaScriptingTools"
+uuid = "9bd7ba1c-b518-491f-8f72-7efe190322aa"
+authors = ["Christopher Schölzel <christopher.schoelzel@mni.thm.de>"]
+version = "1.1.0"
+
+[deps]
+OMJulia = "0f4fe800-344e-11e9-2949-fb537ad918e1"
+ZMQ = "c2297ded-f4af-51ae-bb23-16f91089e4e1"
