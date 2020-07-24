@@ -108,12 +108,12 @@ function getSimulationSettings(omc:: OMJulia.OMCSession, name:: String; override
 end
 
 function getVariableFilter(omc:: OMJulia.OMCSession, name:: String)
-    csann = OMJulia.sendExpression(omc, "getAnnotationNamedModifiers($name, \"__ChrisS_testing\")")
-    if isnothing(csann)
+    mostann = OMJulia.sendExpression(omc, "getAnnotationNamedModifiers($name, \"__MoST_experiment\")")
+    if isnothing(mostann)
         throw(MoSTError("Model $name not found", ""))
     end
     varfilter = ".*"
-    if "testedVariableFilter" in csann
+    if "testedVariableFilter" in mostann
         varfilter = OMJulia.sendExpression(omc, "getAnnotationModifierValue($name, \"__ChrisS_testing\", \"testedVariableFilter\")")
     end
     return varfilter

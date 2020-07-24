@@ -8,6 +8,6 @@ equation
   der(r) = 1;
 annotation(
   experiment(StartTime = 0, StopTime = 5, Tolerance = 1e-6, Interval = 1e-1),
-  __ChrisS_testing(testedVariableFilter="sub\\.alias")
+  __MoST_experiment(testedVariableFilter="sub\\.alias")
 );
 end Example;
