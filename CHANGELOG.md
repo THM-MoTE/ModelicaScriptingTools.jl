@@ -8,11 +8,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
-[nothing]
+* function `withOMC` that allows to setup a `OMCSession` that can be used with `do`
+* unit tests for individual functions
 
 ### Changed
 
-[nothing]
+* project structure changed to standard Julia package structure
+* module name is now `ModelicaScriptingTools` instead of `MoST`
+* `getVariableFilter` and `getSimulationSettings` now throw `MoSTError`s if the requested model does not exist
+* use `__MoST_experiment` instead of `__ChrisS_testing` as vendor specific annotation
 
 ### Fixed
 
