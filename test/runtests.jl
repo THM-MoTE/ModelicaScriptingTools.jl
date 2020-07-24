@@ -3,6 +3,8 @@ using ModelicaScriptingTools: setupOMCSession, loadModel, simulate,
     mounescape, MoSTError, regressionTest
 using Test: @testset, @test, @test_nowarn, @test_throws
 using OMJulia: sendExpression
+using DataFrames: Not, select!
+using CSV
 
 if !isdir("out")
     mkdir("out")
@@ -110,12 +112,26 @@ end
             end
         end
         @testset "regressionTest" begin
-            # setup simulation and reference data
-            loadModel(omc, "Example")
-            simulate(omc, "Example")
-            cp("out/Example_res.csv", "regRefData/Example_res.csv"; force=true)
             # we can only test correct regression test here
-            regressionTest(omc, "Example", "../regRefData"; relTol=1e-3, variableFilter="r")
+            @testset "regression tests of correct model" begin
+                # setup simulation and reference data
+                loadModel(omc, "Example")
+                simulate(omc, "Example")
+                cp("out/Example_res.csv", "regRefData/Example_res.csv"; force=true)
+                regressionTest(omc, "Example", "../regRefData"; relTol=1e-3, variableFilter="sub\\.alias")
+            end
+            @testset "regression test with missing alias in reference" begin
+                # setup simulation and reference data
+                loadModel(omc, "Example")
+                simulate(omc, "Example")
+                cp("out/Example_res.csv", "regRefData/Example_res.csv"; force=true)
+                # remove column r from reference data, which should not have been selected in the first place
+                csvfile = "regRefData/Example_res.csv"
+                data = CSV.read(csvfile)
+                select!(data, Not(:r))
+                CSV.write(csvfile, data)
+                regressionTest(omc, "Example", "../regRefData"; relTol=1e-3, variableFilter="sub\\.alias")
+            end
         end
         @testset "testmodel" begin
             loadModel(omc, "Example")
