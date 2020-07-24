@@ -177,7 +177,7 @@ module MoST
         end
     end
 
-    function setupOMCSession(outdir, modeldir; quiet=false)
+    function setupOMCSession(outdir, modeldir; quiet=false, checkunits=true)
         # create sessions
         omc = OMJulia.OMCSession()
         # move to output directory
@@ -189,6 +189,10 @@ module MoST
             println("Setting MODELICAPATH to ", mopath)
         end
         OMJulia.sendExpression(omc, "setModelicaPath(\"$mopath\")")
+        # enable unit checking
+        if checkunits
+            OMJulia.sendExpression(omc, "setCommandLineOptions(\"--preOptModules+=unitChecking\")")
+        end
         # load Modelica standard library
         OMJulia.sendExpression(omc, "loadModel(Modelica)")
         return omc
