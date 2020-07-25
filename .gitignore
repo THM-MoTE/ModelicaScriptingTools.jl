@@ -1,3 +1,6 @@
 # example output
 out
 regRefData
+
+# Documenter.jl output
+build
