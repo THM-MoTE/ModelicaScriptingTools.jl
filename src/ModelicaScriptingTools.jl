@@ -341,7 +341,7 @@ end
 
 Creates an `OMCSession` and prepares it by preforming the following steps:
 
-* adding `modeldir` to the MODELICAPATH
+* add `modeldir` to the MODELICAPATH
 * enable unit checking with the OMC command line option
     `--preOptModules+=unitChecking` (unless `checkunits` is false)
 * load the modelica standard library (`loadModel(Modelica)`)
