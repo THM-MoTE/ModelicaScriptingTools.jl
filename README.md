@@ -1,18 +1,28 @@
-# MOdelica Scripting Tools (MoST)
+# MOdelica Scripting Tools for Julia (MoST.jl)
 
-This project contains utility functions to improve the usability of OMJulia and OMPython.
+This project contains utility functions to improve the usability of [OMJulia](https://github.com/OpenModelica/OMJulia.jl).
+This currently includes the following main features:
+
+* Easy setup of `OMCSession` with configurable output and model directory
+* Escaping and unescaping Modelica strings for use in `sendExpression()`
+* Support for unit tests and regression tests using Julia's `Test` package
 
 ## Usage
 
-Currently, you have to download/clone this repository and import the modules locally to use them in your projects.
-In the future, I may split up MoST into a MoST.jl and a pyMoST package which can be installed through pip and Pkg respectively.
+MoST.jl is available as a Julia package with the name `ModelicaScriptingTools`.
+You can install it using `Pkg.add(PackageSpec(url="https://github.com/THM-MoTE/MoST"))` or simply `add https://github.com/THM-MoTE/MoST` from the Pkg console. In your Julia script you can then use the package with `using ModelicaScriptingTools`.
 
-### Julia
+### Example
 
-* Use `git clone https://github.com/THM-MoTE/MoST.git` to clone the repository or [download the current version of MoST as a zip archive](https://github.com/THM-MoTE/MoST/archive/master.zip).
-* Alternatively, if your project is in a git repository and you want to add MoST permanently as a dependency, use `git submodule add --depth shallow https://github.com/THM-MoTE/MoST.git` to add MoST as a submodule into your repository and update it with `git submodule update --init`.
-* In your Julia script where you want to use MoST functions, use
-    ```julia
-    import("MoST/src/julia/MoST.jl")
-    using .MoST
-    ```
+The following example uses MoST.jl to test the model defined in the file `test/res/Èxample.mo` by loading and instantiating the model, performing a simulation according to the settings specified in the model file, and comparing the results, which are written in the folder `test/out`, to a reference dataset in `test/regRefData`, if such a reference file exists.
+
+``` julia
+using ModelicaScriptingTools
+using Test
+
+withOMC("test/out", "test/res") do omc
+    @testset "Example" begin
+        testmodel(omc, "Example"; refDir="test/regRefData")
+    end
+end
+```
