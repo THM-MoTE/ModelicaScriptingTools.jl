@@ -40,8 +40,8 @@ Example:
     loadModel(omc, "Modelica.SIunits.Voltage")
 
 This function will actually call several OM scripting functions to
-ensure that as many errors in the model are caught and thrown as MoSTErrors
-as possible:
+ensure that as many errors in the model are caught and thrown as
+[`MoSTError`](@ref)s as possible:
 
 * First, `loadModel(name)` is called to load the model if it exists. This
     call does only fail if the toplevel model does not exist. E.g.,
@@ -154,8 +154,8 @@ Returns a Dict with the keys `"startTime"`, `"stopTime"`, `"tolerance"`,
 If any of these settings are not defined in the model file, they will be
 filled with default values.
 
-Throws a [MoSTError](@ref) if the model `name` was not loaded beforehand using
-[loadModel(omc:: OMJulia.OMCSession, name:: String)](@ref).
+Throws a [`MoSTError`](@ref) if the model `name` was not loaded beforehand using
+[`loadModel(omc:: OMJulia.OMCSession, name:: String)`](@ref).
 """
 function getSimulationSettings(omc:: OMJulia.OMCSession, name:: String; override=Dict())
     values = OMJulia.sendExpression(omc, "getSimulationOptions($name)")
@@ -182,7 +182,7 @@ MoST assumes that this value will be given in a vendor-specific annotation
 of the form `__MoST_experiment(variableFilter=".*")`.
 If such an annotation is not found, the default filter `".*"` is returned.
 
-Throws a [MoSTError](@ref) if the model `name` does not exist.
+Throws a [`MoSTError`](@ref) if the model `name` does not exist.
 """
 function getVariableFilter(omc:: OMJulia.OMCSession, name:: String)
     mostann = OMJulia.sendExpression(omc, "getAnnotationNamedModifiers($name, \"__MoST_experiment\")")
@@ -209,7 +209,7 @@ If the parameter is not given, it is obtained using
 
 The simulation output will be written to the current working directory of the
 OMC that has been set by
-[setupOMCSession(outdir, modeldir; quiet=false, checkunits=true)](@ref).
+[`setupOMCSession(outdir, modeldir; quiet=false, checkunits=true)`](@ref).
 
 The simulation result is checked for errors with the following methods:
 
@@ -221,7 +221,7 @@ The simulation result is checked for errors with the following methods:
 * The error string returned by the OM scripting function `getErrorString()`
     should be empty if the simulation was successful.
 
-If any of the abovementioned methods reveals errors, a [MoSTError](@ref)
+If any of the abovementioned methods reveals errors, a [`MoSTError`](@ref)
 is thrown.
 """ # TODO which class of errors can be found using the error string?
 function simulate(omc:: OMJulia.OMCSession, name::String, settings:: Dict{String, Any})
