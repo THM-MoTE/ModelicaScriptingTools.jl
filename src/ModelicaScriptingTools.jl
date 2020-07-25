@@ -252,7 +252,7 @@ directory given by `refdir`.
 Note that `refdir` must be relative to the current working directory of the OMC
 (i.e. the output directory), not the current working directory of Julia.
 Both the simulation output and the reference file must have the standard name
-`"$(name)_res.$outputFormat"`.
+`"\$(name)_res.\$outputFormat"`.
 This function also assumes that the simulation a simulation of the model named
 `name` has already been run with
 [`simulate(omc:: OMJulia.OMCSession, name::String, settings:: Dict{String, Any})`](@ref).
