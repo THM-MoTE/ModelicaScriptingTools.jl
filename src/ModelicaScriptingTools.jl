@@ -413,27 +413,9 @@ function closeOMCSession(omc:: OMCSession; quiet=false)
     if !quiet
         println("Closing OMC session")
     end
-    sleep(1) # somewhat alleviates issue #32 (freeze on quit())
-    try
-        # parsed=false is currently unreleased solution to issue #22
-        # that only works when OMJulia is installed directly from github
-        sendExpression(omc, "quit()", parsed=false)
-    catch e
-        if !isa(e, MethodError) # only catch MethodErrors
-            rethrow()
-        end
-        # meathod error means we have version 0.1.0
-        # => perform workaround for issue #22 in version 0.1.0 of OMJulia
-        # https://github.com/OpenModelica/jl/issues/22
-        try
-            sendExpression(omc, "quit()")
-        catch e
-            # ParseError is expected
-            if !isa(e, Parser.ParseError)
-                rethrow()
-            end
-        end
-    end
+    # only send, do not wait for response since this may lead to freeze
+    # TODO: test whether this really solves the freezing issues
+    send(omc.socket, "quit()")
     if !quiet
         println("Done")
     end
