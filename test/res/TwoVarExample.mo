@@ -6,6 +6,6 @@ equation
   der(i) = 2;
 annotation(
   experiment(StartTime = 0, StopTime = 5, Tolerance = 1e-6, Interval = 1e-1),
-  __MoST_experiment(testedVariableFilter="i|v")
+  __MoST_experiment(variableFilter="i|v")
 );
 end TwoVarExample;
