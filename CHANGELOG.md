@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 * function `withOMC` that allows to setup a `OMCSession` that can be used with `do`
 * unit tests for individual functions
+* support for regression tests with `outputFormat="mat"`
+* documentation using Documenter.jl
 
 ### Changed
 
