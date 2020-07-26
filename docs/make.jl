@@ -11,5 +11,5 @@ makedocs(
     ]
 )
 deploydocs(
-    repo = "github.com/THM-MoTE/MoST.git",
+    repo = "github.com/THM-MoTE/ModelicaScriptingTools.jl.git",
 )
