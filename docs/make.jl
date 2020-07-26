@@ -10,3 +10,6 @@ makedocs(
         "api.md"
     ]
 )
+deploydocs(
+    repo = "github.com/THM-MoTE/MoST.jl.git",
+)
