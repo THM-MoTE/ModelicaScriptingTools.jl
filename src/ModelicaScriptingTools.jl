@@ -400,6 +400,14 @@ If this happens, you have to stop the execution with CTRL-C.
 You can tell that this is the case if the output `Closing OMC session` is
 printed to stdout, but it is not followed by `Done`.
 If desired, these outputs can be disabled by setting `quiet=true`.
+
+If you want to use a MoST.jl script for continuous integration, you can use
+the following shell command to add a timeout to your script and treat the
+timeout as a successful test run (which is, of course, unsafe).
+
+```bash
+(timeout 2m julia myTestScript.jl; rc=$?; if [ ${rc} -eq 124 ]; then exit 0; else exit ${rc}; fi;)
+```
 """
 function closeOMCSession(omc:: OMCSession; quiet=false)
     if !quiet
