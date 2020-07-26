@@ -57,8 +57,8 @@ end
             @testset "read from model file" begin
                 res = Dict(
                     "startTime" => 0.0, "stopTime" => 5.0,
-                    "numberOfIntervals" => 50, "outputFormat" => "\"csv\"",
-                    "variableFilter" => "\"sub\\\\.alias\"",
+                    "numberOfIntervals" => 50, "outputFormat" => "csv",
+                    "variableFilter" => "sub\\.alias",
                     "tolerance" => 1.0e-6
                 )
                 @test res == getSimulationSettings(omc, "Example")

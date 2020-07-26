@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 * `getVariableFilter` and `getSimulationSettings` now throw `MoSTError`s if the requested model does not exist
 * use `__MoST_experiment` instead of `__ChrisS_testing` as vendor specific annotation
 * `refDir` parameter in `testmodel` and `regressionTest` now is relative to CWD instead of output dir
+* result of `getSimulationSettings` and parameter `settings` in `simulate` now contains unescaped values`
 
 ### Fixed
 

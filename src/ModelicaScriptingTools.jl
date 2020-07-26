@@ -165,9 +165,9 @@ function getSimulationSettings(omc:: OMCSession, name:: String; override=Dict())
     settings = Dict(
         "startTime"=>values[1], "stopTime"=>values[2],
         "tolerance"=>values[3], "numberOfIntervals"=>values[4],
-        "outputFormat"=>"\"csv\"", "variableFilter"=>"\".*\""
+        "outputFormat"=>"csv", "variableFilter"=>".*"
     )
-    settings["variableFilter"] = "\"$(moescape(getVariableFilter(omc, name)))\""
+    settings["variableFilter"] = getVariableFilter(omc, name)
     for x in keys(settings)
         if x in keys(override)
             settings[x] = override[x]
@@ -228,7 +228,9 @@ If any of the abovementioned methods reveals errors, a [`MoSTError`](@ref)
 is thrown.
 """ # TODO which class of errors can be found using the error string?
 function simulate(omc:: OMCSession, name::String, settings:: Dict{String, Any})
-    setstring = join(("$k=$v" for (k,v) in settings), ", ")
+    prepare(s:: String) = "\"$(moescape(s))\""
+    prepare(x:: Number) = x
+    setstring = join(("$k=$(prepare(v))" for (k,v) in settings), ", ")
     r = sendExpression(omc, "simulate($name, $setstring)")
     if startswith(r["messages"], "Simulation execution failed")
         throw(MoSTError("Simulation of $name failed", r["messages"]))
@@ -337,14 +339,10 @@ Performs a full test of the model named `name` with the following steps:
     [`regressionTest(omc:: OMCSession, name:: String, refdir:: String; relTol:: Real = 1e-6, variableFilter:: String = "", outputFormat="csv")`](@ref).
 """
 function testmodel(omc, name; override=Dict(), refdir="regRefData", regRelTol:: Real= 1e-6)
-    if "outputFormat" in keys(override)
-        outputFormat = override["outputFormat"]
-    else
-        outputFormat = "csv"
-    end
     @test isnothing(loadModel(omc, name))
     settings = getSimulationSettings(omc, name; override=override)
-    varfilter = mounescape(settings["variableFilter"][2:end-1])
+    outputFormat = settings["outputFormat"]
+    varfilter = settings["variableFilter"]
     @test isnothing(simulate(omc, name, settings))
 
     # compare simulation results to regression data
