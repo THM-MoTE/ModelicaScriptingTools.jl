@@ -252,8 +252,6 @@ simulate(omc:: OMCSession, name::String) = simulate(omc, name, getSimulationSett
 Performs a regression test that ensures that variable values in the simulation
 output are approximately equal to variables in the reference file in the
 directory given by `refdir`.
-Note that `refdir` must be relative to the current working directory of the OMC
-(i.e. the output directory), not the current working directory of Julia.
 Both the simulation output and the reference file must have the standard name
 `"\$(name)_res.\$outputFormat"`.
 This function also assumes that the simulation a simulation of the model named
@@ -282,7 +280,9 @@ of its `relTol` parameter in a predictable way.
 """
 function regressionTest(omc:: OMCSession, name:: String, refdir:: String; relTol:: Real = 1e-6, variableFilter:: String = "", outputFormat="csv")
     actname = "$(name)_res.$outputFormat"
-    refname = joinpath(refdir, actname)
+    # make refdir relative to CWD of OMC
+    omcrefdir = relpath(refdir, sendExpression(omc, "cd()"))
+    refname = joinpath(omcrefdir, actname)
     actvars = sendExpression(omc, "readSimulationResultVars(\"$actname\")")
     refvars = sendExpression(omc, "readSimulationResultVars(\"$refname\")")
     missingRef = setdiff(Set(actvars), Set(refvars))
@@ -327,7 +327,7 @@ function regressionTest(omc:: OMCSession, name:: String, refdir:: String; relTol
 end
 
 """
-    testmodel(omc, name; override=Dict(), refdir="../regRefData", regRelTol:: Real= 1e-6)
+    testmodel(omc, name; override=Dict(), refdir="regRefData", regRelTol:: Real= 1e-6)
 
 Performs a full test of the model named `name` with the following steps:
 
@@ -336,7 +336,7 @@ Performs a full test of the model named `name` with the following steps:
 * If a reference file exists in `refdir`, perform a regression test with
     [`regressionTest(omc:: OMCSession, name:: String, refdir:: String; relTol:: Real = 1e-6, variableFilter:: String = "", outputFormat="csv")`](@ref).
 """
-function testmodel(omc, name; override=Dict(), refdir="../regRefData", regRelTol:: Real= 1e-6)
+function testmodel(omc, name; override=Dict(), refdir="regRefData", regRelTol:: Real= 1e-6)
     if "outputFormat" in keys(override)
         outputFormat = override["outputFormat"]
     else

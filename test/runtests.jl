@@ -118,7 +118,7 @@ end
                 loadModel(omc, "Example")
                 simulate(omc, "Example")
                 cp("out/Example_res.csv", "regRefData/Example_res.csv"; force=true)
-                regressionTest(omc, "Example", "../regRefData"; relTol=1e-3, variableFilter="sub\\.alias")
+                regressionTest(omc, "Example", "regRefData"; relTol=1e-3, variableFilter="sub\\.alias")
             end
             @testset "regression test with missing alias in reference" begin
                 # setup simulation and reference data
@@ -130,14 +130,14 @@ end
                 data = CSV.read(csvfile)
                 select!(data, Not(:r))
                 CSV.write(csvfile, data)
-                regressionTest(omc, "Example", "../regRefData"; relTol=1e-3, variableFilter="sub\\.alias")
+                regressionTest(omc, "Example", "regRefData"; relTol=1e-3, variableFilter="sub\\.alias")
             end
             @testset "regression test with ouputFormat=mat" begin
                 # setup simulation and reference data
                 loadModel(omc, "Example")
                 simulate(omc, "Example", getSimulationSettings(omc, "Example"; override=Dict("outputFormat" => "mat")))
                 cp("out/Example_res.mat", "regRefData/Example_res.mat"; force=true)
-                regressionTest(omc, "Example", "../regRefData"; relTol=1e-3, variableFilter="sub\\.alias", outputFormat="mat")
+                regressionTest(omc, "Example", "regRefData"; relTol=1e-3, variableFilter="sub\\.alias", outputFormat="mat")
             end
         end
         @testset "testmodel" begin
