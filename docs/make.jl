@@ -3,4 +3,10 @@ using Documenter
 using ModelicaScriptingTools
 using OMJulia
 
-makedocs(sitename="ModelicaScriptingTools (MoST.jl)")
+makedocs(
+    sitename="ModelicaScriptingTools.jl",
+    pages = [
+        "index.md",
+        "api.md"
+    ]
+)
