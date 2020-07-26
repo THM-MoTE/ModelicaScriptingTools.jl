@@ -7,10 +7,21 @@ This currently includes the following main features:
 * Escaping and unescaping Modelica strings for use in `sendExpression()`
 * Support for unit tests and regression tests using Julia's `Test` package
 
-## Usage
+## Installation
 
 MoST.jl is available as a Julia package with the name `ModelicaScriptingTools`.
-You can install it using `Pkg.add(PackageSpec(url="https://github.com/THM-MoTE/MoST"))` or simply `add https://github.com/THM-MoTE/MoST` from the Pkg console. In your Julia script you can then use the package with `using ModelicaScriptingTools`.
+You can install it using the Pkg REPL, which can be accessed by typing `]` in a Julia prompt.
+
+```verbatim
+pkg> add https://github.com/THM-MoTE/
+```
+
+Alternatively you can also install MoST.jl using the following Julia commands:
+
+```julia
+using Pkg
+Pkg.add(PackageSpec(url="https://github.com/THM-MoTE/MoST"))
+```
 
 ### Example
 
