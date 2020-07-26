@@ -1,13 +1,15 @@
 module ModelicaScriptingTools
 
-using Base.Filesystem
-using Test
-using CSV
-using OMJulia # note: needs 0.1.1 (unreleased) -> install from Github
-using ZMQ # only needed for sendExpressionRaw which is a workaround for OMJulia bugs
+using Base.Filesystem: isfile
+using Test: @test
+using CSV: CSV
+using OMJulia: OMCSession, sendExpression, Parser
+using ZMQ: send, recv # only needed for sendExpressionRaw which is a workaround for OMJulia bugs
 using DataFrames: DataFrame
 
-export moescape, mounescape, MoSTError
+export moescape, mounescape, MoSTError, loadModel, getSimulationSettings,
+    getVariableFilter, simulate, regressionTest, testmodel,
+    setupOMCSession, closeOMCSession, withOMC
 
 """
     MoSTError
@@ -22,15 +24,15 @@ end
 Base.showerror(io::IO, e::MoSTError) = print(io, e.msg, "\n---\nOMC error string:\n", e.omc)
 
 """
-    MoSTError(omc:: OMJulia.OMCSession, msg:: String)
+    MoSTError(omc:: OMCSession, msg:: String)
 
 Creates MoSTError with message `msg` and current result of `getErrorString()`
 as OMC error message.
 """
-MoSTError(omc:: OMJulia.OMCSession, msg:: String) = MoSTError(msg, getErrorString(omc))
+MoSTError(omc:: OMCSession, msg:: String) = MoSTError(msg, getErrorString(omc))
 
 """
-    loadModel(omc:: OMJulia.OMCSession, name:: String)
+    loadModel(omc:: OMCSession, name:: String)
 
 Loads the model with fully qualified name `name` from a source file available
 from the model directory.
@@ -53,22 +55,22 @@ ensure that as many errors in the model are caught and thrown as
 * Finally, we use `instantiateModel(name)` which can sometimes find additional
     errors in the model structure.
 """ # TODO: which errors are found by instantiateModel that checkModel does not find?
-function loadModel(omc:: OMJulia.OMCSession, name:: String)
-    success = OMJulia.sendExpression(omc, "loadModel($name)")
+function loadModel(omc:: OMCSession, name:: String)
+    success = sendExpression(omc, "loadModel($name)")
     es = getErrorString(omc)
     if !success || length(es) > 0
         throw(MoSTError("Could not load $name", es))
     end
-    success = OMJulia.sendExpression(omc, "isModel($name)")
+    success = sendExpression(omc, "isModel($name)")
     if !success
         throw(MoSTError("Model $name not found in MODELICAPATH", ""))
     end
-    check = OMJulia.sendExpression(omc, "checkModel($name)")
+    check = sendExpression(omc, "checkModel($name)")
     es = getErrorString(omc)
     if !startswith(check, "Check of $name completed successfully")
         throw(MoSTError("Model check of $name failed", join([check, es], "\n")))
     end
-    inst = OMJulia.sendExpression(omc, "instantiateModel($name)")
+    inst = sendExpression(omc, "instantiateModel($name)")
     es = getErrorString(omc)
     if length(es) > 0
         throw(MoSTError("Model $name could not be instantiated", es))
@@ -132,20 +134,20 @@ function mounescape(io:: IO, s:: String)
 end
 mounescape(s::String) = sprint(mounescape, s; sizehint=lastindex(s))
 
-function getErrorString(omc:: OMJulia.OMCSession)
+function getErrorString(omc:: OMCSession)
     es = sendExpressionRaw(omc, "getErrorString()")
     return strip(strip(mounescape(es)),'"')
 end
 
-function sendExpressionRaw(omc:: OMJulia.OMCSession, expr)
+function sendExpressionRaw(omc:: OMCSession, expr)
     # FIXME this function should be replaced by sendExpression(omc, parsed=false)
-    ZMQ.send(omc.socket, expr)
-    message=ZMQ.recv(omc.socket)
+    send(omc.socket, expr)
+    message=recv(omc.socket)
     return unsafe_string(message)
 end
 
 """
-    getSimulationSettings(omc:: OMJulia.OMCSession, name:: String; override=Dict())
+    getSimulationSettings(omc:: OMCSession, name:: String; override=Dict())
 
 Reads simulation settings from the model `name`.
 Any content in `override` will override the setting with the respective key.
@@ -156,10 +158,10 @@ If any of these settings are not defined in the model file, they will be
 filled with default values.
 
 Throws a [`MoSTError`](@ref) if the model `name` was not loaded beforehand using
-[`loadModel(omc:: OMJulia.OMCSession, name:: String)`](@ref).
+[`loadModel(omc:: OMCSession, name:: String)`](@ref).
 """
-function getSimulationSettings(omc:: OMJulia.OMCSession, name:: String; override=Dict())
-    values = OMJulia.sendExpression(omc, "getSimulationOptions($name)")
+function getSimulationSettings(omc:: OMCSession, name:: String; override=Dict())
+    values = sendExpression(omc, "getSimulationOptions($name)")
     settings = Dict(
         "startTime"=>values[1], "stopTime"=>values[2],
         "tolerance"=>values[3], "numberOfIntervals"=>values[4],
@@ -175,7 +177,7 @@ function getSimulationSettings(omc:: OMJulia.OMCSession, name:: String; override
 end
 
 """
-    getVariableFilter(omc:: OMJulia.OMCSession, name:: String)
+    getVariableFilter(omc:: OMCSession, name:: String)
 
 Reads the value for the `variableFilter` simulation setting from the model
 file if it has been defined.
@@ -185,28 +187,28 @@ If such an annotation is not found, the default filter `".*"` is returned.
 
 Throws a [`MoSTError`](@ref) if the model `name` does not exist.
 """
-function getVariableFilter(omc:: OMJulia.OMCSession, name:: String)
-    mostann = OMJulia.sendExpression(omc, "getAnnotationNamedModifiers($name, \"__MoST_experiment\")")
+function getVariableFilter(omc:: OMCSession, name:: String)
+    mostann = sendExpression(omc, "getAnnotationNamedModifiers($name, \"__MoST_experiment\")")
     if isnothing(mostann)
         throw(MoSTError("Model $name not found", ""))
     end
     varfilter = ".*"
     if "variableFilter" in mostann
-        varfilter = OMJulia.sendExpression(omc, "getAnnotationModifierValue($name, \"__MoST_experiment\", \"variableFilter\")")
+        varfilter = sendExpression(omc, "getAnnotationModifierValue($name, \"__MoST_experiment\", \"variableFilter\")")
     end
     return varfilter
 end
 
 """
-    simulate(omc:: OMJulia.OMCSession, name::String)
-    simulate(omc:: OMJulia.OMCSession, name::String, settings:: Dict{String, Any})
+    simulate(omc:: OMCSession, name::String)
+    simulate(omc:: OMCSession, name::String, settings:: Dict{String, Any})
 
 Simulates the model `name` which must have been loaded before with
-[`loadModel(omc:: OMJulia.OMCSession, name:: String)`](@ref).
+[`loadModel(omc:: OMCSession, name:: String)`](@ref).
 The keyword-parameters in `settings` are directly passed to the OpenModelica
 scripting function `simulate()`.
 If the parameter is not given, it is obtained using
-[`getSimulationSettings(omc:: OMJulia.OMCSession, name:: String; override=Dict())`](@ref).
+[`getSimulationSettings(omc:: OMCSession, name:: String; override=Dict())`](@ref).
 
 The simulation output will be written to the current working directory of the
 OMC that has been set by
@@ -225,9 +227,9 @@ The simulation result is checked for errors with the following methods:
 If any of the abovementioned methods reveals errors, a [`MoSTError`](@ref)
 is thrown.
 """ # TODO which class of errors can be found using the error string?
-function simulate(omc:: OMJulia.OMCSession, name::String, settings:: Dict{String, Any})
+function simulate(omc:: OMCSession, name::String, settings:: Dict{String, Any})
     setstring = join(("$k=$v" for (k,v) in settings), ", ")
-    r = OMJulia.sendExpression(omc, "simulate($name, $setstring)")
+    r = sendExpression(omc, "simulate($name, $setstring)")
     if startswith(r["messages"], "Simulation execution failed")
         throw(MoSTError("Simulation of $name failed", r["messages"]))
     end
@@ -239,11 +241,11 @@ function simulate(omc:: OMJulia.OMCSession, name::String, settings:: Dict{String
         throw(MoSTError("Simulation of $name failed", es))
     end
 end
-simulate(omc:: OMJulia.OMCSession, name::String) = simulate(omc, name, getSimulationSettings(omc, name))
+simulate(omc:: OMCSession, name::String) = simulate(omc, name, getSimulationSettings(omc, name))
 
 """
     regressionTest(
-        omc:: OMJulia.OMCSession, name:: String, refdir:: String;
+        omc:: OMCSession, name:: String, refdir:: String;
         relTol:: Real = 1e-6, variableFilter:: String = "", outputFormat="csv"
     )
 
@@ -256,7 +258,7 @@ Both the simulation output and the reference file must have the standard name
 `"\$(name)_res.\$outputFormat"`.
 This function also assumes that the simulation a simulation of the model named
 `name` has already been run with
-[`simulate(omc:: OMJulia.OMCSession, name::String, settings:: Dict{String, Any})`](@ref).
+[`simulate(omc:: OMCSession, name::String, settings:: Dict{String, Any})`](@ref).
 
 The test consists of the following checks performed with `@test`:
 
@@ -278,11 +280,11 @@ NOTE: There is a OM scripting function `compareSimulationResults()` that could
 be used for this task, but it is not documented and does not react to changes
 of its `relTol` parameter in a predictable way.
 """
-function regressionTest(omc:: OMJulia.OMCSession, name:: String, refdir:: String; relTol:: Real = 1e-6, variableFilter:: String = "", outputFormat="csv")
+function regressionTest(omc:: OMCSession, name:: String, refdir:: String; relTol:: Real = 1e-6, variableFilter:: String = "", outputFormat="csv")
     actname = "$(name)_res.$outputFormat"
     refname = joinpath(refdir, actname)
-    actvars = OMJulia.sendExpression(omc, "readSimulationResultVars(\"$actname\")")
-    refvars = OMJulia.sendExpression(omc, "readSimulationResultVars(\"$refname\")")
+    actvars = sendExpression(omc, "readSimulationResultVars(\"$actname\")")
+    refvars = sendExpression(omc, "readSimulationResultVars(\"$refname\")")
     missingRef = setdiff(Set(actvars), Set(refvars))
     # ignore variables without reference if they should not have been selected in the first place
     if length(variableFilter) > 0
@@ -296,14 +298,14 @@ function regressionTest(omc:: OMJulia.OMCSession, name:: String, refdir:: String
     vars = collect(intersect(Set(actvars), Set(refvars)))
     @test !isempty(vars)
 
-    wd = OMJulia.sendExpression(omc, "cd()")
+    wd = sendExpression(omc, "cd()")
     actpath = joinpath(wd, actname)
     refpath = joinpath(wd, refname)
     function readSimulationResultMat(fn:: String)
         # TODO can be replaced by DataFrame(MAT.matread(actpath)) once
         # https://github.com/JuliaIO/MAT.jl/pull/132 is merged
-        fnrel = relpath(fn, OMJulia.sendExpression(omc, "cd()"))
-        data = OMJulia.sendExpression(omc, "readSimulationResult(\"$fnrel\", {$(join(vars, ", "))})")
+        fnrel = relpath(fn, sendExpression(omc, "cd()"))
+        data = sendExpression(omc, "readSimulationResult(\"$fnrel\", {$(join(vars, ", "))})")
         df = DataFrame(Dict(zip(vars, data)))
         return df
     end
@@ -329,10 +331,10 @@ end
 
 Performs a full test of the model named `name` with the following steps:
 
-* Load the model using [`loadModel(omc:: OMJulia.OMCSession, name:: String)`](@ref) (called inside `@test`)
-* Simulate the model using [`simulate(omc:: OMJulia.OMCSession, name::String, settings:: Dict{String, Any})`](@ref) (called inside `@test`)
+* Load the model using [`loadModel(omc:: OMCSession, name:: String)`](@ref) (called inside `@test`)
+* Simulate the model using [`simulate(omc:: OMCSession, name::String, settings:: Dict{String, Any})`](@ref) (called inside `@test`)
 * If a reference file exists in `refdir`, perform a regression test with
-    [`regressionTest(omc:: OMJulia.OMCSession, name:: String, refdir:: String; relTol:: Real = 1e-6, variableFilter:: String = "", outputFormat="csv")`](@ref).
+    [`regressionTest(omc:: OMCSession, name:: String, refdir:: String; relTol:: Real = 1e-6, variableFilter:: String = "", outputFormat="csv")`](@ref).
 """
 function testmodel(omc, name; override=Dict(), refdir="../regRefData", regRelTol:: Real= 1e-6)
     if "outputFormat" in keys(override)
@@ -346,7 +348,7 @@ function testmodel(omc, name; override=Dict(), refdir="../regRefData", regRelTol
     @test isnothing(simulate(omc, name, settings))
 
     # compare simulation results to regression data
-    wd = OMJulia.sendExpression(omc, "cd()")
+    wd = sendExpression(omc, "cd()")
     if isfile("$(joinpath(wd, refdir, name))_res.$outputFormat")
         regressionTest(omc, name, refdir; relTol=regRelTol, variableFilter=varfilter, outputFormat=outputFormat)
     else
@@ -370,38 +372,38 @@ Returns the newly created OMCSession.
 """
 function setupOMCSession(outdir, modeldir; quiet=false, checkunits=true)
     # create sessions
-    omc = OMJulia.OMCSession()
+    omc = OMCSession()
     # move to output directory
-    OMJulia.sendExpression(omc, "cd(\"$(moescape(outdir))\")")
+    sendExpression(omc, "cd(\"$(moescape(outdir))\")")
     # set modelica path
-    mopath = OMJulia.sendExpression(omc, "getModelicaPath()")
+    mopath = sendExpression(omc, "getModelicaPath()")
     mopath = "$mopath:$(moescape(abspath(modeldir)))"
     if !quiet
         println("Setting MODELICAPATH to ", mopath)
     end
-    OMJulia.sendExpression(omc, "setModelicaPath(\"$mopath\")")
+    sendExpression(omc, "setModelicaPath(\"$mopath\")")
     # enable unit checking
     if checkunits
-        OMJulia.sendExpression(omc, "setCommandLineOptions(\"--preOptModules+=unitChecking\")")
+        sendExpression(omc, "setCommandLineOptions(\"--preOptModules+=unitChecking\")")
     end
     # load Modelica standard library
-    OMJulia.sendExpression(omc, "loadModel(Modelica)")
+    sendExpression(omc, "loadModel(Modelica)")
     return omc
 end
 
 """
-    closeOMCSession(omc:: OMJulia.OMCSession; quiet=false)
+    closeOMCSession(omc:: OMCSession; quiet=false)
 
 Closes the OMCSession given by `omc`, shutting down the OMC instance.
 
-Due to a [bug in the current release version of OMJulia](https://github.com/OpenModelica/OMJulia.jl/issues/32)
+Due to a [bug in the current release version of OMJulia](https://github.com/OpenModelica/jl/issues/32)
 the function may occasionally freeze.
 If this happens, you have to stop the execution with CTRL-C.
 You can tell that this is the case if the output `Closing OMC session` is
 printed to stdout, but it is not followed by `Done`.
 If desired, these outputs can be disabled by setting `quiet=true`.
 """
-function closeOMCSession(omc:: OMJulia.OMCSession; quiet=false)
+function closeOMCSession(omc:: OMCSession; quiet=false)
     if !quiet
         println("Closing OMC session")
     end
@@ -409,19 +411,19 @@ function closeOMCSession(omc:: OMJulia.OMCSession; quiet=false)
     try
         # parsed=false is currently unreleased solution to issue #22
         # that only works when OMJulia is installed directly from github
-        OMJulia.sendExpression(omc, "quit()", parsed=false)
+        sendExpression(omc, "quit()", parsed=false)
     catch e
         if !isa(e, MethodError) # only catch MethodErrors
             rethrow()
         end
         # meathod error means we have version 0.1.0
         # => perform workaround for issue #22 in version 0.1.0 of OMJulia
-        # https://github.com/OpenModelica/OMJulia.jl/issues/22
+        # https://github.com/OpenModelica/jl/issues/22
         try
-            OMJulia.sendExpression(omc, "quit()")
+            sendExpression(omc, "quit()")
         catch e
             # ParseError is expected
-            if !isa(e, OMJulia.Parser.ParseError)
+            if !isa(e, Parser.ParseError)
                 rethrow()
             end
         end
