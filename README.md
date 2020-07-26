@@ -1,5 +1,7 @@
 # ModelicaScriptingTools.jl
 
+![MoST.jl](docs/src/assets/logo.svg)
+
 ModelicaScriptingTools.jl (or short MoST.jl) contains utility functions to improve the usability of [OMJulia](https://github.com/OpenModelica/OMJulia.jl).
 This currently includes the following main features:
 
