@@ -1,9 +1,40 @@
-# ModelicaScriptingTools (MoST.jl)
+# ModelicaScriptingTools (MoST.jl) Documentation
 
 Test
 
-## Docs
+## Basic utility functions
 
-```@autodocs
-Modules = [ModelicaScriptingTools]
+```@docs
+moescape
+mounescape
+```
+
+## Session handling
+
+```@docs
+setupOMCSession
+closeOMCSession
+withOMC
+```
+
+## Simulation
+
+```@docs
+loadModel
+getSimulationSettings
+getVariableFilter
+simulate
+```
+
+## Testing
+
+```@docs
+testmodel
+regressionTest
+```
+
+## Error handling
+```@docs
+MoSTError
+MoSTError(::OMJulia.OMCSession, ::String)
 ```
