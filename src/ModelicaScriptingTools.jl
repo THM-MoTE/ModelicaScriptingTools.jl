@@ -406,7 +406,7 @@ the following shell command to add a timeout to your script and treat the
 timeout as a successful test run (which is, of course, unsafe).
 
 ```bash
-(timeout 2m julia myTestScript.jl; rc=$?; if [ ${rc} -eq 124 ]; then exit 0; else exit ${rc}; fi;)
+(timeout 2m julia myTestScript.jl; rc=\$?; if [ \${rc} -eq 124 ]; then exit 0; else exit \${rc}; fi;)
 ```
 """
 function closeOMCSession(omc:: OMCSession; quiet=false)
