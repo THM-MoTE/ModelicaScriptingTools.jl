@@ -5,6 +5,7 @@ using Test
 using CSV
 using OMJulia # note: needs 0.1.1 (unreleased) -> install from Github
 using ZMQ # only needed for sendExpressionRaw which is a workaround for OMJulia bugs
+using DataFrames: DataFrame
 
 export moescape, mounescape, MoSTError
 
@@ -296,8 +297,25 @@ function regressionTest(omc:: OMJulia.OMCSession, name:: String, refdir:: String
     @test !isempty(vars)
 
     wd = OMJulia.sendExpression(omc, "cd()")
-    actdata = CSV.read(joinpath(wd, actname))
-    refdata = CSV.read(joinpath(wd, refname))
+    actpath = joinpath(wd, actname)
+    refpath = joinpath(wd, refname)
+    function readSimulationResultMat(fn:: String)
+        # TODO can be replaced by DataFrame(MAT.matread(actpath)) once
+        # https://github.com/JuliaIO/MAT.jl/pull/132 is merged
+        fnrel = relpath(fn, OMJulia.sendExpression(omc, "cd()"))
+        data = OMJulia.sendExpression(omc, "readSimulationResult(\"$fnrel\", {$(join(vars, ", "))})")
+        df = DataFrame(Dict(zip(vars, data)))
+        return df
+    end
+    if outputFormat == "csv"
+        actdata = DataFrame(CSV.File(actpath))
+        refdata = DataFrame(CSV.File(refpath))
+    elseif outputFormat == "mat"
+        actdata = readSimulationResultMat(actpath)
+        refdata = readSimulationResultMat(refpath)
+    else
+        throw(MoSTError("unknown output format $outputFormat", ""))
+    end
     # check if length is equal
     @test size(actdata, 1) == size(refdata, 1)
     n = min(size(actdata, 1), size(refdata, 1))
