@@ -24,7 +24,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
-[nothing]
+* only use `ZMQ.send` without `ZMQ.recv` for sending `quit()` to avoid freezing
 
 ## [1.1.0]
 
