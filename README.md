@@ -1,6 +1,6 @@
-# MOdelica Scripting Tools for Julia (MoST.jl)
+# ModelicaScriptingTools.jl
 
-This project contains utility functions to improve the usability of [OMJulia](https://github.com/OpenModelica/OMJulia.jl).
+ModelicaScriptingTools.jl (or short MoST.jl) contains utility functions to improve the usability of [OMJulia](https://github.com/OpenModelica/OMJulia.jl).
 This currently includes the following main features:
 
 * Easy setup of `OMCSession` with configurable output and model directory
@@ -13,7 +13,7 @@ MoST.jl is available as a Julia package with the name `ModelicaScriptingTools`.
 You can install it using the Pkg REPL, which can be accessed by typing `]` in a Julia prompt.
 
 ```verbatim
-pkg> add https://github.com/THM-MoTE/
+pkg> add https://github.com/THM-MoTE/MoST
 ```
 
 Alternatively you can also install MoST.jl using the following Julia commands:
@@ -23,7 +23,7 @@ using Pkg
 Pkg.add(PackageSpec(url="https://github.com/THM-MoTE/MoST"))
 ```
 
-### Example
+## Example
 
 The following example uses MoST.jl to test the model defined in the file `test/res/Èxample.mo` by loading and instantiating the model, performing a simulation according to the settings specified in the model file, and comparing the results, which are written in the folder `test/out`, to a reference dataset in `test/regRefData`, if such a reference file exists.
 
