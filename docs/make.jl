@@ -11,5 +11,5 @@ makedocs(
     ]
 )
 deploydocs(
-    repo = "github.com/THM-MoTE/MoST.jl.git",
+    repo = "github.com/THM-MoTE/MoST.git",
 )
