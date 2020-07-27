@@ -6,6 +6,8 @@ install:
   - sudo apt update
   - sudo apt install openmodelica
 
+codecov: true
+
 jobs:
   include:
     - stage: "Documentation"
