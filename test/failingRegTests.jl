@@ -36,17 +36,17 @@ MoST.withOMC(outdir, modeldir) do omc
         @testset "fails because of missing simulation variables" begin
             resetFiles()
             removeColumn("$outdir/TwoVarExample_res.csv", "i")
-            MoST.regressionTest(omc, "TwoVarExample", "../regRefData"; relTol=1e-3, variableFilter="i|v")
+            MoST.regressionTest(omc, "TwoVarExample", refdir; relTol=1e-3, variableFilter="i|v")
         end
         @testset "fails because of missing reference variables" begin
             resetFiles()
             removeColumn("$refdir/TwoVarExample_res.csv", "i")
-            MoST.regressionTest(omc, "TwoVarExample", "../regRefData"; relTol=1e-3, variableFilter="i|v")
+            MoST.regressionTest(omc, "TwoVarExample", refdir; relTol=1e-3, variableFilter="i|v")
         end
         @testset "fails because values are unequal" begin
             resetFiles()
             multiplyColumn("$outdir/TwoVarExample_res.csv", "i", 1.1)
-            MoST.regressionTest(omc, "TwoVarExample", "../regRefData"; relTol=1e-3, variableFilter="i|v")
+            MoST.regressionTest(omc, "TwoVarExample", refdir; relTol=1e-3, variableFilter="i|v")
         end
     end
 end
