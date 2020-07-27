@@ -8,6 +8,9 @@ install:
 
 codecov: true
 
+script:
+  - julia --code-coverage test/runtests.jl
+
 jobs:
   include:
     - stage: "Documentation"
