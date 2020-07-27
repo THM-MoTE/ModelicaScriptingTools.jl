@@ -8,10 +8,25 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+[nothing]
+
+### Changed
+
+[nothing]
+
+### Fixed
+
+[nothing]
+
+## [1.2.0]
+
+### Added
+
 * function `withOMC` that allows to setup a `OMCSession` that can be used with `do`
 * unit tests for individual functions
 * support for regression tests with `outputFormat="mat"`
 * documentation using Documenter.jl
+* Travis CI script
 
 ### Changed
 
