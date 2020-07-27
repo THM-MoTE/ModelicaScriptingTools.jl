@@ -346,8 +346,7 @@ function testmodel(omc, name; override=Dict(), refdir="regRefData", regRelTol:: 
     @test isnothing(simulate(omc, name, settings))
 
     # compare simulation results to regression data
-    wd = sendExpression(omc, "cd()")
-    if isfile("$(joinpath(wd, refdir, name))_res.$outputFormat")
+    if isfile("$(joinpath(refdir, name))_res.$outputFormat")
         regressionTest(omc, name, refdir; relTol=regRelTol, variableFilter=varfilter, outputFormat=outputFormat)
     else
         write(Base.stderr, "WARNING: no reference data for regression test of $name\n")
