@@ -6,10 +6,11 @@ install:
   - sudo apt update
   - sudo apt install openmodelica
 
-codecov: true
-
 script:
   - julia --code-coverage test/runtests.jl
+
+after_success:
+  - julia -e 'using Pkg; Pkg.add("Coverage"); using Coverage; Codecov.submit(process_folder())'
 
 jobs:
   include:
