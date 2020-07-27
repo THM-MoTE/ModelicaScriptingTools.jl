@@ -13,14 +13,14 @@ MoST.jl is available as a Julia package with the name `ModelicaScriptingTools`.
 You can install it using the Pkg REPL, which can be accessed by typing `]` in a Julia prompt.
 
 ```verbatim
-pkg> add https://github.com/THM-MoTE/MoST
+pkg> add ModelicaScriptingTools
 ```
 
 Alternatively you can also install MoST.jl using the following Julia commands:
 
 ```julia
 using Pkg
-Pkg.add(PackageSpec(url="https://github.com/THM-MoTE/MoST"))
+Pkg.add("ModelicaScriptingTools")
 ```
 
 ## Example
