@@ -1,5 +1,10 @@
 # ModelicaScriptingTools.jl
 
+[![Build Status](https://travis-ci.com/THM-MoTE/ModelicaScriptingTools.jl.svg?branch=master)](https://travis-ci.com/THM-MoTE/ModelicaScriptingTools.jl)
+[![codecov](https://codecov.io/gh/THM-MoTE/ModelicaScriptingTools.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/THM-MoTE/ModelicaScriptingTools.jl)
+[![Documentation stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://thm-mote.github.io/ModelicaScriptingTools.jl/dev/)
+
+
 ![MoST.jl](docs/src/assets/logo.svg)
 
 ModelicaScriptingTools.jl (or short MoST.jl) contains utility functions to improve the usability of [OMJulia](https://github.com/OpenModelica/OMJulia.jl).
