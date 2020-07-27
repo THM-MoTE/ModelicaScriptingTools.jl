@@ -18,7 +18,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 [nothing]
 
-## [1.2.0]
+## [1.0.0]
 
 ### Added
 
@@ -41,7 +41,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 * only use `ZMQ.send` without `ZMQ.recv` for sending `quit()` to avoid freezing
 
-## [1.1.0]
+## [0.9.0]
 
 ### Added
 
@@ -60,7 +60,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 [nothing]
 
 
-## [1.0.0]
+## [0.8.0]
 
 ### Added
 
