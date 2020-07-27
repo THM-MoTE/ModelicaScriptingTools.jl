@@ -9,6 +9,10 @@ This currently includes the following main features:
 * Escaping and unescaping Modelica strings for use in `sendExpression()`
 * Support for unit tests and regression tests using Julia's `Test` package
 
+## Documentation
+
+The [documentation](https://thm-mote.github.io/ModelicaScriptingTools.jl/dev/) can be found on GitHub pages.
+
 ## Installation
 
 MoST.jl is available as a Julia package with the name `ModelicaScriptingTools`.
