@@ -8,6 +8,11 @@ equation
   der(r) = 1;
 annotation(
   experiment(StartTime = 0, StopTime = 5, Tolerance = 1e-6, Interval = 1e-1),
-  __MoST_experiment(variableFilter="sub\\.alias")
+  __MoST_experiment(variableFilter="sub\\.alias"),
+  Documentation(info="
+      <html>
+        <p>This is an example documentation for the Example class.</p>
+      </html>
+    ")
 );
 end Example;
