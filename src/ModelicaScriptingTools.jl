@@ -6,10 +6,11 @@ using CSV: CSV
 using OMJulia: OMCSession, sendExpression, Parser
 using ZMQ: send, recv # only needed for sendExpressionRaw which is a workaround for OMJulia bugs
 using DataFrames: DataFrame
+import Documenter
 
 export moescape, mounescape, MoSTError, loadModel, getSimulationSettings,
     getVariableFilter, simulate, regressionTest, testmodel,
-    setupOMCSession, closeOMCSession, withOMC
+    setupOMCSession, closeOMCSession, withOMC, ModelicaBlocks
 
 """
     MoSTError
@@ -447,6 +448,54 @@ function withOMC(f:: Function, outdir, modeldir; quiet=false, checkunits=true)
         f(omc)
     finally
         closeOMCSession(omc)
+    end
+end
+
+# extend Documenter with new code block type @modelica
+abstract type ModelicaBlocks <: Documenter.Expanders.ExpanderPipeline end
+Documenter.Selectors.order(::Type{ModelicaBlocks}) = 5.0
+Documenter.Selectors.matcher(::Type{ModelicaBlocks}, node, page, doc) = Documenter.Expanders.iscode(node, "@modelica")
+function Documenter.Selectors.runner(::Type{ModelicaBlocks}, x, page, doc)
+    lines = Documenter.Utilities.find_block_in_file(x.code, page.source)
+    cd(page.workdir) do
+        result = ""
+        modelnames = []
+        modeldir = "../.."
+        for (line) in split(x.code, '\n')
+            if startswith(line, '%')
+                try
+                    modeldir = match(r"%\s*modeldir\s*=\s*(.*)", line).captures[1]
+                catch err
+                    push!(doc.internal.errors, :eval_block)
+                    @warn("""
+                        invalid magic line starting with '%' in `@modelica` block in $(Documenter.Utilities.locrepr(page.source))
+                        ```$(x.language)
+                        $(x.code)
+                        ```
+                        """, exception = err)
+                end
+            else
+                push!(modelnames, String(line))
+            end
+        end
+        try
+            withOMC(joinpath(modeldir, "../out"), modeldir) do omc
+                for (model) in modelnames
+                    loadModel(omc, model)
+                    result = sendExpression(omc, "getDocumentationAnnotation($model)")
+                end
+            end
+            println("I am a Modelica block")
+        catch err
+            push!(doc.internal.errors, :eval_block)
+            @warn("""
+                failed to evaluate `@modelica` block in $(Documenter.Utilities.locrepr(page.source))
+                ```$(x.language)
+                $(x.code)
+                ```
+                """, exception = err)
+        end
+        page.mapping[x] = Documenter.Documents.RawHTML(result)
     end
 end
 
