@@ -485,7 +485,6 @@ function Documenter.Selectors.runner(::Type{ModelicaBlocks}, x, page, doc)
                     result = sendExpression(omc, "getDocumentationAnnotation($model)")[1]
                 end
             end
-            println("I am a Modelica block")
         catch err
             push!(doc.internal.errors, :eval_block)
             @warn("""
