@@ -482,7 +482,7 @@ function Documenter.Selectors.runner(::Type{ModelicaBlocks}, x, page, doc)
             withOMC(joinpath(modeldir, "../out"), modeldir) do omc
                 for (model) in modelnames
                     loadModel(omc, model)
-                    result = sendExpression(omc, "getDocumentationAnnotation($model)")
+                    result = sendExpression(omc, "getDocumentationAnnotation($model)")[1]
                 end
             end
             println("I am a Modelica block")
