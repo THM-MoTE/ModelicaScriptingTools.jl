@@ -358,6 +358,8 @@ end
 
 Creates an `OMCSession` and prepares it by preforming the following steps:
 
+* create the directory `outdir` if it does not already exist
+* change the working directory of the OMC to `outdir`
 * add `modeldir` to the MODELICAPATH
 * enable unit checking with the OMC command line option
     `--preOptModules+=unitChecking` (unless `checkunits` is false)
@@ -368,6 +370,10 @@ If `quiet` is false, the resulting MODELICAPATH is printed to stdout.
 Returns the newly created OMCSession.
 """
 function setupOMCSession(outdir, modeldir; quiet=false, checkunits=true)
+    # create output directory
+    if !isdir(outdir)
+        mkpath(outdir)
+    end
     # create sessions
     omc = OMCSession()
     # move to output directory
