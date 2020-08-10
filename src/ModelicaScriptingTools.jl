@@ -6,6 +6,7 @@ using CSV: CSV
 using OMJulia: OMCSession, sendExpression, Parser
 using ZMQ: send, recv # only needed for sendExpressionRaw which is a workaround for OMJulia bugs
 using DataFrames: DataFrame
+using LightXML: parse_file, free, find_element, root, child_elements
 import Documenter
 
 export moescape, mounescape, MoSTError, loadModel, getSimulationSettings,
@@ -480,7 +481,16 @@ function getequations(omc:: OMCSession, model::String)
     if !isempty(err)
         throw(MoSTError("Could not save model as independent XML file", err))
     end
-    println(res)
+    xeq = parse_file(res[2])
+    equations = child_elements(find_element(root(xeq), "equations"))
+    try
+        for eq in equations
+            println("eq")
+        end
+    finally
+        free(xeq)
+    end
+    return "foo"
 end
 
 # extend Documenter with new code block type @modelica
