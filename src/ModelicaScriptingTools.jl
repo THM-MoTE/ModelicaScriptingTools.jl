@@ -512,7 +512,7 @@ function Documenter.Selectors.runner(::Type{ModelicaBlocks}, x, page, doc)
                     push!(result, Documenter.Documents.RawHTML(htmldoc))
                     # get model code
                     rawcode = getModelCode(omc, model, outdir)
-                    push!(result, Doucmenter.Utilities.mdparse("```modelica\n$rawcode\n```\n"))
+                    push!(result, Documenter.Utilities.mdparse("```modelica\n$rawcode\n```\n"))
                 end
             end
         catch err
