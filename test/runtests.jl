@@ -146,5 +146,20 @@ end
             cp("out/Example_res.csv", "regRefData/Example_res.csv"; force=true)
             testmodel(omc, "Example", regRelTol=1e-4)
         end
+        @testset "getDocAnnotation" begin
+            loadModel(omc, "Example")
+            @test "<p></p>" == getDocAnnotation(omc, "Example")
+        end
+        @testset "getcode" begin
+            loadModel(omc, "Example.ExSub")
+            expected = """model ExSub
+                Modelica.SIunits.Voltage alias;
+            end ExSub;"""
+            @test expected = getcode(omc, "Example.ExSub")
+        end
+        @testset "getequations" begin
+            loadModel(omc, "Example")
+            eqn = getequations(omc, "Example")
+        end
     end
 end
