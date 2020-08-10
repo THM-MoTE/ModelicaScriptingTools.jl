@@ -155,9 +155,9 @@ end
         @testset "getcode" begin
             loadModel(omc, "Example.ExSub")
             expected = """model ExSub
-                Modelica.SIunits.Voltage alias;
+              Modelica.SIunits.Voltage alias;
             end ExSub;"""
-            @test expected = getcode(omc, "Example.ExSub")
+            @test expected == getcode(omc, "Example.ExSub")
         end
         @testset "getequations" begin
             loadModel(omc, "Example")
