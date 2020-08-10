@@ -466,8 +466,9 @@ function getDocAnnotation(omc:: OMCSession, model:: String)
     return htmldoc
 end
 
-function getModelCode(omc:: OMCSession, model:: String, tmpdir:: String)
-    tmpfile = joinpath(tmpdir, "$model.mo")
+function getModelCode(omc:: OMCSession, model:: String)
+    cwd = sendExpression(omc, "cd()")
+    tmpfile = joinpath(cwd, "export_$model.mo")
     sendExpression(omc, "saveModel(\"$(moescape(tmpfile))\", $model)")
     return read(tmpfile, String)
 end
@@ -511,7 +512,7 @@ function Documenter.Selectors.runner(::Type{ModelicaBlocks}, x, page, doc)
                     htmldoc = getDocAnnotation(omc, model)
                     push!(result, Documenter.Documents.RawHTML(htmldoc))
                     # get model code
-                    rawcode = getModelCode(omc, model, outdir)
+                    rawcode = getModelCode(omc, model)
                     push!(result, Documenter.Utilities.mdparse("```modelica\n$rawcode\n```\n"))
                 end
             end
