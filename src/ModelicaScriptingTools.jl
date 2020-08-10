@@ -462,6 +462,7 @@ function Documenter.Selectors.runner(::Type{ModelicaBlocks}, x, page, doc)
         modelnames = []
         result = []
         modeldir = "../.."
+        # get list of models and directory
         for (line) in split(x.code, '\n')
             if startswith(line, '%')
                 try
@@ -479,11 +480,17 @@ function Documenter.Selectors.runner(::Type{ModelicaBlocks}, x, page, doc)
                 push!(modelnames, String(line))
             end
         end
+        # communicate with OMC to obtain documentation and equations
         try
             withOMC(joinpath(modeldir, "../out"), modeldir) do omc
                 for (model) in modelnames
                     loadModel(omc, model)
+                    # get documentation as HTML string
                     htmldoc = sendExpression(omc, "getDocumentationAnnotation($model)")[1]
+                    ishtml = match(r"\s*<\s*html[^>]*>(.*)\s*</\s*html\s*>\s*"s, htmldoc)
+                    if !isnothing(ishtml)
+                        htmldoc = ishtml.captures[1]
+                    end
                     push!(result, Documenter.Documents.RawHTML(htmldoc))
                 end
             end
