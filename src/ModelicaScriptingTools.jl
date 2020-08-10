@@ -460,6 +460,7 @@ function Documenter.Selectors.runner(::Type{ModelicaBlocks}, x, page, doc)
     cd(page.workdir) do
         result = ""
         modelnames = []
+        result = []
         modeldir = "../.."
         for (line) in split(x.code, '\n')
             if startswith(line, '%')
@@ -482,7 +483,8 @@ function Documenter.Selectors.runner(::Type{ModelicaBlocks}, x, page, doc)
             withOMC(joinpath(modeldir, "../out"), modeldir) do omc
                 for (model) in modelnames
                     loadModel(omc, model)
-                    result = sendExpression(omc, "getDocumentationAnnotation($model)")[1]
+                    htmldoc = sendExpression(omc, "getDocumentationAnnotation($model)")[1]
+                    push!(result, Documenter.Documents.RawHTML(htmldoc))
                 end
             end
         catch err
@@ -494,7 +496,7 @@ function Documenter.Selectors.runner(::Type{ModelicaBlocks}, x, page, doc)
                 ```
                 """, exception = err)
         end
-        page.mapping[x] = Documenter.Documents.RawHTML(result)
+        page.mapping[x] = Documenter.Documents.MultiOutput(result)
     end
 end
 
