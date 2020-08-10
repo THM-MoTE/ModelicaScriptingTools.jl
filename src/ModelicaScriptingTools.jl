@@ -10,7 +10,8 @@ import Documenter
 
 export moescape, mounescape, MoSTError, loadModel, getSimulationSettings,
     getVariableFilter, simulate, regressionTest, testmodel,
-    setupOMCSession, closeOMCSession, withOMC, ModelicaBlocks
+    setupOMCSession, closeOMCSession, withOMC, ModelicaBlocks, getDocAnnotation,
+    getequations, getcode
 
 """
     MoSTError
