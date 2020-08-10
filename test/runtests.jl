@@ -149,7 +149,8 @@ end
         end
         @testset "getDocAnnotation" begin
             loadModel(omc, "Example")
-            @test "<p></p>" == getDocAnnotation(omc, "Example")
+            expected = "\n        <p>This is an example documentation for the Example class.</p>\n      "
+            @test expected == getDocAnnotation(omc, "Example")
         end
         @testset "getcode" begin
             loadModel(omc, "Example.ExSub")
