@@ -488,7 +488,7 @@ function getequations(omc:: OMCSession, model::String)
         equations = child_elements(find_element(root(xeq), "equations"))
         for eq in equations
             math = find_element(find_element(eq, "MathML"), "math")
-            push!(res, math)
+            push!(res, string(math))
         end
     finally
         free(xeq)
@@ -539,6 +539,7 @@ function Documenter.Selectors.runner(::Type{ModelicaBlocks}, x, page, doc)
                     push!(result, Documenter.Utilities.mdparse("```modelica\n$rawcode\n```\n"))
                     # get model equations
                     equations = getequations(omc, model)
+                    push!(result, Documenter.Documents.RawHTML(join(equations, "")))
                 end
             end
         catch err
