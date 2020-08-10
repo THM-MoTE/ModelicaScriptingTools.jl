@@ -482,15 +482,17 @@ function getequations(omc:: OMCSession, model::String)
         throw(MoSTError("Could not save model as independent XML file", err))
     end
     xeq = parse_file(res[2])
-    equations = child_elements(find_element(root(xeq), "equations"))
+    res = []
     try
+        equations = child_elements(find_element(root(xeq), "equations"))
         for eq in equations
-            println("eq")
+            math = find_element(find_element(eq, "MathML"), "math")
+            push!(res, math)
         end
     finally
         free(xeq)
     end
-    return "foo"
+    return res
 end
 
 # extend Documenter with new code block type @modelica
