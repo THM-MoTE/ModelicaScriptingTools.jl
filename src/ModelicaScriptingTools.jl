@@ -451,6 +451,20 @@ function withOMC(f:: Function, outdir, modeldir; quiet=false, checkunits=true)
     end
 end
 
+"""
+    getDocAnnotation(omc:: OMCSession, name:: String)
+
+Returns documentation string from model annotation and strips `<html>` tag if
+necessary.
+"""
+function getDocAnnotation(omc:: OMCSession, model:: String)
+    htmldoc = sendExpression(omc, "getDocumentationAnnotation($model)")[1]
+    ishtml = match(r"\s*<\s*html[^>]*>(.*)\s*</\s*html\s*>\s*"s, htmldoc)
+    if !isnothing(ishtml)
+        htmldoc = ishtml.captures[1]
+    end
+    return htmldoc
+end
 # extend Documenter with new code block type @modelica
 abstract type ModelicaBlocks <: Documenter.Expanders.ExpanderPipeline end
 Documenter.Selectors.order(::Type{ModelicaBlocks}) = 5.0
@@ -486,11 +500,7 @@ function Documenter.Selectors.runner(::Type{ModelicaBlocks}, x, page, doc)
                 for (model) in modelnames
                     loadModel(omc, model)
                     # get documentation as HTML string
-                    htmldoc = sendExpression(omc, "getDocumentationAnnotation($model)")[1]
-                    ishtml = match(r"\s*<\s*html[^>]*>(.*)\s*</\s*html\s*>\s*"s, htmldoc)
-                    if !isnothing(ishtml)
-                        htmldoc = ishtml.captures[1]
-                    end
+                    htmldoc = getDocAnnotation(omc, model)
                     push!(result, Documenter.Documents.RawHTML(htmldoc))
                 end
             end
