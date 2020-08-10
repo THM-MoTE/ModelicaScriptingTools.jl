@@ -7,6 +7,7 @@ using OMJulia: OMCSession, sendExpression, Parser
 using ZMQ: send, recv # only needed for sendExpressionRaw which is a workaround for OMJulia bugs
 using DataFrames: DataFrame
 using LightXML: parse_file, free, find_element, root, child_elements
+using PyCall: PyNULL, pyimport_conda
 import Documenter
 
 export moescape, mounescape, MoSTError, loadModel, getSimulationSettings,
@@ -551,6 +552,12 @@ function Documenter.Selectors.runner(::Type{ModelicaBlocks}, x, page, doc)
         end
         page.mapping[x] = Documenter.Documents.MultiOutput(result)
     end
+end
+
+const lxml = PyNULL()
+
+function __init__()
+    copy!(lxml, pyimport_conda("lxml", "lxml"))
 end
 
 end
