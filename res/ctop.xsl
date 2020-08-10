@@ -1,20 +1,27 @@
 <xsl:stylesheet
   version="1.0"
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-  xmlns:mml="http://www.w3.org/1998/Math/MathML"
+  xmlns:m="http://www.w3.org/1998/Math/MathML"
+  exclude-result-prefixes="m"
 >
 
 <!--
-$Id: ctop.xsl,v 1.3 2002/09/20 08:41:39 davidc Exp $
 
-Copyright David Carlisle 2001, 2002.
+Copyright David Carlisle 2001, 2002, 2008, 2009, 2013.
 
 Use and distribution of this code are permitted under the terms of the <a
 href="http://www.w3.org/Consortium/Legal/copyright-software-19980720"
 >W3C Software Notice and License</a>.
+Or the Apache 2, MIT or MPL 1.1 or MPL 2.0 licences.
+2001-2002 MathML2 version
+2008-2009     Updates for MathML3
 -->
 
 <xsl:output method="xml" />
+
+<xsl:template match="/">
+  <xsl:apply-templates mode="c2p"/>
+</xsl:template>
 
 <xsl:template mode="c2p" match="*">
 <xsl:copy>
@@ -26,232 +33,395 @@ href="http://www.w3.org/Consortium/Legal/copyright-software-19980720"
 
 <!-- 4.4.1.1 cn -->
 
-<xsl:template mode="c2p" match="mml:cn">
- <mml:mn><xsl:apply-templates mode="c2p"/></mml:mn>
+<xsl:template mode="c2p" match="m:cn">
+ <m:mn><xsl:apply-templates mode="c2p"/></m:mn>
 </xsl:template>
 
-<xsl:template mode="c2p" match="mml:cn[@type='complex-cartesian']">
-  <mml:mrow>
-    <mml:mn><xsl:apply-templates mode="c2p" select="text()[1]"/></mml:mn>
-    <mml:mo>+</mml:mo>
-    <mml:mn><xsl:apply-templates mode="c2p" select="text()[2]"/></mml:mn>
-    <mml:mo><!--&#8290;--><!--invisible times--></mml:mo>
-    <mml:mi>i<!-- imaginary i --></mml:mi>
-  </mml:mrow>
+<xsl:template mode="c2p" match="m:cn[@type='complex-cartesian']">
+  <m:mrow>
+    <m:mn><xsl:apply-templates mode="c2p" select="text()[1]"/></m:mn>
+    <m:mo>+</m:mo>
+    <m:mn><xsl:apply-templates mode="c2p" select="text()[2]"/></m:mn>
+    <m:mo>&#8290;<!--invisible times--></m:mo>
+    <m:mi>i<!-- imaginary i --></m:mi>
+  </m:mrow>
 </xsl:template>
 
-<xsl:template mode="c2p" match="mml:cn[@type='rational']">
-  <mml:mrow>
-    <mml:mn><xsl:apply-templates mode="c2p" select="text()[1]"/></mml:mn>
-    <mml:mo>/</mml:mo>
-    <mml:mn><xsl:apply-templates mode="c2p" select="text()[2]"/></mml:mn>
-  </mml:mrow>
+<xsl:template mode="c2p" match="m:apply[*[1][self::m:csymbol='complex_cartesian']]">
+  <m:mrow>
+    <m:mn><xsl:apply-templates mode="c2p" select="*[2]"/></m:mn>
+    <m:mo>+</m:mo>
+    <m:mn><xsl:apply-templates mode="c2p" select="*[3]"/></m:mn>
+    <m:mo>&#8290;<!--invisible times--></m:mo>
+    <m:mi>i<!-- imaginary i --></m:mi>
+  </m:mrow>
 </xsl:template>
 
-<xsl:template mode="c2p" match="mml:cn[@type='integer']">
+<xsl:template mode="c2p" match="m:cn[@type='rational']">
+  <m:mrow>
+    <m:mn><xsl:apply-templates mode="c2p" select="text()[1]"/></m:mn>
+    <m:mo>/</m:mo>
+    <m:mn><xsl:apply-templates mode="c2p" select="text()[2]"/></m:mn>
+  </m:mrow>
+</xsl:template>
+
+<xsl:template mode="c2p" match="m:apply[*[1][self::m:csymbol='rational']]">
+  <m:mrow>
+    <m:mn><xsl:apply-templates mode="c2p" select="*[2]"/></m:mn>
+    <m:mo>/</m:mo>
+    <m:mn><xsl:apply-templates mode="c2p" select="*[3]"/></m:mn>
+  </m:mrow>
+</xsl:template>
+
+<xsl:template mode="c2p" match="m:cn[not(@type) or @type='integer']">
   <xsl:choose>
   <xsl:when test="not(@base) or @base=10">
-       <mml:mn><xsl:apply-templates mode="c2p"/></mml:mn>
+       <m:mn><xsl:apply-templates mode="c2p"/></m:mn>
   </xsl:when>
   <xsl:otherwise>
-  <mml:msub>
-    <mml:mn><xsl:apply-templates mode="c2p"/></mml:mn>
-    <mml:mn><xsl:value-of select="@base"/></mml:mn>
-  </mml:msub>
+  <m:msub>
+    <m:mn><xsl:apply-templates mode="c2p"/></m:mn>
+    <m:mn><xsl:value-of select="@base"/></m:mn>
+  </m:msub>
   </xsl:otherwise>
   </xsl:choose>
 </xsl:template>
 
-<xsl:template mode="c2p" match="mml:cn[@type='complex-polar']">
-  <mml:mrow>
-    <mml:mn><xsl:apply-templates mode="c2p" select="text()[1]"/></mml:mn>
-    <mml:mo><!--&#8290;--><!--invisible times--></mml:mo>
-    <mml:msup>
-    <mml:mi>e<!-- exponential e--></mml:mi>
-    <mml:mrow>
-     <mml:mi>i<!-- imaginary i--></mml:mi>
-     <mml:mo><!--&#8290;--><!--invisible times--></mml:mo>
-     <mml:mn><xsl:apply-templates mode="c2p" select="text()[2]"/></mml:mn>
-    </mml:mrow>
-    </mml:msup>
-  </mml:mrow>
+<xsl:template mode="c2p" match="m:cn[@type='complex-polar']">
+  <m:mrow>
+    <m:mn><xsl:apply-templates mode="c2p" select="text()[1]"/></m:mn>
+    <m:mo>&#8290;<!--invisible times--></m:mo>
+    <m:msup>
+    <m:mi>e<!-- exponential e--></m:mi>
+    <m:mrow>
+     <m:mi>i<!-- imaginary i--></m:mi>
+     <m:mo>&#8290;<!--invisible times--></m:mo>
+     <m:mn><xsl:apply-templates mode="c2p" select="text()[2]"/></m:mn>
+    </m:mrow>
+    </m:msup>
+  </m:mrow>
 </xsl:template>
 
-<xsl:template mode="c2p" match="mml:cn[@type='e-notation']">
-    <mml:mn><xsl:apply-templates mode="c2p" select="text()[1]"/>E<xsl:apply-templates mode="c2p" select="text()[2]"/></mml:mn>
+<xsl:template mode="c2p" match="m:apply[*[1][self::m:csymbol='complex_polar']]">
+  <m:mrow>
+    <xsl:apply-templates mode="c2p" select="*[2]"/>
+    <m:mo>&#8290;<!--invisible times--></m:mo>
+    <m:msup>
+    <m:mi>e<!-- exponential e--></m:mi>
+    <m:mrow>
+     <m:mi>i<!-- imaginary i--></m:mi>
+     <m:mo>&#8290;<!--invisible times--></m:mo>
+     <xsl:apply-templates mode="c2p" select="*[3]"/>
+    </m:mrow>
+    </m:msup>
+  </m:mrow>
+</xsl:template>
+
+<xsl:template mode="c2p" match="m:cn[@type='e-notation']">
+  <m:mn>
+    <xsl:apply-templates mode="c2p" select="m:sep/preceding-sibling::node()"/>
+    <xsl:text>E</xsl:text>
+    <xsl:apply-templates mode="c2p" select="m:sep/following-sibling::node()"/>
+  </m:mn>
+</xsl:template>
+
+<xsl:template mode="c2p" match="m:cn[@type='hexdouble']">
+  <m:mn>
+    <xsl:text>0x</xsl:text>
+    <xsl:apply-templates mode="c2p"/>
+  </m:mn>
 </xsl:template>
 
 <!-- 4.4.1.1 ci  -->
 
-<xsl:template mode="c2p" match="mml:ci/text()">
- <mml:mi><xsl:value-of select="."/></mml:mi>
+<xsl:template mode="c2p" match="m:ci/text()">
+ <m:mi><xsl:value-of select="."/></m:mi>
 </xsl:template>
 
-<xsl:template mode="c2p" match="mml:ci">
- <mml:mrow><xsl:apply-templates mode="c2p"/></mml:mrow>
+<xsl:template mode="c2p" match="m:ci">
+ <m:mrow><xsl:apply-templates mode="c2p"/></m:mrow>
 </xsl:template>
 
 <!-- 4.4.1.2 csymbol -->
 
-<xsl:template mode="c2p" match="mml:csymbol/text()">
- <mml:mo><xsl:apply-templates mode="c2p"/></mml:mo>
+<xsl:template mode="c2p" match="m:csymbol/text()">
+ <m:mi><xsl:value-of select="."/></m:mi><!-- Robin Green r.d.greenATlancaster.ac.uk, Christoph Lange langecATweb.de-->
 </xsl:template>
 
-<xsl:template mode="c2p" match="mml:csymbol">
- <mml:mrow><xsl:apply-templates mode="c2p"/></mml:mrow>
+<xsl:template mode="c2p" match="m:csymbol">
+ <m:mrow><xsl:apply-templates mode="c2p"/></m:mrow>
 </xsl:template>
 
 <!-- 4.4.2.1 apply 4.4.2.2 reln -->
 
-<xsl:template mode="c2p" match="mml:apply|mml:reln">
- <mml:mrow>
- <xsl:apply-templates mode="c2p" select="*[1]">
-  <xsl:with-param name="p" select="10"/>
- </xsl:apply-templates>
- <mml:mo><!--&#8290;--><!--invisible times--></mml:mo>
- <mml:mfenced open="(" close=")" separators=",">
+<xsl:template mode="c2p" match="m:apply|m:reln">
+ <m:mrow>
+   <xsl:choose>
+     <xsl:when test="*[1]/*/*">
+       <m:mfenced separators="">
+         <xsl:apply-templates mode="c2p" select="*[1]">
+           <xsl:with-param name="p" select="10"/>
+         </xsl:apply-templates>
+       </m:mfenced>
+     </xsl:when>
+     <xsl:otherwise>       
+       <xsl:apply-templates mode="c2p" select="*[1]">
+         <xsl:with-param name="p" select="10"/>
+       </xsl:apply-templates>
+     </xsl:otherwise>
+   </xsl:choose>
+ <m:mo>&#8289;<!--function application--></m:mo>
+ <m:mfenced open="(" close=")" separators=",">
  <xsl:apply-templates mode="c2p" select="*[position()>1]"/>
- </mml:mfenced>
- </mml:mrow>
+ </m:mfenced>
+ </m:mrow>
+</xsl:template>
+
+
+<xsl:template mode="c2p" match="m:bind">
+ <m:mrow>
+   <xsl:choose>
+     <xsl:when test="*[1]/*/*">
+       <m:mfenced separators="">
+         <xsl:apply-templates mode="c2p" select="*[1]">
+           <xsl:with-param name="p" select="10"/>
+         </xsl:apply-templates>
+       </m:mfenced>
+     </xsl:when>
+     <xsl:otherwise>       
+       <xsl:apply-templates mode="c2p" select="*[1]">
+         <xsl:with-param name="p" select="10"/>
+       </xsl:apply-templates>
+     </xsl:otherwise>
+   </xsl:choose>
+   <xsl:apply-templates select="bvar/*"/>
+   <m:mo>.</m:mo>
+   <xsl:apply-templates mode="c2p" select="*[position()>1][not(self::m:bvar)]"/>
+ </m:mrow>
 </xsl:template>
 
 <!-- 4.4.2.3 fn -->
-<xsl:template mode="c2p" match="mml:fn">
- <mml:mrow><xsl:apply-templates mode="c2p"/></mml:mrow>
+<xsl:template mode="c2p" match="m:fn">
+ <m:mrow><xsl:apply-templates mode="c2p"/></m:mrow>
 </xsl:template>
 
 <!-- 4.4.2.4 interval -->
-<xsl:template mode="c2p" match="mml:interval[*[2]]">
- <mml:mfenced open="[" close="]"><xsl:apply-templates mode="c2p"/></mml:mfenced>
+<xsl:template mode="c2p" match="m:interval[*[2]]">
+ <m:mfenced open="[" close="]"><xsl:apply-templates mode="c2p"/></m:mfenced>
 </xsl:template>
-<xsl:template mode="c2p" match="mml:interval[*[2]][@closure='open']">
- <mml:mfenced open="(" close=")"><xsl:apply-templates mode="c2p"/></mml:mfenced>
+<xsl:template mode="c2p" match="m:interval[*[2]][@closure='open']" priority="2">
+ <m:mfenced open="(" close=")"><xsl:apply-templates mode="c2p"/></m:mfenced>
 </xsl:template>
-<xsl:template mode="c2p" match="mml:interval[*[2]][@closure='open-closed']">
- <mml:mfenced open="(" close="]"><xsl:apply-templates mode="c2p"/></mml:mfenced>
+<xsl:template mode="c2p" match="m:interval[*[2]][@closure='open-closed']" priority="2">
+ <m:mfenced open="(" close="]"><xsl:apply-templates mode="c2p"/></m:mfenced>
 </xsl:template>
-<xsl:template mode="c2p" match="mml:interval[*[2]][@closure='closed-open']">
- <mml:mfenced open="[" close=")"><xsl:apply-templates mode="c2p"/></mml:mfenced>
+<xsl:template mode="c2p" match="m:interval[*[2]][@closure='closed-open']" priority="2">
+ <m:mfenced open="[" close=")"><xsl:apply-templates mode="c2p"/></m:mfenced>
 </xsl:template>
 
-<xsl:template mode="c2p" match="mml:interval">
- <mml:mfenced open="{{" close="}}"><xsl:apply-templates mode="c2p"/></mml:mfenced>
+<xsl:template mode="c2p" match="m:interval">
+ <m:mfenced open="{{" close="}}"><xsl:apply-templates mode="c2p"/></m:mfenced>
+</xsl:template>
+
+<xsl:template mode="c2p" match="m:apply[*[1][self::m:csymbol='integer_interval']]">
+ <m:mfenced open="[" close="]"><xsl:apply-templates mode="c2p" select="*[position()!=1]"/></m:mfenced>
+</xsl:template>
+<xsl:template mode="c2p" match="m:apply[*[1][self::m:csymbol='interval']]">
+ <m:mfenced open="[" close="]"><xsl:apply-templates mode="c2p" select="*[position()!=1]"/></m:mfenced>
+</xsl:template>
+<xsl:template mode="c2p" match="m:apply[*[1][self::m:csymbol='interval-cc']]">
+ <m:mfenced open="[" close="]"><xsl:apply-templates mode="c2p" select="*[position()!=1]"/></m:mfenced>
+</xsl:template>
+<xsl:template mode="c2p" match="m:apply[*[1][self::m:csymbol='interval-oo']]">
+ <m:mfenced open="(" close=")"><xsl:apply-templates mode="c2p" select="*[position()!=1]"/></m:mfenced>
+</xsl:template>
+<xsl:template mode="c2p" match="m:apply[*[1][self::m:csymbol='oriented_interval']]">
+ <m:mfenced open="(" close=")"><xsl:apply-templates mode="c2p" select="*[position()!=1]"/></m:mfenced>
 </xsl:template>
 
 <!-- 4.4.2.5 inverse -->
 
-<xsl:template mode="c2p" match="mml:apply[*[1][self::mml:inverse]]">
- <mml:msup>
+<xsl:template mode="c2p" match="m:apply[*[1][self::m:inverse]]
+                       |m:apply[*[1][self::m:csymbol='inverse']]">
+ <m:msup>
   <xsl:apply-templates mode="c2p" select="*[2]"/>
-  <mml:mrow><mml:mo>(</mml:mo><mml:mn>-1</mml:mn><mml:mo>)</mml:mo></mml:mrow>
- </mml:msup>
+  <m:mrow><m:mo>(</m:mo><m:mn>-1</m:mn><m:mo>)</m:mo></m:mrow>
+ </m:msup>
 </xsl:template>
 
 <!-- 4.4.2.6 sep -->
 
 <!-- 4.4.2.7 condition -->
-<xsl:template mode="c2p" match="mml:condition">
- <mml:mrow><xsl:apply-templates mode="c2p"/></mml:mrow>
+<xsl:template mode="c2p" match="m:condition">
+ <m:mrow><xsl:apply-templates mode="c2p"/></m:mrow>
 </xsl:template>
 
 <!-- 4.4.2.8 declare -->
-<xsl:template mode="c2p" match="mml:declare"/>
+<xsl:template mode="c2p" match="m:declare"/>
 
 <!-- 4.4.2.9 lambda -->
-<xsl:template mode="c2p" match="mml:apply[*[1][self::mml:lambda]]">
- <mml:mrow>
-  <mml:mi>&#955;<!--lambda--></mml:mi>
- <mml:mrow><xsl:apply-templates mode="c2p" select="mml:bvar/*"/></mml:mrow>
- <mml:mo>.</mml:mo>
- <mml:mfenced>
+<xsl:template mode="c2p" match="m:lambda
+                                |m:apply[*[1][self::m:csymbol='lambda']]
+                                |m:bind[*[1][self::m:csymbol='lambda']]"><!--dpc-->
+ <m:mrow>
+  <m:mi>&#955;<!--lambda--></m:mi>
+  <m:mrow>
+   <xsl:choose>
+    <xsl:when test="m:condition">
+     <xsl:apply-templates mode="c2p" select="m:condition/*"/>
+    </xsl:when>
+    <xsl:otherwise>
+     <xsl:apply-templates mode="c2p" select="m:bvar/*"/>
+    </xsl:otherwise>
+   </xsl:choose>
+   <xsl:if test="m:domainofapplication">
+    <mo>&#x2208;</mo>
+    <xsl:apply-templates mode="c2p" select="m:domainofapplication/*"/>
+   </xsl:if>
+  </m:mrow>
+  <m:mo>.</m:mo>
+  <m:mfenced>
+   <xsl:apply-templates mode="c2p" select="*[last()]"/>
+  </m:mfenced>
+ </m:mrow>
+</xsl:template>
+
+<xsl:template mode="c2p" match="m:lambda[not(m:bvar)]" priority="2">
+ <m:mrow>
   <xsl:apply-templates mode="c2p" select="*[last()]"/>
- </mml:mfenced>
-</mml:mrow>
+  <m:msub>
+   <m:mo>|</m:mo>
+   <m:mrow>
+    <xsl:apply-templates mode="c2p" select="m:condition|m:interval|m:domainofapplication/*"/>
+   </m:mrow>
+  </m:msub>
+ </m:mrow>
 </xsl:template>
 
 
 <!-- 4.4.2.10 compose -->
-<xsl:template mode="c2p" match="mml:apply[*[1][self::mml:compose]]">
+<xsl:template mode="c2p" match="m:apply[*[1][self::m:compose]]
+                       |m:apply[*[1][self::m:csymbol='left_compose']]">
 <xsl:param name="p" select="0"/>
 <xsl:call-template name="infix">
  <xsl:with-param name="this-p" select="1"/>
  <xsl:with-param name="p" select="$p"/>
- <xsl:with-param name="mo"><mml:mo>&#8728;<!-- o --></mml:mo></xsl:with-param>
+ <xsl:with-param name="mo"><m:mo>&#8728;<!-- o --></m:mo></xsl:with-param>
 </xsl:call-template>
 </xsl:template>
 
 
 <!-- 4.4.2.11` ident -->
-<xsl:template mode="c2p" match="mml:ident">
-<mml:mo>id</mml:mo>
+<xsl:template mode="c2p" match="m:ident">
+<m:mi>id</m:mi>
 </xsl:template>
 
 <!-- 4.4.2.12` domain -->
-<xsl:template mode="c2p" match="mml:domain">
-<mml:mo>domain</mml:mo>
+<xsl:template mode="c2p" match="m:domain">
+<m:mi>domain</m:mi>
 </xsl:template>
 
 <!-- 4.4.2.13` codomain -->
-<xsl:template mode="c2p" match="mml:codomain">
-<mml:mo>codomain</mml:mo>
+<xsl:template mode="c2p" match="m:codomain">
+<m:mi>codomain</m:mi>
 </xsl:template>
 
 <!-- 4.4.2.14` image -->
-<xsl:template mode="c2p" match="mml:image">
-<mml:mo>image</mml:mo>
+<xsl:template mode="c2p" match="m:image">
+<m:mi>image</m:mi>
 </xsl:template>
 
 <!-- 4.4.2.15` domainofapplication -->
-<xsl:template mode="c2p" match="mml:domainofapplication">
- <mml:error/>
+<xsl:template mode="c2p" match="m:domainofapplication">
+ <m:merror><m:mtext>unexpected domainofapplication</m:mtext></m:merror>
+</xsl:template>
+
+<xsl:template mode="c2p" match="m:apply[*[2][self::m:bvar]][m:domainofapplication]" priority="0.4">
+ <m:mrow>
+  <m:munder>
+   <xsl:apply-templates mode="c2p" select="*[1]"/>
+   <m:mrow>
+    <xsl:apply-templates mode="c2p" select="m:bvar/*"/>
+    <m:mo>&#8712;<!-- in --></m:mo>
+    <xsl:apply-templates mode="c2p" select="m:domainofapplication/*"/>
+   </m:mrow>
+  </m:munder>
+  <m:mfenced>
+   <xsl:apply-templates mode="c2p" select="m:domainofapplication/following-sibling::*"/>
+  </m:mfenced>
+ </m:mrow>
+</xsl:template>
+
+<xsl:template mode="c2p" match="m:apply[m:domainofapplication]" priority="0.3">
+ <m:mrow>
+  <m:mrow><m:mi>restriction</m:mi>
+  <m:mfenced>
+   <xsl:apply-templates mode="c2p" select="*[1]"/>
+   <xsl:apply-templates mode="c2p" select="m:domainofapplication/*"/>
+  </m:mfenced>
+  </m:mrow>
+  <m:mfenced>
+   <xsl:apply-templates mode="c2p" select="m:domainofapplication/following-sibling::*"/>
+  </m:mfenced>
+ </m:mrow>
 </xsl:template>
 
 <!-- 4.4.2.16` piecewise -->
-<xsl:template mode="c2p" match="mml:piecewise">
-<mml:mrow>
-<mml:mo>{</mml:mo>
-<mml:mtable>
- <xsl:for-each select="mml:piece|mml:otherwise">
- <mml:mtr>
- <mml:mtd><xsl:apply-templates mode="c2p" select="*[1]"/></mml:mtd>
- <mml:mtd><mml:mtext>&#160; if &#160;</mml:mtext></mml:mtd>
- <mml:mtd><xsl:apply-templates mode="c2p" select="*[2]"/></mml:mtd>
- </mml:mtr>
- </xsl:for-each>
-</mml:mtable>
-</mml:mrow>
+<xsl:template mode="c2p" match="m:piecewise">
+  <m:mrow>
+    <m:mo>{</m:mo>
+    <m:mtable>
+      <xsl:for-each select="m:piece|m:otherwise">
+        <m:mtr>
+          <m:mtd><xsl:apply-templates mode="c2p" select="*[1]"/></m:mtd>
+          <xsl:choose><!--dpc-->
+            <xsl:when  test="self::m:piece">
+              <m:mtd columnalign="left"><m:mtext>&#160; if &#160;</m:mtext></m:mtd>
+              <m:mtd><xsl:apply-templates mode="c2p" select="*[2]"/></m:mtd>
+            </xsl:when>
+            <xsl:otherwise>
+              <m:mtd columnspan="2" columnalign="left"><m:mtext>&#160; otherwise</m:mtext></m:mtd>
+            </xsl:otherwise>
+          </xsl:choose>
+        </m:mtr>
+      </xsl:for-each>
+    </m:mtable>
+  </m:mrow>
 </xsl:template>
 
 
 <!-- 4.4.3.1 quotient -->
-<xsl:template mode="c2p" match="mml:apply[*[1][self::mml:quotient]]">
-<mml:mrow>
-<mml:mo>&#8970;<!-- lfloor--></mml:mo>
+<xsl:template mode="c2p" match="m:apply[*[1][self::m:quotient]]
+                       |m:apply[*[1][self::m:csymbol='quotient']]">
+<m:mrow>
+<m:mo>&#8970;<!-- lfloor--></m:mo>
 <xsl:apply-templates mode="c2p" select="*[2]"/>
-<mml:mo>/</mml:mo>
+<m:mo>/</m:mo>
 <xsl:apply-templates mode="c2p" select="*[3]"/>
-<mml:mo>&#8971;<!-- rfloor--></mml:mo>
-</mml:mrow>
+<m:mo>&#8971;<!-- rfloor--></m:mo>
+</m:mrow>
 </xsl:template>
 
 
 
 <!-- 4.4.3.2 factorial -->
-<xsl:template mode="c2p" match="mml:apply[*[1][self::mml:factorial]]">
-<mml:mrow>
+<xsl:template mode="c2p" match="m:apply[*[1][self::m:factorial]]
+                                |m:apply[*[1][self::m:csymbol='factorial']]">
+<m:mrow>
 <xsl:apply-templates mode="c2p" select="*[2]">
   <xsl:with-param name="p" select="7"/>
 </xsl:apply-templates>
-<mml:mo>!</mml:mo>
-</mml:mrow>
+<m:mo>!</m:mo>
+</m:mrow>
 </xsl:template>
 
 
 <!-- 4.4.3.3 divide -->
-<xsl:template mode="c2p" match="mml:apply[*[1][self::mml:divide]]">
+<xsl:template mode="c2p" match="m:apply[*[1][self::m:divide]]
+                                |m:apply[*[1][self::m:csymbol='divide']]">
   <xsl:param name="p" select="0"/>
 <xsl:call-template name="binary">
-  <xsl:with-param name="mo"><mml:mo>/</mml:mo></xsl:with-param>
+  <xsl:with-param name="mo"><m:mo>/</m:mo></xsl:with-param>
   <xsl:with-param name="p" select="$p"/>
   <xsl:with-param name="this-p" select="3"/>
 </xsl:call-template>
@@ -259,125 +429,163 @@ href="http://www.w3.org/Consortium/Legal/copyright-software-19980720"
 
 
 <!-- 4.4.3.4 max  min-->
-<xsl:template mode="c2p" match="mml:apply[*[1][self::mml:max]]">
-<mml:mrow>
-  <mml:mo>max</mml:mo>
+<xsl:template mode="c2p" match="m:apply[*[1][self::m:max]]
+                                |m:apply[*[1][self::m:csymbol='max']]">
+<m:mrow>
+  <m:mi>max</m:mi>
   <xsl:call-template name="set"/>
-</mml:mrow>
+</m:mrow>
 </xsl:template>
 
-<xsl:template mode="c2p" match="mml:apply[*[1][self::mml:min]]">
-<mml:mrow>
-  <mml:mo>max</mml:mo>
+<xsl:template mode="c2p" match="m:apply[*[1][self::m:min]]|m:reln[*[1][self::m:min]]">
+<m:mrow>
+  <m:mi>min</m:mi><!--dpc-->
   <xsl:call-template name="set"/>
-</mml:mrow>
+</m:mrow>
 </xsl:template>
 
 <!-- 4.4.3.5  minus-->
-<xsl:template mode="c2p" match="mml:apply[*[1][self::mml:minus] and count(*)=2]">
-<mml:mrow>
-  <mml:mo>&#8722;<!--minus--></mml:mo>
+<xsl:template mode="c2p" match="m:apply[*[1][self::m:minus] and count(*)=2]
+                                |m:apply[*[1][self::m:csymbol='unary_minus']]">
+<m:mrow>
+  <m:mo>&#8722;<!--minus--></m:mo>
   <xsl:apply-templates mode="c2p" select="*[2]">
       <xsl:with-param name="p" select="5"/>
   </xsl:apply-templates>
-</mml:mrow>
+</m:mrow>
 </xsl:template>
 
-<xsl:template mode="c2p" match="mml:apply[*[1][self::mml:minus] and count(*)&gt;2]">
+<xsl:template mode="c2p" match="m:apply[*[1][self::m:minus] and count(*)&gt;2]
+                                |m:apply[*[1][self::m:csymbol='minus']]">
   <xsl:param name="p" select="0"/>
 <xsl:call-template name="binary">
-  <xsl:with-param name="mo"><mml:mo>&#8722;<!--minus--></mml:mo></xsl:with-param>
+  <xsl:with-param name="mo"><m:mo>&#8722;<!--minus--></m:mo></xsl:with-param>
   <xsl:with-param name="p" select="$p"/>
   <xsl:with-param name="this-p" select="2"/>
 </xsl:call-template>
 </xsl:template>
 
 <!-- 4.4.3.6  plus-->
-<xsl:template mode="c2p" match="mml:apply[*[1][self::mml:plus]]">
+<!-- put out - on leading term (mathjax report)-->
+<xsl:template mode="c2p" match="m:apply[*[1][self::m:plus]]
+                                |m:apply[*[1][self::m:csymbol='plus']]">
   <xsl:param name="p" select="0"/>
-  <mml:mrow>
-  <xsl:if test="$p &gt; 2"><mml:mo>(</mml:mo></xsl:if>
+  <m:mrow>
+  <xsl:if test="$p &gt; 2"><m:mo>(</m:mo></xsl:if>
   <xsl:for-each select="*[position()&gt;1]">
-   <xsl:if test="position() &gt; 1">
-    <mml:mo>
-    <xsl:choose>
-      <xsl:when test="self::mml:apply[*[1][self::mml:times] and
-      *[2][self::mml:apply/*[1][self::mml:minus] or self::mml:cn[not(mml:sep) and
-      (number(.) &lt; 0)]]]">&#8722;<!--minus--></xsl:when>
-      <xsl:otherwise>+</xsl:otherwise>
-    </xsl:choose>
-    </mml:mo>
-   </xsl:if>   
-    <xsl:choose>
-      <xsl:when test="self::mml:apply[*[1][self::mml:times] and
-      *[2][self::mml:cn[not(mml:sep) and (number(.) &lt;0)]]]">
-     <mml:mrow>
-     <mml:mn><xsl:value-of select="-(*[2])"/></mml:mn>
-      <mml:mo><!--&#8290;--><!--invisible times--></mml:mo>
+   <xsl:choose>
+    <xsl:when test="self::m:apply[*[1][self::m:times] and *[2][self::m:apply/*[1][self::m:minus] or 
+		                  self::m:cn[not(m:sep) and (number(.) &lt; 0)]]] or
+	            self::m:apply[count(*)=2 and *[1][self::m:minus]] or
+		    self::m:cn[not(m:sep) and (number(.) &lt; 0)]">
+     <m:mo>&#8722;<!--minus--></m:mo>
+    </xsl:when>
+    <xsl:when test="position()!=1">
+     <m:mo>+</m:mo>
+    </xsl:when>
+   </xsl:choose>
+   <xsl:choose>
+    <xsl:when test="self::m:cn[not(m:sep) and (number(.) &lt; 0)]">
+     <m:mn><xsl:value-of select="-(.)"/></m:mn>
+    </xsl:when>
+    <xsl:when test=" self::m:apply[count(*)=2 and *[1][self::m:minus]]">
+     <xsl:apply-templates mode="c2p" select="*[2]">
+      <xsl:with-param name="first" select="2"/>
+      <xsl:with-param name="p" select="2"/>
+     </xsl:apply-templates>
+    </xsl:when>
+    <xsl:when test="self::m:apply[*[1][self::m:times] and
+		    *[2][self::m:cn[not(m:sep) and (number(.) &lt;0)]]]">
+     <m:mrow>
+      <m:mn><xsl:value-of select="-(*[2])"/></m:mn>
+      <m:mo>&#8290;<!--invisible times--></m:mo>
+      <xsl:apply-templates mode="c2p" select=".">
+       <xsl:with-param name="first" select="2"/>
+       <xsl:with-param name="p" select="2"/>
+      </xsl:apply-templates>
+     </m:mrow>
+    </xsl:when>
+    <xsl:when test="self::m:apply[*[1][self::m:times] and
+		    *[2][self::m:apply/*[1][self::m:minus]]]">
+     <m:mrow>
+      <xsl:apply-templates mode="c2p" select="./*[2]/*[2]"/>
+      <xsl:apply-templates mode="c2p" select=".">
+       <xsl:with-param name="first" select="2"/>
+       <xsl:with-param name="p" select="2"/>
+      </xsl:apply-templates>
+     </m:mrow>
+    </xsl:when>
+    <xsl:otherwise>
      <xsl:apply-templates mode="c2p" select=".">
-     <xsl:with-param name="first" select="2"/>
-     <xsl:with-param name="p" select="2"/>
-   </xsl:apply-templates>
-     </mml:mrow>
-      </xsl:when>
-      <xsl:when test="self::mml:apply[*[1][self::mml:times] and
-      *[2][self::mml:apply/*[1][self::mml:minus]]]">
-     <mml:mrow>
-     <xsl:apply-templates mode="c2p" select="./*[2]/*[2]"/>
-     <xsl:apply-templates mode="c2p" select=".">
-     <xsl:with-param name="first" select="2"/>
-     <xsl:with-param name="p" select="2"/>
-   </xsl:apply-templates>
-     </mml:mrow>
-      </xsl:when>
-      <xsl:otherwise>
-     <xsl:apply-templates mode="c2p" select=".">
-     <xsl:with-param name="p" select="2"/>
-   </xsl:apply-templates>
-   </xsl:otherwise>
-    </xsl:choose>
+      <xsl:with-param name="p" select="2"/>
+     </xsl:apply-templates>
+    </xsl:otherwise>
+   </xsl:choose>
   </xsl:for-each>
-  <xsl:if test="$p &gt; 2"><mml:mo>)</mml:mo></xsl:if>
-  </mml:mrow>
+  <xsl:if test="$p &gt; 2"><m:mo>)</m:mo></xsl:if>
+  </m:mrow>
 </xsl:template>
 
 
 <!-- 4.4.3.7 power -->
-<xsl:template mode="c2p" match="mml:apply[*[1][self::mml:power]]">
-<mml:msup>
+<xsl:template mode="c2p" match="m:apply[*[1][self::m:power]]
+                                |m:apply[*[1][self::m:csymbol='power']]">
+<xsl:param name="p" select="0"/>
+<xsl:choose>
+ <xsl:when test="$p&gt;=5">
+<m:mrow>
+<m:mo>(</m:mo>
+<m:msup>
 <xsl:apply-templates mode="c2p" select="*[2]">
   <xsl:with-param name="p" select="5"/>
 </xsl:apply-templates>
 <xsl:apply-templates mode="c2p" select="*[3]">
   <xsl:with-param name="p" select="5"/>
 </xsl:apply-templates>
-</mml:msup>
+</m:msup>
+<m:mo>)</m:mo>
+</m:mrow>
+ </xsl:when>
+<xsl:otherwise>
+<m:msup>
+<xsl:apply-templates mode="c2p" select="*[2]">
+  <xsl:with-param name="p" select="5"/>
+</xsl:apply-templates>
+<xsl:apply-templates mode="c2p" select="*[3]">
+  <xsl:with-param name="p" select="5"/>
+</xsl:apply-templates>
+</m:msup>
+</xsl:otherwise>
+</xsl:choose>
 </xsl:template>
 
 <!-- 4.4.3.8 remainder -->
-<xsl:template mode="c2p" match="mml:apply[*[1][self::mml:rem]]">
+<xsl:template mode="c2p" match="m:apply[*[1][self::m:rem]]
+                       |m:apply[*[1][self::m:csymbol='rem']]">
   <xsl:param name="p" select="0"/>
 <xsl:call-template name="binary">
-  <xsl:with-param name="mo"><mml:mo>mod</mml:mo></xsl:with-param>
+  <xsl:with-param name="mo"><m:mo>mod</m:mo></xsl:with-param>
   <xsl:with-param name="p" select="$p"/>
   <xsl:with-param name="this-p" select="3"/>
 </xsl:call-template>
 </xsl:template>
 
 <!-- 4.4.3.9  times-->
-<xsl:template mode="c2p" match="mml:apply[*[1][self::mml:times]]" name="times">
+<xsl:template mode="c2p" match="m:apply[*[1][self::m:times]]
+                                |m:apply[*[1][self::m:csymbol='times']]"
+              name="times">
   <xsl:param name="p" select="0"/>
   <xsl:param name="first" select="1"/>
-  <mml:mrow>
-  <xsl:if test="$p &gt; 3"><mml:mo>(</mml:mo></xsl:if>
+  <m:mrow>
+  <xsl:if test="$p &gt; 3"><m:mo>(</m:mo></xsl:if>
   <xsl:for-each select="*[position()&gt;1]">
    <xsl:if test="position() &gt; 1">
-    <mml:mo>
+    <m:mo>
     <xsl:choose>
-      <xsl:when test="self::mml:cn">&#215;<!-- times --></xsl:when>
-      <xsl:otherwise><!--&#8290;--><!--invisible times--></xsl:otherwise>
+      <xsl:when test="self::m:cn">&#215;<!-- times --></xsl:when>
+      <xsl:otherwise>&#8290;<!--invisible times--></xsl:otherwise>
     </xsl:choose>
-    </mml:mo>
+    </m:mo>
    </xsl:if> 
    <xsl:if test="position()&gt;= $first">
    <xsl:apply-templates mode="c2p" select=".">
@@ -385,80 +593,94 @@ href="http://www.w3.org/Consortium/Legal/copyright-software-19980720"
    </xsl:apply-templates>
    </xsl:if>
   </xsl:for-each>
-  <xsl:if test="$p &gt; 3"><mml:mo>)</mml:mo></xsl:if>
-  </mml:mrow>
+  <xsl:if test="$p &gt; 3"><m:mo>)</m:mo></xsl:if>
+  </m:mrow>
 </xsl:template>
 
 
 <!-- 4.4.3.10 root -->
-<xsl:template mode="c2p" match="mml:apply[*[1][self::mml:root] and not(mml:degree) or mml:degree=2]" priority="4">
-<mml:msqrt>
+<xsl:template mode="c2p" match="m:apply[*[1][self::m:root] and not(m:degree) or m:degree=2]" priority="4">
+<m:msqrt>
 <xsl:apply-templates mode="c2p" select="*[position()&gt;1]"/>
-</mml:msqrt>
+</m:msqrt>
 </xsl:template>
 
-<xsl:template mode="c2p" match="mml:apply[*[1][self::mml:root]]">
-<mml:mroot>
-<xsl:apply-templates mode="c2p" select="*[position()&gt;1 and not(self::mml:degree)]"/>
-<mml:mrow><xsl:apply-templates mode="c2p" select="mml:degree/*"/></mml:mrow>
-</mml:mroot>
+<xsl:template mode="c2p" match="m:apply[*[1][self::m:root]]">
+<m:mroot>
+<xsl:apply-templates mode="c2p" select="*[position()&gt;1 and not(self::m:degree)]"/>
+<m:mrow><xsl:apply-templates mode="c2p" select="m:degree/*"/></m:mrow>
+</m:mroot>
+</xsl:template>
+
+
+<xsl:template mode="c2p" match="m:apply[*[1][self::m:csymbol='root']]">
+<m:mroot>
+  <xsl:apply-templates mode="c2p" select="*[position()!=1]"/>
+</m:mroot>
 </xsl:template>
 
 <!-- 4.4.3.11 gcd -->
-<xsl:template mode="c2p" match="mml:gcd">
-<mml:mo>gcd</mml:mo>
+<xsl:template mode="c2p" match="m:gcd">
+<m:mi>gcd</m:mi>
 </xsl:template>
 
 <!-- 4.4.3.12 and -->
-<xsl:template mode="c2p" match="mml:apply[*[1][self::mml:and]]">
+<xsl:template mode="c2p" match="m:apply[*[1][self::m:and]]
+                                |m:reln[*[1][self::m:and]]
+                                |m:apply[*[1][self::m:csymbol='and']]">
 <xsl:param name="p" select="0"/>
 <xsl:call-template name="infix">
  <xsl:with-param name="this-p" select="2"/>
  <xsl:with-param name="p" select="$p"/>
- <xsl:with-param name="mo"><mml:mo>&#8743;<!-- and --></mml:mo></xsl:with-param>
+ <xsl:with-param name="mo"><m:mo>&#8743;<!-- and --></m:mo></xsl:with-param>
 </xsl:call-template>
 </xsl:template>
 
 
 <!-- 4.4.3.13 or -->
-<xsl:template mode="c2p" match="mml:apply[*[1][self::mml:or]]">
+<xsl:template mode="c2p" match="m:apply[*[1][self::m:or]]
+                       |m:apply[*[1][self::m:csymbol='or']]">
 <xsl:param name="p" select="0"/>
 <xsl:call-template name="infix">
  <xsl:with-param name="this-p" select="3"/>
  <xsl:with-param name="p" select="$p"/>
- <xsl:with-param name="mo"><mml:mo>&#8744;<!-- or --></mml:mo></xsl:with-param>
+ <xsl:with-param name="mo"><m:mo>&#8744;<!-- or --></m:mo></xsl:with-param>
 </xsl:call-template>
 </xsl:template>
 
 <!-- 4.4.3.14 xor -->
-<xsl:template mode="c2p" match="mml:apply[*[1][self::mml:xor]]">
+<xsl:template mode="c2p" match="m:apply[*[1][self::m:xor]]
+                       |m:apply[*[1][self::m:csymbol='xor']]">
 <xsl:param name="p" select="0"/>
 <xsl:call-template name="infix">
  <xsl:with-param name="this-p" select="3"/>
  <xsl:with-param name="p" select="$p"/>
- <xsl:with-param name="mo"><mml:mo>xor</mml:mo></xsl:with-param>
+ <xsl:with-param name="mo"><m:mo>xor</m:mo></xsl:with-param>
 </xsl:call-template>
 </xsl:template>
 
 
 <!-- 4.4.3.15 not -->
-<xsl:template mode="c2p" match="mml:apply[*[1][self::mml:not]]">
-<mml:mrow>
-<mml:mo>&#172;<!-- not --></mml:mo>
+<xsl:template mode="c2p" match="m:apply[*[1][self::m:not]]
+                       |m:apply[*[1][self::m:csymbol='not']]">
+<m:mrow>
+<m:mo>&#172;<!-- not --></m:mo>
 <xsl:apply-templates mode="c2p" select="*[2]">
   <xsl:with-param name="p" select="7"/>
 </xsl:apply-templates>
-</mml:mrow>
+</m:mrow>
 </xsl:template>
 
 
 
 
 <!-- 4.4.3.16 implies -->
-<xsl:template mode="c2p" match="mml:apply[*[1][self::mml:implies]]">
+<xsl:template mode="c2p" match="m:apply[*[1][self::m:implies]]
+                                |m:reln[*[1][self::m:implies]]
+                                |m:apply[*[1][self::m:csymbol='implies']]">
   <xsl:param name="p" select="0"/>
 <xsl:call-template name="binary">
-  <xsl:with-param name="mo"><mml:mo>&#8658;<!-- Rightarrow --></mml:mo></xsl:with-param>
+  <xsl:with-param name="mo"><m:mo>&#8658;<!-- Rightarrow --></m:mo></xsl:with-param>
   <xsl:with-param name="p" select="$p"/>
   <xsl:with-param name="this-p" select="3"/>
 </xsl:call-template>
@@ -466,693 +688,1190 @@ href="http://www.w3.org/Consortium/Legal/copyright-software-19980720"
 
 
 <!-- 4.4.3.17 forall -->
-<xsl:template mode="c2p" match="mml:apply[*[1][self::mml:forall]]">
- <mml:mrow>
-  <mml:mi>&#8704;<!--forall--></mml:mi>
- <mml:mrow><xsl:apply-templates mode="c2p" select="mml:bvar[not(current()/mml:condition)]/*|mml:condition/*"/></mml:mrow>
- <mml:mo>.</mml:mo>
- <mml:mfenced>
+<xsl:template mode="c2p" match="m:apply[*[1][self::m:forall]]
+                       |m:apply[*[1][self::m:csymbol='forall']]
+                       |m:bind[*[1][self::m:forall]]
+                       |m:bind[*[1][self::m:csymbol='forall']]">
+ <m:mrow>
+  <m:mo>&#8704;<!--forall--></m:mo>
+ <m:mrow><xsl:apply-templates mode="c2p" select="m:bvar[not(current()/m:condition)]/*|m:condition/*"/></m:mrow>
+ <m:mo>.</m:mo>
+ <m:mfenced>
   <xsl:apply-templates mode="c2p" select="*[last()]"/>
- </mml:mfenced>
-</mml:mrow>
+ </m:mfenced>
+</m:mrow>
 </xsl:template>
 
 
 
 <!-- 4.4.3.18 exists -->
-<xsl:template mode="c2p" match="mml:apply[*[1][self::mml:exists]]">
- <mml:mrow>
-  <mml:mi>&#8707;<!--exists--></mml:mi>
- <mml:mrow><xsl:apply-templates mode="c2p" select="mml:bvar[not(current()/mml:condition)]/*|mml:condition/*"/></mml:mrow>
- <mml:mo>.</mml:mo>
- <mml:mfenced>
+<xsl:template mode="c2p" match="m:apply[*[1][self::m:exists]]
+                       |m:apply[*[1][self::m:csymbol='exists']]
+                       |m:bind[*[1][self::m:exists]]
+                       |m:bind[*[1][self::m:csymbol='exists']]">
+ <m:mrow>
+  <m:mo>&#8707;<!--exists--></m:mo>
+ <m:mrow><xsl:apply-templates mode="c2p" select="m:bvar[not(current()/m:condition)]/*|m:condition/*"/></m:mrow>
+ <m:mo>.</m:mo>
+ <m:mfenced separators="">
+   <xsl:choose>
+     <xsl:when test="m:condition">
+       <xsl:apply-templates mode="c2p" select="m:condition/*"/>
+       <m:mo>&#8743;<!-- and --></m:mo>
+     </xsl:when>
+     <xsl:when test="m:domainofapplication">
+       <m:mrow>
+       <m:mrow>
+         <xsl:for-each select="m:bvar">
+           <xsl:apply-templates mode="c2p"/>
+           <xsl:if test="position()!=last()">
+             <m:mo>,</m:mo>
+           </xsl:if>
+         </xsl:for-each>
+       </m:mrow>
+       <m:mo>&#8712;<!-- in --></m:mo>
+       <xsl:apply-templates mode="c2p" select="m:domainofapplication/*"/>
+       </m:mrow>
+       <m:mo>&#8743;<!-- and --></m:mo>
+     </xsl:when>
+   </xsl:choose>
   <xsl:apply-templates mode="c2p" select="*[last()]"/>
- </mml:mfenced>
-</mml:mrow>
+ </m:mfenced>
+</m:mrow>
 </xsl:template>
 
 
+
 <!-- 4.4.3.19 abs -->
-<xsl:template mode="c2p" match="mml:apply[*[1][self::mml:abs]]">
-<mml:mrow>
-<mml:mo>|</mml:mo>
+<xsl:template mode="c2p" match="m:apply[*[1][self::m:abs]]
+                       |m:apply[*[1][self::m:csymbol='abs']]">
+<m:mrow>
+<m:mo>|</m:mo>
 <xsl:apply-templates mode="c2p" select="*[2]"/>
-<mml:mo>|</mml:mo>
-</mml:mrow>
+<m:mo>|</m:mo>
+</m:mrow>
 </xsl:template>
 
 
 
 <!-- 4.4.3.20 conjugate -->
-<xsl:template mode="c2p" match="mml:apply[*[1][self::mml:conjugate]]">
-<mml:mover>
+<xsl:template mode="c2p" match="m:apply[*[1][self::m:conjugate]]
+                       |m:apply[*[1][self::m:csymbol='conjugate']]">
+<m:mover>
 <xsl:apply-templates mode="c2p" select="*[2]"/>
-<mml:mo>&#175;<!-- overline --></mml:mo>
-</mml:mover>
+<m:mo>&#175;<!-- overline --></m:mo>
+</m:mover>
 </xsl:template>
 
 <!-- 4.4.3.21 arg -->
-<xsl:template mode="c2p" match="mml:arg">
- <mml:mo>arg</mml:mo>
+<xsl:template mode="c2p" match="m:arg">
+ <m:mi>arg</m:mi>
 </xsl:template>
 
 
 <!-- 4.4.3.22 real -->
-<xsl:template mode="c2p" match="mml:real">
- <mml:mo>&#8475;<!-- real --></mml:mo>
+<xsl:template mode="c2p" match="m:real|m:csymbol[.='real']">
+ <m:mo>&#8475;<!-- real --></m:mo>
 </xsl:template>
 
 <!-- 4.4.3.23 imaginary -->
-<xsl:template mode="c2p" match="mml:imaginary">
- <mml:mo>&#8465;<!-- imaginary --></mml:mo>
+<xsl:template mode="c2p" match="m:imaginary|m:csymbol[.='imaginary']">
+ <m:mo>&#8465;<!-- imaginary --></m:mo>
 </xsl:template>
 
 <!-- 4.4.3.24 lcm -->
-<xsl:template mode="c2p" match="mml:lcm">
- <mml:mo>lcm</mml:mo>
+<xsl:template mode="c2p" match="m:lcm">
+ <m:mi>lcm</m:mi>
 </xsl:template>
 
 
 <!-- 4.4.3.25 floor -->
-<xsl:template mode="c2p" match="mml:apply[*[1][self::mml:floor]]">
-<mml:mrow>
-<mml:mo>&#8970;<!-- lfloor--></mml:mo>
+<xsl:template mode="c2p" match="m:apply[*[1][self::m:floor]]
+                       |m:apply[*[1][self::m:csymbol='floor']]">
+<m:mrow>
+<m:mo>&#8970;<!-- lfloor--></m:mo>
 <xsl:apply-templates mode="c2p" select="*[2]"/>
-<mml:mo>&#8971;<!-- rfloor--></mml:mo>
-</mml:mrow>
+<m:mo>&#8971;<!-- rfloor--></m:mo>
+</m:mrow>
 </xsl:template>
 
 
 <!-- 4.4.3.25 ceiling -->
-<xsl:template mode="c2p" match="mml:apply[*[1][self::mml:ceiling]]">
-<mml:mrow>
-<mml:mo>&#8968;<!-- lceil--></mml:mo>
+<xsl:template mode="c2p" match="m:apply[*[1][self::m:ceiling]]
+                       |m:apply[*[1][self::m:csymbol='ceiling']]">
+<m:mrow>
+<m:mo>&#8968;<!-- lceil--></m:mo>
 <xsl:apply-templates mode="c2p" select="*[2]"/>
-<mml:mo>&#8969;<!-- rceil--></mml:mo>
-</mml:mrow>
+<m:mo>&#8969;<!-- rceil--></m:mo>
+</m:mrow>
 </xsl:template>
 
 <!-- 4.4.4.1 eq -->
-<xsl:template mode="c2p" match="mml:apply[*[1][self::mml:eq]]">
+<xsl:template mode="c2p" match="m:apply[*[1][self::m:eq]]
+                                |m:reln[*[1][self::m:eq]]
+                                |m:apply[*[1][self::m:csymbol='eq']]">
 <xsl:param name="p" select="0"/>
 <xsl:call-template name="infix">
  <xsl:with-param name="this-p" select="1"/>
  <xsl:with-param name="p" select="$p"/>
- <xsl:with-param name="mo"><mml:mo>=</mml:mo></xsl:with-param>
+ <xsl:with-param name="mo"><m:mo>=</m:mo></xsl:with-param>
 </xsl:call-template>
 </xsl:template>
 
 <!-- 4.4.4.2 neq -->
-<xsl:template mode="c2p" match="mml:apply[*[1][self::mml:neq]]">
+<xsl:template mode="c2p" match="m:apply[*[1][self::m:neq]]
+                       |m:apply[*[1][self::m:csymbol='neq']]">
 <xsl:param name="p" select="0"/>
 <xsl:call-template name="infix">
  <xsl:with-param name="this-p" select="1"/>
  <xsl:with-param name="p" select="$p"/>
- <xsl:with-param name="mo"><mml:mo>&#8800;<!-- neq --></mml:mo></xsl:with-param>
+ <xsl:with-param name="mo"><m:mo>&#8800;<!-- neq --></m:mo></xsl:with-param>
 </xsl:call-template>
 </xsl:template>
 
-<!-- 4.4.4.3 eq -->
-<xsl:template mode="c2p" match="mml:apply[*[1][self::mml:gt]]">
+<!-- 4.4.4.3 gt -->
+<xsl:template mode="c2p" match="m:apply[*[1][self::m:gt]]
+                                |m:reln[*[1][self::m:gt]]
+                                |m:apply[*[1][self::m:csymbol='gt']]">
 <xsl:param name="p" select="0"/>
 <xsl:call-template name="infix">
  <xsl:with-param name="this-p" select="1"/>
  <xsl:with-param name="p" select="$p"/>
- <xsl:with-param name="mo"><mml:mo>&gt;</mml:mo></xsl:with-param>
+ <xsl:with-param name="mo"><m:mo>&gt;</m:mo></xsl:with-param>
 </xsl:call-template>
 </xsl:template>
 
 <!-- 4.4.4.4 lt -->
-<xsl:template mode="c2p" match="mml:apply[*[1][self::mml:lt]]">
+<xsl:template mode="c2p" match="m:apply[*[1][self::m:lt]]
+                                |m:reln[*[1][self::m:lt]]
+                                |m:apply[*[1][self::m:csymbol='lt']]">
 <xsl:param name="p" select="0"/>
 <xsl:call-template name="infix">
  <xsl:with-param name="this-p" select="1"/>
  <xsl:with-param name="p" select="$p"/>
- <xsl:with-param name="mo"><mml:mo>&lt;</mml:mo></xsl:with-param>
+ <xsl:with-param name="mo"><m:mo>&lt;</m:mo></xsl:with-param>
 </xsl:call-template>
 </xsl:template>
 
 <!-- 4.4.4.5 geq -->
-<xsl:template mode="c2p" match="mml:apply[*[1][self::mml:geq]]">
+<xsl:template mode="c2p" match="m:apply[*[1][self::m:geq]]
+                                |m:apply[*[1][self::m:csymbol='geq']]">
 <xsl:param name="p" select="0"/>
 <xsl:call-template name="infix">
  <xsl:with-param name="this-p" select="1"/>
  <xsl:with-param name="p" select="$p"/>
- <xsl:with-param name="mo"><mml:mo>&#8805;</mml:mo></xsl:with-param>
+ <xsl:with-param name="mo"><m:mo>&#8805;</m:mo></xsl:with-param>
 </xsl:call-template>
 </xsl:template>
 
-<!-- 4.4.4.6 geq -->
-<xsl:template mode="c2p" match="mml:apply[*[1][self::mml:leq]]">
+<!-- 4.4.4.6 leq -->
+<xsl:template mode="c2p" match="m:apply[*[1][self::m:leq]]
+                       |m:apply[*[1][self::m:csymbol='leq']]">
 <xsl:param name="p" select="0"/>
 <xsl:call-template name="infix">
  <xsl:with-param name="this-p" select="1"/>
  <xsl:with-param name="p" select="$p"/>
- <xsl:with-param name="mo"><mml:mo>&#8804;</mml:mo></xsl:with-param>
+ <xsl:with-param name="mo"><m:mo>&#8804;</m:mo></xsl:with-param>
 </xsl:call-template>
 </xsl:template>
 
 <!-- 4.4.4.7 equivalent -->
-<xsl:template mode="c2p" match="mml:apply[*[1][self::mml:equivalent]]">
+<xsl:template mode="c2p" match="m:apply[*[1][self::m:equivalent]]
+                       |m:apply[*[1][self::m:csymbol='equivalent']]">
 <xsl:param name="p" select="0"/>
 <xsl:call-template name="infix">
  <xsl:with-param name="this-p" select="1"/>
  <xsl:with-param name="p" select="$p"/>
- <xsl:with-param name="mo"><mml:mo>&#8801;</mml:mo></xsl:with-param>
+ <xsl:with-param name="mo"><m:mo>&#8801;</m:mo></xsl:with-param>
 </xsl:call-template>
 </xsl:template>
 
 <!-- 4.4.4.8 approx -->
-<xsl:template mode="c2p" match="mml:apply[*[1][self::mml:approx]]">
+<xsl:template mode="c2p" match="m:apply[*[1][self::m:approx]]
+                       |m:apply[*[1][self::m:csymbol='approx']]">
 <xsl:param name="p" select="0"/>
 <xsl:call-template name="infix">
  <xsl:with-param name="this-p" select="1"/>
  <xsl:with-param name="p" select="$p"/>
- <xsl:with-param name="mo"><mml:mo>&#8771;</mml:mo></xsl:with-param>
+ <xsl:with-param name="mo"><m:mo>&#8771;</m:mo></xsl:with-param>
 </xsl:call-template>
 </xsl:template>
 
 
 <!-- 4.4.4.9 factorof -->
-<xsl:template mode="c2p" match="mml:apply[*[1][self::mml:factorof]]">
+<xsl:template mode="c2p" match="m:apply[*[1][self::m:factorof]]
+                       |m:apply[*[1][self::m:csymbol='factorof']]">
   <xsl:param name="p" select="0"/>
 <xsl:call-template name="binary">
-  <xsl:with-param name="mo"><mml:mo>|</mml:mo></xsl:with-param>
+  <xsl:with-param name="mo"><m:mo>|</m:mo></xsl:with-param>
   <xsl:with-param name="p" select="$p"/>
   <xsl:with-param name="this-p" select="3"/>
 </xsl:call-template>
 </xsl:template>
 
 <!-- 4.4.5.1 int -->
-<xsl:template mode="c2p" match="mml:apply[*[1][self::mml:int]]">
- <mml:mrow>
- <mml:msubsup>
-  <mml:mi>&#8747;<!--int--></mml:mi>
- <mml:mrow><xsl:apply-templates mode="c2p" select="mml:lowlimit/*|mml:interval/*[1]|mml:condition/*"/></mml:mrow>
- <mml:mrow><xsl:apply-templates mode="c2p" select="mml:uplimit/*|mml:interval/*[2]"/></mml:mrow>
- </mml:msubsup>
+<xsl:template mode="c2p" match="m:apply[*[1][self::m:int]]
+                       |m:apply[*[1][self::m:csymbol='int']]
+                       |m:bind[*[1][self::m:int]]
+                       |m:bind[*[1][self::m:csymbol='int']]">
+ <m:mrow>
+ <m:msubsup>
+  <m:mi>&#8747;<!--int--></m:mi>
+ <m:mrow><xsl:apply-templates mode="c2p" select="m:lowlimit/*|m:interval/*[1]|m:condition/*|m:domainofapplication/*"/></m:mrow>
+ <m:mrow><xsl:apply-templates mode="c2p" select="m:uplimit/*|m:interval/*[2]"/></m:mrow>
+ </m:msubsup>
  <xsl:apply-templates mode="c2p" select="*[last()]"/>
- <mml:mo>d</mml:mo><xsl:apply-templates mode="c2p" select="mml:bvar"/>
-</mml:mrow>
+ <xsl:if test="m:bvar">
+   <m:mi>d</m:mi><xsl:apply-templates mode="c2p" select="m:bvar"/>
+ </xsl:if>
+</m:mrow>
+</xsl:template>
+
+<xsl:template mode="c2p" match="m:apply[*[1][self::m:csymbol='defint']]">
+<m:mrow>
+<m:munder><m:mi>&#8747;<!--int--></m:mi>
+<xsl:apply-templates mode="c2p" select="*[2]"/>
+</m:munder>
+ <xsl:apply-templates mode="c2p" select="*[last()]"/>
+</m:mrow>
 </xsl:template>
 
 <!-- 4.4.5.2 diff -->
-<xsl:template mode="c2p" match="mml:apply[*[1][self::mml:diff] and mml:ci and count(*)=2]" priority="2">
- <mml:msup>
- <mml:mrow><xsl:apply-templates mode="c2p" select="*[2]"/></mml:mrow>
- <mml:mo>&#8242;<!--prime--></mml:mo>
- </mml:msup>
+<xsl:template mode="c2p" match="m:apply[*[1][self::m:diff] and not(m:bvar)]|
+                                m:apply[*[1][self::m:csymbol='diff']]" priority="2">
+ <m:msup>
+ <m:mrow><xsl:apply-templates mode="c2p" select="*[2]"/></m:mrow>
+ <m:mo>&#8242;<!--prime--></m:mo>
+ </m:msup>
 </xsl:template>
 
-<xsl:template mode="c2p" match="mml:apply[*[1][self::mml:diff]]" priority="1">
- <mml:mfrac>
+<xsl:template mode="c2p" match="m:apply[*[1][self::m:diff]]" priority="1">
+ <m:mfrac>
  <xsl:choose>
- <xsl:when test="mml:bvar/mml:degree">
- <mml:mrow><mml:msup><mml:mo>d</mml:mo><xsl:apply-templates mode="c2p" select="mml:bvar/mml:degree/node()"/></mml:msup>
-     <xsl:apply-templates mode="c2p"  select="*[last()]"/></mml:mrow>
- <mml:mrow><mml:mo>d</mml:mo><mml:msup><xsl:apply-templates mode="c2p"
- select="mml:bvar/node()"/><xsl:apply-templates mode="c2p"
- select="mml:bvar/mml:degree/node()"/></mml:msup>
-</mml:mrow>
+ <xsl:when test="m:bvar/m:degree">
+ <m:mrow><m:msup><m:mi>d</m:mi><xsl:apply-templates mode="c2p" select="m:bvar/m:degree/node()"/></m:msup>
+     <xsl:apply-templates mode="c2p"  select="*[last()]"/></m:mrow>
+ <m:mrow><m:mi>d</m:mi><m:msup><xsl:apply-templates mode="c2p"
+ select="m:bvar/node()"/><xsl:apply-templates mode="c2p"
+ select="m:bvar/m:degree/node()"/></m:msup>
+</m:mrow>
 </xsl:when>
 <xsl:otherwise>
- <mml:mrow><mml:mo>d</mml:mo><xsl:apply-templates mode="c2p" select="*[last()]"/></mml:mrow>
- <mml:mrow><mml:mo>d</mml:mo><xsl:apply-templates mode="c2p" select="mml:bvar"/></mml:mrow>
+ <m:mrow><m:mi>d</m:mi><xsl:apply-templates mode="c2p" select="*[last()]"/></m:mrow>
+ <m:mrow><m:mi>d</m:mi><xsl:apply-templates mode="c2p" select="m:bvar"/></m:mrow>
 </xsl:otherwise>
  </xsl:choose>
- </mml:mfrac>
+ </m:mfrac>
 </xsl:template>
 
 
 <!-- 4.4.5.3 partialdiff -->
-<xsl:template mode="c2p" match="mml:apply[*[1][self::mml:partialdiff] and mml:list and mml:ci and count(*)=3]" priority="2">
-<mml:mrow>
- <mml:msub><mml:mo>D</mml:mo><mml:mrow>
-<xsl:for-each select="mml:list[1]/*">
+<xsl:template mode="c2p" match="m:apply[*[1][self::m:partialdiff] and m:list and not(m:bvar) and count(*)=3]" priority="2">
+<m:mrow>
+ <m:msub><m:mi>D</m:mi><m:mrow>
+<xsl:for-each select="m:list[1]/*">
 <xsl:apply-templates mode="c2p" select="."/>
-<xsl:if test="position()&lt;last()"><mml:mo>,</mml:mo></xsl:if>
+<xsl:if test="position()&lt;last()"><m:mo>,</m:mo></xsl:if>
 </xsl:for-each>
-</mml:mrow></mml:msub>
- <mml:mrow><xsl:apply-templates mode="c2p" select="*[3]"/></mml:mrow>
-</mml:mrow>
+</m:mrow></m:msub>
+ <m:mrow><xsl:apply-templates mode="c2p" select="*[3]"/></m:mrow>
+</m:mrow>
 </xsl:template>
 
-<xsl:template mode="c2p" match="mml:apply[*[1][self::mml:partialdiff]]" priority="1">
- <mml:mfrac>
- <mml:mrow><mml:msup><mml:mo>&#8706;<!-- partial --></mml:mo>
-<mml:mrow>
- <xsl:choose>
- <xsl:when test="mml:degree">
-<xsl:apply-templates mode="c2p" select="mml:degree/node()"/>
-</xsl:when>
-<xsl:when test="mml:bvar/mml:degree[string(number(.))='NaN']">
-<xsl:for-each select="mml:bvar/mml:degree">
-<xsl:apply-templates mode="c2p" select="node()"/>
-<xsl:if test="position()&lt;last()"><mml:mo>+</mml:mo></xsl:if>
-</xsl:for-each>
-<xsl:if test="count(mml:bvar[not(mml:degree)])&gt;0">
-<mml:mo>+</mml:mo><mml:mn><xsl:value-of select="count(mml:bvar[not(mml:degree)])"/></mml:mn>
-</xsl:if>
-</xsl:when>
-<xsl:otherwise>
-<mml:mn><xsl:value-of select="sum(mml:bvar/mml:degree)+count(mml:bvar[not(mml:degree)])"/></mml:mn>
-</xsl:otherwise>
- </xsl:choose>
-</mml:mrow>
-</mml:msup>
-     <xsl:apply-templates mode="c2p"  select="*[last()]"/></mml:mrow>
-<mml:mrow>
-<xsl:for-each select="mml:bvar">
-<mml:mrow>
-<mml:mo>&#8706;<!-- partial --></mml:mo><mml:msup><xsl:apply-templates mode="c2p" select="node()"/>
-                     <mml:mrow><xsl:apply-templates mode="c2p" select="mml:degree/node()"/></mml:mrow>
-</mml:msup>
-</mml:mrow>
-</xsl:for-each>
-</mml:mrow>
- </mml:mfrac>
+<xsl:template mode="c2p" match="m:apply[*[1][self::m:partialdiff] and m:list and m:lambda]" priority="3">
+  <m:mfrac>
+    <m:mrow>
+      <xsl:choose>
+        <xsl:when test="count(m:list/*)=1">
+          <m:mo>&#8706;<!-- partial --></m:mo>
+        </xsl:when>
+        <xsl:otherwise>
+          <m:msup><m:mo>&#8706;<!-- partial --></m:mo>
+          <m:mrow>
+            <xsl:choose>
+              <xsl:when test="m:degree">
+                <xsl:apply-templates mode="c2p" select="m:degree/node()"/>
+              </xsl:when>
+              <xsl:otherwise>
+                <m:mn><xsl:value-of select="count(m:list/*)"/></m:mn>
+              </xsl:otherwise>
+            </xsl:choose>
+          </m:mrow>
+          </m:msup>
+        </xsl:otherwise>
+      </xsl:choose>
+    <xsl:apply-templates mode="c2p"  select="m:lambda/*[last()]"/></m:mrow>
+    <m:mrow>
+     <xsl:call-template name="pddx"/>
+    </m:mrow>
+  </m:mfrac>
 </xsl:template>
+
+<xsl:template name="pddx">
+  <xsl:param name="n" select="1"/>
+  <xsl:param name="b" select="m:lambda/m:bvar"/>
+  <xsl:param name="l" select="m:list/*"/>
+  <xsl:choose>
+    <xsl:when 
+       test="number($l[1])=number($l[2])">
+     <xsl:call-template name="pddx">
+     <xsl:with-param name="n" select="$n+1"/>
+     <xsl:with-param name="b" select="$b"/>
+     <xsl:with-param name="l" select="$l[position()!=1]"/>
+     </xsl:call-template>
+    </xsl:when>
+   <xsl:otherwise>
+     <m:mrow>
+     <m:mo>&#8706;<!-- partial --></m:mo>
+     <xsl:choose>
+       <xsl:when test="$n=1">
+         <xsl:apply-templates select="$b[position()=$l[1]]/*"/>
+       </xsl:when>
+       <xsl:otherwise>
+         <m:msup>
+           <xsl:apply-templates select="$b[position()=$l[1]]/*"/>
+           <m:mn><xsl:value-of select="$n"/></m:mn>
+         </m:msup>
+       </xsl:otherwise>
+     </xsl:choose>
+     </m:mrow>
+     <xsl:if test="$l[2]">
+      <xsl:call-template name="pddx">
+       <xsl:with-param name="b" select="$b"/>
+       <xsl:with-param name="l" select="$l[position()!=1]"/>
+      </xsl:call-template>
+     </xsl:if>
+   </xsl:otherwise>
+  </xsl:choose>
+</xsl:template>
+
+<xsl:template mode="c2p" match="m:apply[*[1][self::m:partialdiff]]" priority="1">
+  <m:mfrac>
+    <m:mrow>
+      <xsl:choose>
+        <xsl:when test="not(m:bvar/m:degree) and not(m:bvar[2])">
+          <m:mo>&#8706;<!-- partial --></m:mo>
+        </xsl:when>
+        <xsl:otherwise>
+          <m:msup><m:mo>&#8706;<!-- partial --></m:mo>
+          <m:mrow>
+            <xsl:choose>
+              <xsl:when test="m:degree">
+                <xsl:apply-templates mode="c2p" select="m:degree/node()"/>
+              </xsl:when>
+              <xsl:when test="m:bvar/m:degree[string(number(.))='NaN']">
+                <xsl:for-each select="m:bvar/m:degree">
+                  <xsl:apply-templates mode="c2p" select="node()"/>
+                  <xsl:if test="position()&lt;last()"><m:mo>+</m:mo></xsl:if>
+                </xsl:for-each>
+                <xsl:if test="count(m:bvar[not(m:degree)])&gt;0">
+                  <m:mo>+</m:mo><m:mn><xsl:value-of select="count(m:bvar[not(m:degree)])"/></m:mn>
+                </xsl:if>
+              </xsl:when>
+              <xsl:otherwise>
+                <m:mn><xsl:value-of select="number(sum(m:bvar/m:degree))+count(m:bvar[not(m:degree)])"/></m:mn>
+              </xsl:otherwise>
+            </xsl:choose>
+          </m:mrow>
+          </m:msup>
+        </xsl:otherwise>
+      </xsl:choose>
+    <xsl:apply-templates mode="c2p"  select="*[last()]"/></m:mrow>
+    <m:mrow>
+      <xsl:for-each select="m:bvar">
+        <m:mrow>
+          <m:mo>&#8706;<!-- partial --></m:mo><m:msup><xsl:apply-templates mode="c2p" select="node()"/>
+          <m:mrow><xsl:apply-templates mode="c2p" select="m:degree/node()"/></m:mrow>
+        </m:msup>
+        </m:mrow>
+      </xsl:for-each>
+    </m:mrow>
+  </m:mfrac>
+</xsl:template>
+
+
+<xsl:template mode="c2p" match="m:apply[*[1][self::m:csymbol='partialdiffdegree']]">
+  <m:mrow>
+   <m:msub>
+    <m:mo>&#8706;<!-- partial --></m:mo>
+    <m:mrow>
+     <xsl:apply-templates mode="c2p" select="*[2]"/>
+    </m:mrow>
+   </m:msub>
+   <m:mfenced>
+     <xsl:apply-templates mode="c2p" select="*[4]"/>
+   </m:mfenced>
+  </m:mrow>
+</xsl:template>
+
 
 <!-- 4.4.5.4  lowlimit-->
-<xsl:template mode="c2p" match="mml:lowlimit"/>
+<xsl:template mode="c2p" match="m:lowlimit"/>
 
 <!-- 4.4.5.5 uplimit-->
-<xsl:template mode="c2p" match="mml:uplimit"/>
+<xsl:template mode="c2p" match="m:uplimit"/>
 
 <!-- 4.4.5.6  bvar-->
-<xsl:template mode="c2p" match="mml:bvar">
- <mml:mi><xsl:apply-templates mode="c2p"/></mml:mi>
- <xsl:if test="following-sibling::mml:bvar"><mml:mo>,</mml:mo></xsl:if>
+<xsl:template mode="c2p" match="m:bvar">
+ <m:mi><xsl:apply-templates mode="c2p"/></m:mi>
+ <xsl:if test="following-sibling::m:bvar"><m:mo>,</m:mo></xsl:if>
 </xsl:template>
 
 <!-- 4.4.5.7 degree-->
-<xsl:template mode="c2p" match="mml:degree"/>
+<xsl:template mode="c2p" match="m:degree"/>
 
 <!-- 4.4.5.8 divergence-->
-<xsl:template mode="c2p" match="mml:divergence">
-<mml:mo>div</mml:mo>
+<xsl:template mode="c2p" match="m:divergence">
+<m:mi>div</m:mi>
+</xsl:template>
+
+<xsl:template mode="c2p" match="m:apply[*[1][self::m:divergence]and m:bvar and m:vector]">
+<xsl:variable name="v" select="m:bvar"/>
+<m:mrow>
+<m:mi>div</m:mi>
+<m:mo>&#8289;<!--function application--></m:mo>
+<m:mo>(</m:mo>
+<m:mtable>
+<xsl:for-each select="m:vector/*">
+<xsl:variable name="p" select="position()"/>
+<m:mtr><m:mtd>
+<xsl:apply-templates mode="c2p" select="$v[$p]/*"/>
+<m:mo>&#x21a6;<!-- map--></m:mo>
+<xsl:apply-templates mode="c2p" select="."/>
+</m:mtd></m:mtr>
+</xsl:for-each>
+</m:mtable>
+<m:mo>)</m:mo>
+</m:mrow>
 </xsl:template>
 
 <!-- 4.4.5.9 grad-->
-<xsl:template mode="c2p" match="mml:grad">
-<mml:mo>grad</mml:mo>
+<xsl:template mode="c2p" match="m:grad">
+<m:mi>grad</m:mi>
+</xsl:template>
+
+<xsl:template mode="c2p" match="m:apply[*[1][self::m:grad]and m:bvar]">
+<m:mrow>
+<m:mi>grad</m:mi>
+<m:mo>&#8289;<!--function application--></m:mo>
+<m:mrow>
+<m:mo>(</m:mo>
+<m:mfenced>
+<xsl:apply-templates mode="c2p" select="m:bvar/*"/>
+</m:mfenced>
+<m:mo>&#x21a6;<!-- map--></m:mo>
+<xsl:apply-templates mode="c2p" select="*[position()!=1][not(self::m:bvar)]"/>
+<m:mo>)</m:mo>
+</m:mrow>
+</m:mrow>
 </xsl:template>
 
 <!-- 4.4.5.10 curl -->
-<xsl:template mode="c2p" match="mml:curl">
-<mml:mo>curl</mml:mo>
+<xsl:template mode="c2p" match="m:curl">
+<m:mi>curl</m:mi>
 </xsl:template>
 
 
 <!-- 4.4.5.11 laplacian-->
-<xsl:template mode="c2p" match="mml:laplacian">
-<mml:msup><mml:mo>&#8711;<!-- nabla --></mml:mo><mml:mn>2</mml:mn></mml:msup>
+<xsl:template mode="c2p" match="m:laplacian">
+<m:msup><m:mo>&#8711;<!-- nabla --></m:mo><m:mn>2</m:mn></m:msup>
+</xsl:template>
+
+<xsl:template mode="c2p" match="m:apply[*[1][self::m:laplacian]and m:bvar]">
+<m:mrow>
+<xsl:apply-templates mode="c2p" select="*[1]"/>
+<m:mo>&#8289;<!--function application--></m:mo>
+<m:mrow>
+<m:mo>(</m:mo>
+<m:mfenced>
+<xsl:apply-templates mode="c2p" select="m:bvar/*"/>
+</m:mfenced>
+<m:mo>&#x21a6;<!-- map--></m:mo>
+<xsl:apply-templates mode="c2p" select="*[position()!=1][not(self::m:bvar)]"/>
+<m:mo>)</m:mo>
+</m:mrow>
+</m:mrow>
 </xsl:template>
 
 <!-- 4.4.6.1 set -->
 
-<xsl:template mode="c2p" match="mml:set">
+<xsl:template mode="c2p" match="m:set">
   <xsl:call-template name="set"/>
+</xsl:template>
+
+<xsl:template mode="c2p"  match="m:apply[*[1][self::m:csymbol='set']]">
+<m:mfenced open="{{" close="}}" separators=",">
+  <xsl:apply-templates mode="c2p" select="*[position()!=1]"/>
+</m:mfenced>
 </xsl:template>
 
 <!-- 4.4.6.2 list -->
 
-<xsl:template mode="c2p" match="mml:list">
+<xsl:template mode="c2p" match="m:list">
   <xsl:call-template name="set">
    <xsl:with-param name="o" select="'('"/>
    <xsl:with-param name="c" select="')'"/>
   </xsl:call-template>
 </xsl:template>
 
+
+<xsl:template mode="c2p" match="m:apply[*[1][self::m:csymbol='list']]">
+<m:mfenced open="(" close=")" separators=",">
+  <xsl:apply-templates mode="c2p" select="*[position()!=1]"/>
+</m:mfenced>
+</xsl:template>
+
 <!-- 4.4.6.3 union -->
-<xsl:template mode="c2p" match="mml:apply[*[1][self::mml:union]]">
+<xsl:template mode="c2p" match="m:apply[*[1][self::m:union]]
+                       |m:apply[*[1][self::m:csymbol='union']]">
 <xsl:param name="p" select="0"/>
 <xsl:call-template name="infix">
  <xsl:with-param name="this-p" select="2"/>
  <xsl:with-param name="p" select="$p"/>
- <xsl:with-param name="mo"><mml:mo>&#8746;<!-- union --></mml:mo></xsl:with-param>
+ <xsl:with-param name="mo"><m:mo>&#8746;<!-- union --></m:mo></xsl:with-param>
 </xsl:call-template>
 </xsl:template>
 
+<xsl:template mode="c2p" match="m:apply[*[1][self::m:union]][m:bvar]
+                                |m:apply[*[1][self::m:csymbol='union']][m:bvar]"
+              priority="2"
+>
+  <xsl:call-template name="sum">
+    <xsl:with-param name="mo"><m:mo>&#x22C3;</m:mo></xsl:with-param>
+  </xsl:call-template>
+</xsl:template>
+
 <!-- 4.4.6.4 intersect -->
-<xsl:template mode="c2p" match="mml:apply[*[1][self::mml:intersect]]">
+<xsl:template mode="c2p" match="m:apply[*[1][self::m:intersect]]
+                       |m:apply[*[1][self::m:csymbol='intersect']]">
 <xsl:param name="p" select="0"/>
 <xsl:call-template name="infix">
  <xsl:with-param name="this-p" select="3"/>
  <xsl:with-param name="p" select="$p"/>
- <xsl:with-param name="mo"><mml:mo>&#8745;<!-- intersect --></mml:mo></xsl:with-param>
+ <xsl:with-param name="mo"><m:mo>&#8745;<!-- intersect --></m:mo></xsl:with-param>
 </xsl:call-template>
 </xsl:template>
 
+
+<xsl:template mode="c2p" match="m:apply[*[1][self::m:intersect]][m:bvar]
+                                |m:apply[*[1][self::m:csymbol='intersect']][m:bvar]"
+              priority="2"
+>
+  <xsl:call-template name="sum">
+    <xsl:with-param name="mo"><m:mo>&#x22C2;</m:mo></xsl:with-param>
+  </xsl:call-template>
+</xsl:template>
+
+
+
 <!-- 4.4.6.5 in -->
-<xsl:template mode="c2p" match="mml:apply[*[1][self::mml:in]]">
+<xsl:template mode="c2p" match="m:apply[*[1][self::m:in]]
+                       |m:apply[*[1][self::m:csymbol='in']]">
   <xsl:param name="p" select="0"/>
 <xsl:call-template name="binary">
-  <xsl:with-param name="mo"><mml:mo>&#8712;<!-- in --></mml:mo></xsl:with-param>
+  <xsl:with-param name="mo"><m:mo>&#8712;<!-- in --></m:mo></xsl:with-param>
   <xsl:with-param name="p" select="$p"/>
   <xsl:with-param name="this-p" select="3"/>
 </xsl:call-template>
 </xsl:template>
 
 <!-- 4.4.6.5 notin -->
-<xsl:template mode="c2p" match="mml:apply[*[1][self::mml:notin]]">
+<xsl:template mode="c2p" match="m:apply[*[1][self::m:notin]]|m:reln[*[1][self::m:notin]]
+                       |m:apply[*[1][self::m:csymbol='notin']]">
   <xsl:param name="p" select="0"/>
 <xsl:call-template name="binary">
-  <xsl:with-param name="mo"><mml:mo>&#8713;<!-- not in --></mml:mo></xsl:with-param>
+  <xsl:with-param name="mo"><m:mo>&#8713;<!-- not in --></m:mo></xsl:with-param>
   <xsl:with-param name="p" select="$p"/>
   <xsl:with-param name="this-p" select="3"/>
 </xsl:call-template>
 </xsl:template>
 
 <!-- 4.4.6.7 subset -->
-<xsl:template mode="c2p" match="mml:apply[*[1][self::mml:subset]]">
+<xsl:template mode="c2p" match="m:apply[*[1][self::m:subset]]
+                       |m:apply[*[1][self::m:csymbol='subset']]">
 <xsl:param name="p" select="0"/>
 <xsl:call-template name="infix">
  <xsl:with-param name="this-p" select="2"/>
  <xsl:with-param name="p" select="$p"/>
- <xsl:with-param name="mo"><mml:mo>&#8838;<!-- subseteq --></mml:mo></xsl:with-param>
+ <xsl:with-param name="mo"><m:mo>&#8838;<!-- subseteq --></m:mo></xsl:with-param>
 </xsl:call-template>
 </xsl:template>
 
 <!-- 4.4.6.8 prsubset -->
-<xsl:template mode="c2p" match="mml:apply[*[1][self::mml:prsubset]]">
+<xsl:template mode="c2p" match="m:apply[*[1][self::m:prsubset]]
+                       |m:apply[*[1][self::m:csymbol='prsubset']]">
 <xsl:param name="p" select="0"/>
 <xsl:call-template name="infix">
  <xsl:with-param name="this-p" select="2"/>
  <xsl:with-param name="p" select="$p"/>
- <xsl:with-param name="mo"><mml:mo>&#8834;<!-- prsubset --></mml:mo></xsl:with-param>
+ <xsl:with-param name="mo"><m:mo>&#8834;<!-- prsubset --></m:mo></xsl:with-param>
 </xsl:call-template>
 </xsl:template>
 
 <!-- 4.4.6.9 notsubset -->
-<xsl:template mode="c2p" match="mml:apply[*[1][self::mml:notsubset]]">
+<xsl:template mode="c2p" match="m:apply[*[1][self::m:notsubset]]
+                       |m:apply[*[1][self::m:csymbol='notsubset']]">
 <xsl:param name="p" select="0"/>
 <xsl:call-template name="binary">
  <xsl:with-param name="this-p" select="2"/>
  <xsl:with-param name="p" select="$p"/>
- <xsl:with-param name="mo"><mml:mo>&#8840;<!-- notsubseteq --></mml:mo></xsl:with-param>
+ <xsl:with-param name="mo"><m:mo>&#8840;<!-- notsubseteq --></m:mo></xsl:with-param>
 </xsl:call-template>
 </xsl:template>
 
 <!-- 4.4.6.10 notprsubset -->
-<xsl:template mode="c2p" match="mml:apply[*[1][self::mml:notprsubset]]">
+<xsl:template mode="c2p" match="m:apply[*[1][self::m:notprsubset]]
+                       |m:apply[*[1][self::m:csymbol='notprsubset']]">
 <xsl:param name="p" select="0"/>
 <xsl:call-template name="binary">
  <xsl:with-param name="this-p" select="2"/>
  <xsl:with-param name="p" select="$p"/>
- <xsl:with-param name="mo"><mml:mo>&#8836;<!-- prsubset --></mml:mo></xsl:with-param>
+ <xsl:with-param name="mo"><m:mo>&#8836;<!-- prsubset --></m:mo></xsl:with-param>
 </xsl:call-template>
 </xsl:template>
 
 <!-- 4.4.6.11 setdiff -->
-<xsl:template mode="c2p" match="mml:apply[*[1][self::mml:setdiff]]">
+<xsl:template mode="c2p" match="m:apply[*[1][self::m:setdiff]]
+                       |m:apply[*[1][self::m:csymbol='setdiff']]">
 <xsl:param name="p" select="0"/>
 <xsl:call-template name="binary">
  <xsl:with-param name="this-p" select="2"/>
  <xsl:with-param name="p" select="$p"/>
- <xsl:with-param name="mo"><mml:mo>&#8726;<!-- setminus --></mml:mo></xsl:with-param>
+ <xsl:with-param name="mo"><m:mo>&#8726;<!-- setminus --></m:mo></xsl:with-param>
 </xsl:call-template>
 </xsl:template>
 
 <!-- 4.4.6.12 card -->
-<xsl:template mode="c2p" match="mml:apply[*[1][self::mml:card]]">
-<mml:mrow>
-<mml:mo>|</mml:mo>
+<xsl:template mode="c2p" match="m:apply[*[1][self::m:card]]
+                       |m:apply[*[1][self::m:csymbol='card']]">
+<m:mrow>
+<m:mo>|</m:mo>
 <xsl:apply-templates mode="c2p" select="*[2]"/>
-<mml:mo>|</mml:mo>
-</mml:mrow>
+<m:mo>|</m:mo>
+</m:mrow>
 </xsl:template>
 
 <!-- 4.4.6.13 cartesianproduct -->
-<xsl:template mode="c2p" match="mml:apply[*[1][self::mml:cartesianproduct or self::mml:vectorproduct]]">
+<xsl:template mode="c2p" match="m:apply[*[1][self::m:cartesianproduct or self::m:vectorproduct]]
+                                |m:apply[*[1][self::m:csymbol[.='cartesian_product' or . = 'vectorproduct']]]">
 <xsl:param name="p" select="0"/>
 <xsl:call-template name="infix">
  <xsl:with-param name="this-p" select="2"/>
  <xsl:with-param name="p" select="$p"/>
- <xsl:with-param name="mo"><mml:mo>&#215;<!-- times --></mml:mo></xsl:with-param>
+ <xsl:with-param name="mo"><m:mo>&#215;<!-- times --></m:mo></xsl:with-param>
 </xsl:call-template>
 </xsl:template>
 
 <xsl:template
-match="mml:apply[*[1][self::mml:cartesianproduct][count(following-sibling::mml:reals)=count(following-sibling::*)]]"
+match="m:apply[*[1][self::m:cartesianproduct][count(following-sibling::m:reals)=count(following-sibling::*)]]"
 priority="2">
-<mml:msup>
+<m:msup>
 <xsl:apply-templates mode="c2p" select="*[2]">
   <xsl:with-param name="p" select="5"/>
 </xsl:apply-templates>
-<mml:mn><xsl:value-of select="count(*)-1"/></mml:mn>
-</mml:msup>
+<m:mn><xsl:value-of select="count(*)-1"/></m:mn>
+</m:msup>
 </xsl:template>
 
 
 <!-- 4.4.7.1 sum -->
-<xsl:template mode="c2p" match="mml:apply[*[1][self::mml:sum]]">
- <mml:mrow>
- <mml:msubsup>
-  <mml:mo>&#8721;<!--sum--></mml:mo>
- <mml:mrow><xsl:apply-templates mode="c2p" select="mml:lowlimit/*|mml:interval/*[1]|mml:condition/*"/></mml:mrow>
- <mml:mrow><xsl:apply-templates mode="c2p" select="mml:uplimit/*|mml:interval/*[2]"/></mml:mrow>
- </mml:msubsup>
+<xsl:template name="sum"  mode="c2p" match="m:apply[*[1][self::m:sum]]">
+  <xsl:param name="mo"><m:mo>&#8721;<!--sum--></m:mo></xsl:param>
+ <m:mrow>
+ <m:munderover>
+  <xsl:copy-of select="$mo"/>
+ <m:mrow><xsl:apply-templates mode="c2p" select="m:lowlimit|m:interval/*[1]|m:condition/*|m:domainofapplication/*"/></m:mrow><!-- Alexey Shamrin shamrinATmail.ru -->
+ <m:mrow><xsl:apply-templates mode="c2p" select="m:uplimit/*|m:interval/*[2]"/></m:mrow>
+ </m:munderover>
  <xsl:apply-templates mode="c2p" select="*[last()]"/>
-</mml:mrow>
+</m:mrow>
+</xsl:template>
+
+<xsl:template mode="c2p" match="m:apply[*[1][self::m:csymbol='sum']]">
+<m:mrow>
+<m:munder><m:mo>&#8721;<!--sum--></m:mo>
+<xsl:apply-templates mode="c2p" select="*[2]"/>
+</m:munder>
+ <xsl:apply-templates mode="c2p" select="*[last()]"/>
+</m:mrow>
+</xsl:template>
+
+<xsl:template mode="c2p" match="m:apply/m:lowlimit" priority="3">
+<m:mrow>
+<xsl:if test="../m:bvar">
+  <xsl:apply-templates mode="c2p" select="../m:bvar/node()"/>
+  <m:mo>=</m:mo>
+</xsl:if>
+<xsl:apply-templates mode="c2p"/>
+</m:mrow>
 </xsl:template>
 
 <!-- 4.4.7.2 product -->
-<xsl:template mode="c2p" match="mml:apply[*[1][self::mml:product]]">
- <mml:mrow>
- <mml:msubsup>
-  <mml:mo>&#8719;<!--product--></mml:mo>
- <mml:mrow><xsl:apply-templates mode="c2p" select="mml:lowlimit/*|mml:interval/*[1]|mml:condition/*"/></mml:mrow>
- <mml:mrow><xsl:apply-templates mode="c2p" select="mml:uplimit/*|mml:interval/*[2]"/></mml:mrow>
- </mml:msubsup>
+<xsl:template mode="c2p" match="m:apply[*[1][self::m:product]]">
+  <xsl:call-template name="sum">
+    <xsl:with-param name="mo"><m:mo>&#8719;<!--product--></m:mo></xsl:with-param>
+  </xsl:call-template>
+</xsl:template>
+
+
+<xsl:template mode="c2p" match="m:apply[*[1][self::m:csymbol='product']]">
+<m:mrow>
+<m:munder><m:mo>&#8719;<!--product--></m:mo>
+<xsl:apply-templates mode="c2p" select="*[2]"/>
+</m:munder>
  <xsl:apply-templates mode="c2p" select="*[last()]"/>
-</mml:mrow>
+</m:mrow>
 </xsl:template>
 
 <!-- 4.4.7.3 limit -->
-<xsl:template mode="c2p" match="mml:apply[*[1][self::mml:limit]]">
- <mml:mrow>
- <mml:munder>
-  <mml:mi>limit</mml:mi>
- <mml:mrow><xsl:apply-templates mode="c2p" select="mml:lowlimit|mml:condition/*"/></mml:mrow>
- </mml:munder>
+<xsl:template mode="c2p" match="m:apply[*[1][self::m:limit]]">
+ <m:mrow>
+ <m:munder>
+  <m:mi>lim</m:mi> <!-- Alexey Shamrin shamrinATmail.ru -->
+ <m:mrow><xsl:apply-templates mode="c2p" select="m:lowlimit|m:condition/*"/></m:mrow>
+ </m:munder>
  <xsl:apply-templates mode="c2p" select="*[last()]"/>
-</mml:mrow>
+</m:mrow>
 </xsl:template>
 
-<xsl:template mode="c2p" match="mml:apply[mml:limit]/mml:lowlimit" priority="3">
-<mml:mrow>
-<xsl:apply-templates mode="c2p" select="../mml:bvar/node()"/>
-<mml:mo>&#8594;<!--rightarrow--></mml:mo>
+<xsl:template mode="c2p" match="m:apply[*[1][self::m:csymbol='limit']][m:bind]">
+ <m:mrow>
+ <m:munder>
+  <m:mi>lim</m:mi>
+ <m:mrow>
+ <xsl:apply-templates mode="c2p" select="m:bind/m:bvar/*"/>
+    <m:mo>
+      <xsl:choose>
+        <xsl:when test="*[3]='above'">&#8600;<!--searrow--></xsl:when>
+        <xsl:when test="*[3]='below'">&#8599;<!--nearrow--></xsl:when>
+        <xsl:otherwise>&#8594;<!--rightarrow--></xsl:otherwise>
+      </xsl:choose>
+    </m:mo>
+ <xsl:apply-templates mode="c2p" select="*[2]"/>    
+</m:mrow>
+ </m:munder>
+ <xsl:apply-templates mode="c2p" select="m:bind/*[last()]"/>
+</m:mrow>
+</xsl:template>
+
+
+
+<xsl:template mode="c2p" match="m:apply[m:limit]/m:lowlimit" priority="4">
+<m:mrow>
+<xsl:apply-templates mode="c2p" select="../m:bvar/node()"/>
+<m:mo>&#8594;<!--rightarrow--></m:mo>
 <xsl:apply-templates mode="c2p"/>
-</mml:mrow>
+</m:mrow>
 </xsl:template>
 
 
 <!-- 4.4.7.4 tendsto -->
-<xsl:template mode="c2p" match="mml:apply[*[1][self::mml:tendsto]]">
+<xsl:template mode="c2p" match="m:apply[*[1][self::m:tendsto]]|m:reln[*[1][self::m:tendsto]]">
  <xsl:param name="p"/>
 <xsl:call-template name="binary">
  <xsl:with-param name="this-p" select="2"/>
  <xsl:with-param name="p" select="$p"/>
- <xsl:with-param name="mo"><mml:mo>
+ <xsl:with-param name="mo"><m:mo>
   <xsl:choose>
    <xsl:when test="@type='above'">&#8600;<!--searrow--></xsl:when>
    <xsl:when test="@type='below'">&#8599;<!--nearrow--></xsl:when>
    <xsl:when test="@type='two-sided'">&#8594;<!--rightarrow--></xsl:when>
    <xsl:otherwise>&#8594;<!--rightarrow--></xsl:otherwise>
   </xsl:choose>
-  </mml:mo></xsl:with-param>
+  </m:mo></xsl:with-param>
 </xsl:call-template>
 </xsl:template>
 
+<xsl:template mode="c2p" match="m:apply[*[1][self::m:csymbol='tendsto']]">
+  <m:mrow>
+    <xsl:apply-templates mode="c2p" select="*[3]"/>
+    <m:mo>
+      <xsl:choose>
+        <xsl:when test="*[1][self::above]">&#8600;<!--searrow--></xsl:when>
+        <xsl:when test="*[1][self::below]">&#8599;<!--nearrow--></xsl:when>
+        <xsl:when test="*[1][self::two-sided]">&#8594;<!--rightarrow--></xsl:when>
+        <xsl:otherwise>&#8594;<!--rightarrow--></xsl:otherwise>
+      </xsl:choose>
+    </m:mo>
+    <xsl:apply-templates mode="c2p" select="*[4]"/>
+  </m:mrow>
+</xsl:template>
+
+<xsl:template mode="c2p" match="m:apply[*[1][self::m:semantics/m:ci='tendsto']]">
+  <m:mrow>
+    <xsl:apply-templates mode="c2p" select="*[2]"/>
+    <m:mo>&#8594;<!--rightarrow--></m:mo>
+    <xsl:apply-templates mode="c2p" select="*[3]"/>
+  </m:mrow>
+</xsl:template>
+
+<xsl:template mode="c2p" match="m:tendsto">
+ <m:mi>tendsto</m:mi>
+</xsl:template>
+
 <!-- 4.4.8.1 trig -->
-<xsl:template mode="c2p" match="mml:apply[*[1][
- self::mml:sin or self::mml:cos or self::mml:tan or self::mml:sec or
- self::mml:csc or self::mml:cot or self::mml:sinh or self::mml:cosh or
- self::mml:tanh or self::mml:sech or self::mml:csch or self::mml:coth or
- self::mml:arcsin or self::mml:arccos or self::mml:arctan or self::mml:arccosh
- or self::mml:arccot or self::mml:arccoth or self::mml:arccsc or
- self::mml:arccsch or self::mml:arcsec or self::mml:arcsech or
- self::mml:arcsinh or self::mml:arctanh or self::mml:ln]]">
-<mml:mrow>
-<mml:mi><xsl:value-of select="local-name(*[1])"/></mml:mi>
-<xsl:apply-templates mode="c2p" select="*[2]">
-  <xsl:with-param name="p" select="7"/>
-</xsl:apply-templates>
-</mml:mrow>
+<xsl:template mode="c2p" match="m:apply[*[1][
+ self::m:sin or self::m:cos or self::m:tan or self::m:sec or
+ self::m:csc or self::m:cot or self::m:sinh or self::m:cosh or
+ self::m:tanh or self::m:sech or self::m:csch or self::m:coth or
+ self::m:arcsin or self::m:arccos or self::m:arctan or self::m:arccosh
+ or self::m:arccot or self::m:arccoth or self::m:arccsc or
+ self::m:arccsch or self::m:arcsec or self::m:arcsech or
+ self::m:arcsinh or self::m:arctanh or self::m:ln]]">
+  <m:mrow>
+    <m:mi><xsl:value-of select="local-name(*[1])"/></m:mi>
+    <m:mo>&#8289;<!--function application--></m:mo>
+    <xsl:if test="m:apply"><m:mo>(</m:mo></xsl:if>
+    <xsl:apply-templates mode="c2p" select="*[2]"/>
+    <xsl:if test="m:apply"><m:mo>)</m:mo></xsl:if>
+  </m:mrow>
+</xsl:template>
+
+<!-- Vasil I. Yaroshevich -->
+<xsl:template mode="c2p" match="
+ m:sin | m:cos | m:tan | m:sec |
+ m:csc | m:cot | m:sinh | m:cosh |
+ m:tanh | m:sech | m:csch | m:coth |
+ m:arcsin | m:arccos | m:arctan | m:arccosh
+ | m:arccot | m:arccoth | m:arccsc |
+ m:arccsch | m:arcsec | m:arcsech |
+ m:arcsinh | m:arctanh | m:ln|m:mean|
+ m:plus|m:minus">
+<m:mi><xsl:value-of select="local-name()"/></m:mi>
 </xsl:template>
 
 
 
 
 <!-- 4.4.8.2 exp -->
-<xsl:template mode="c2p" match="mml:apply[*[1][self::mml:exp]]">
-<mml:msup>
-<mml:mi>e<!-- exponential e--></mml:mi>
-<mml:mrow><xsl:apply-templates mode="c2p" select="*[2]"/></mml:mrow>
-</mml:msup>
+<xsl:template mode="c2p" match="m:apply[*[1][self::m:exp]]
+                       |m:apply[*[1][self::m:csymbol='exp']]">
+<m:msup>
+<m:mi>e<!-- exponential e--></m:mi>
+<m:mrow><xsl:apply-templates mode="c2p" select="*[2]"/></m:mrow>
+</m:msup>
 </xsl:template>
 
 <!-- 4.4.8.3 ln -->
 <!-- with trig -->
 
 <!-- 4.4.8.4 log -->
-<xsl:template mode="c2p" match="mml:apply[*[1][self::mml:log]]">
-<mml:mrow>
+<xsl:template mode="c2p" match="m:apply[*[1][self::m:log]]
+                       |m:apply[*[1][self::m:csymbol='log']]">
+<m:mrow>
 <xsl:choose>
-<xsl:when test="not(mml:logbase) or mml:logbase=10">
-<mml:mi>log</mml:mi>
+<xsl:when test="not(m:logbase) or m:logbase=10">
+<m:mi>log</m:mi>
 </xsl:when>
 <xsl:otherwise>
-<mml:msub>
-<mml:mi>log</mml:mi>
-<mml:mrow><xsl:apply-templates mode="c2p" select="mml:logbase/node()"/></mml:mrow>
-</mml:msub>
+<m:msub>
+<m:mi>log</m:mi>
+<m:mrow><xsl:apply-templates mode="c2p" select="m:logbase/node()"/></m:mrow>
+</m:msub>
 </xsl:otherwise>
 </xsl:choose>
+<m:mo>&#8289;<!--function application--></m:mo>
 <xsl:apply-templates mode="c2p" select="*[last()]">
   <xsl:with-param name="p" select="7"/>
 </xsl:apply-templates>
-</mml:mrow>
+</m:mrow>
 </xsl:template>
 
 
 <!-- 4.4.9.1 mean -->
-<xsl:template mode="c2p" match="mml:apply[*[1][self::mml:mean]]">
-<mml:mrow>
- <mml:mo>&#9001;<!--langle--></mml:mo>
+<xsl:template mode="c2p" match="m:apply[*[1][self::m:mean]]
+                       |m:apply[*[1][self::m:csymbol='mean']]">
+<m:mrow>
+ <m:mo>&#9001;<!--langle--></m:mo>
     <xsl:for-each select="*[position()&gt;1]">
       <xsl:apply-templates mode="c2p" select="."/>
-      <xsl:if test="position() !=last()"><mml:mo>,</mml:mo></xsl:if>
+      <xsl:if test="position() !=last()"><m:mo>,</m:mo></xsl:if>
     </xsl:for-each>
-<mml:mo>&#9002;<!--rangle--></mml:mo>
-</mml:mrow>
+<m:mo>&#9002;<!--rangle--></m:mo>
+</m:mrow>
 </xsl:template>
 
 
 <!-- 4.4.9.2 sdef -->
-<xsl:template mode="c2p" match="mml:sdev">
-<mml:mo>&#963;<!--sigma--></mml:mo>
+<xsl:template mode="c2p" match="m:sdev|m:csymbol[.='sdev']">
+<m:mo>&#963;<!--sigma--></m:mo>
 </xsl:template>
 
 <!-- 4.4.9.3 variance -->
-<xsl:template mode="c2p" match="mml:apply[*[1][self::mml:variance]]">
-<mml:msup>
-<mml:mrow>
-<mml:mo>&#963;<!--sigma--></mml:mo>
-<mml:mo>(</mml:mo>
-<xsl:apply-templates mode="c2p" select="*[2]"/>
-<mml:mo>)</mml:mo>
-</mml:mrow>
-<mml:mn>2</mml:mn>
-</mml:msup>
+<xsl:template mode="c2p" match="m:apply[*[1][self::m:variance]]
+                       |m:apply[*[1][self::m:csymbol='variance']]">
+<m:msup>
+<m:mrow>
+<m:mo>&#963;<!--sigma--></m:mo>
+ <m:mo>&#8289;<!--function application--></m:mo>
+<m:mfenced>
+<xsl:apply-templates mode="c2p" select="*[position()!=1]"/>
+</m:mfenced>
+</m:mrow>
+<m:mn>2</m:mn>
+</m:msup>
 </xsl:template>
 
 
 <!-- 4.4.9.4 median -->
-<xsl:template mode="c2p" match="mml:median">
-<mml:mo>median</mml:mo>
+<xsl:template mode="c2p" match="m:median">
+<m:mi>median</m:mi>
 </xsl:template>
 
 
 <!-- 4.4.9.5 mode -->
-<xsl:template mode="c2p" match="mml:mode">
-<mml:mo>mode</mml:mo>
+<xsl:template mode="c2p" match="m:mode">
+<m:mi>mode</m:mi>
 </xsl:template>
 
 <!-- 4.4.9.5 moment -->
-<xsl:template mode="c2p" match="mml:apply[*[1][self::mml:moment]]">
-<mml:mrow>
- <mml:mo>&#9001;<!--langle--></mml:mo>
-       <mml:msup>
-      <xsl:apply-templates mode="c2p" select="*[last()]"/>
-      <mml:mrow><xsl:apply-templates mode="c2p" select="mml:degree/node()"/></mml:mrow>
-       </mml:msup>
-<mml:mo>&#9002;<!--rangle--></mml:mo>
-</mml:mrow>
+<xsl:template mode="c2p" match="m:apply[*[1][self::m:moment]]">
+  <m:mrow>
+    <m:mo>&#9001;<!--langle--></m:mo>
+    <m:msup>
+      <xsl:variable name="data" 
+                    select="*[not(position()=1)]
+                            [not(self::m:degree or self::m:momentabout)]"/>
+      <xsl:choose>
+        <xsl:when test="$data[2]">
+          <m:mfenced>
+            <xsl:apply-templates mode="c2p" select="$data"/>
+          </m:mfenced>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:apply-templates mode="c2p" select="$data"/>
+        </xsl:otherwise>
+      </xsl:choose>
+      <m:mrow><xsl:apply-templates mode="c2p" select="m:degree/node()"/></m:mrow>
+    </m:msup>
+    <m:mo>&#9002;<!--rangle--></m:mo>
+  </m:mrow>
+</xsl:template>
+
+<xsl:template mode="c2p" match="m:apply[*[1][self::m:csymbol='moment']]">
+<m:msub>
+  <m:mrow>
+    <m:mo>&#9001;<!--langle--></m:mo>
+    <m:msup>
+          <xsl:apply-templates mode="c2p" select="*[4]"/>
+          <xsl:apply-templates mode="c2p" select="*[2]"/>
+    </m:msup>
+    <m:mo>&#9002;<!--rangle--></m:mo>
+  </m:mrow>
+  <xsl:apply-templates mode="c2p" select="*[3]"/>         
+</m:msub>
 </xsl:template>
 
 <!-- 4.4.9.5 momentabout -->
-<xsl:template mode="c2p" match="mml:momentabout"/>
+<xsl:template mode="c2p" match="m:momentabout"/>
+
+<xsl:template mode="c2p" match="m:apply[*[1][self::m:moment]][m:momentabout]" priority="2">
+  <m:msub>
+    <m:mrow>
+      <m:mo>&#9001;<!--langle--></m:mo>
+      <m:msup>
+        <xsl:variable name="data" 
+                      select="*[not(position()=1)]
+                              [not(self::m:degree or self::m:momentabout)]"/>
+        <xsl:choose>
+          <xsl:when test="$data[2]">
+            <m:mfenced>
+              <xsl:apply-templates mode="c2p" select="$data"/>
+            </m:mfenced>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:apply-templates mode="c2p" select="$data"/>
+          </xsl:otherwise>
+        </xsl:choose>
+        <m:mrow><xsl:apply-templates mode="c2p" select="m:degree/node()"/></m:mrow>
+      </m:msup>
+      <m:mo>&#9002;<!--rangle--></m:mo>
+    </m:mrow>
+    <m:mrow>
+      <xsl:apply-templates mode="c2p" select="m:momentabout/*"/>
+    </m:mrow>
+  </m:msub>
+</xsl:template>
 
 <!-- 4.4.10.1 vector  -->
-<xsl:template mode="c2p" match="mml:vector">
-<mml:mrow>
-<mml:mo>(</mml:mo>
-<mml:mtable>
+<xsl:template mode="c2p" match="m:vector">
+<m:mrow>
+<m:mo>(</m:mo>
+<m:mtable>
 <xsl:for-each select="*">
-<mml:mtr><mml:mtd><xsl:apply-templates mode="c2p" select="."/></mml:mtd></mml:mtr>
+<m:mtr><m:mtd><xsl:apply-templates mode="c2p" select="."/></m:mtd></m:mtr>
 </xsl:for-each>
-</mml:mtable>
-<mml:mo>)</mml:mo>
-</mml:mrow>
+</m:mtable>
+<m:mo>)</m:mo>
+</m:mrow>
+</xsl:template>
+
+
+<xsl:template mode="c2p" match="m:vector[m:condition]">
+  <m:mrow>
+    <m:mo>[</m:mo>
+    <xsl:apply-templates mode="c2p" select="*[last()]"/>
+    <m:mo>|</m:mo>
+    <xsl:apply-templates mode="c2p" select="m:condition"/>
+    <m:mo>]</m:mo>
+  </m:mrow>
+</xsl:template>
+
+<xsl:template mode="c2p" match="m:vector[m:domainofapplication]">
+  <m:mrow>
+    <m:mo>[</m:mo>
+    <xsl:apply-templates mode="c2p" select="*[last()]"/>
+    <m:mo>|</m:mo>
+    <xsl:apply-templates mode="c2p" select="m:bvar/*"/>
+    <m:mo>&#x2208;</m:mo>
+    <xsl:apply-templates mode="c2p" select="m:domainofapplication/*"/>
+    <m:mo>]</m:mo>
+  </m:mrow>
+</xsl:template>
+
+<xsl:template mode="c2p" match="m:apply[*[1][self::m:csymbol='vector']]">
+<m:mrow>
+<m:mo>(</m:mo>
+<m:mtable>
+<xsl:for-each select="*[position()!=1]">
+<m:mtr>
+  <m:mtd><xsl:apply-templates mode="c2p" select="."/></m:mtd>
+</m:mtr>
+</xsl:for-each>
+</m:mtable>
+<m:mo>)</m:mo>
+</m:mrow>
 </xsl:template>
 
 <!-- 4.4.10.2 matrix  -->
-<xsl:template mode="c2p" match="mml:matrix">
-<mml:mrow>
-<mml:mo>(</mml:mo>
-<mml:mtable>
+<xsl:template mode="c2p" match="m:matrix">
+<m:mrow>
+<m:mo>(</m:mo>
+<m:mtable>
 <xsl:apply-templates mode="c2p"/>
-</mml:mtable>
-<mml:mo>)</mml:mo>
-</mml:mrow>
+</m:mtable>
+<m:mo>)</m:mo>
+</m:mrow>
 </xsl:template>
 
+<xsl:template mode="c2p" match="m:matrix[m:condition]">
+  <m:mrow>
+    <m:mo>[</m:mo>
+    <m:msub>
+      <m:mi>m</m:mi>
+      <m:mrow>
+        <xsl:for-each select="m:bvar">
+          <xsl:apply-templates mode="c2p"/>
+          <xsl:if test="position()!=last()"><m:mo>,</m:mo></xsl:if>
+        </xsl:for-each>
+      </m:mrow>
+    </m:msub>
+    <m:mo>|</m:mo>
+    <m:mrow>
+      <m:msub>
+        <m:mi>m</m:mi>
+        <m:mrow>
+          <xsl:for-each select="m:bvar">
+            <xsl:apply-templates mode="c2p"/>
+            <xsl:if test="position()!=last()"><m:mo>,</m:mo></xsl:if>
+          </xsl:for-each>
+        </m:mrow>
+      </m:msub>
+      <m:mo>=</m:mo>
+      <xsl:apply-templates mode="c2p" select="*[last()]"/>
+    </m:mrow>
+    <m:mo>;</m:mo>
+    <xsl:apply-templates mode="c2p" select="m:condition"/>
+    <m:mo>]</m:mo>
+  </m:mrow>
+</xsl:template>
+
+<xsl:template mode="c2p" match="m:apply[*[1][self::m:csymbol='matrix']]">
+<m:mrow>
+<m:mo>(</m:mo>
+<m:mtable>
+<xsl:apply-templates mode="c2p" select="*[position()!=1]"/>
+</m:mtable>
+<m:mo>)</m:mo>
+</m:mrow>
+</xsl:template>
+
+
 <!-- 4.4.10.3 matrixrow  -->
-<xsl:template mode="c2p" match="mml:matrixrow">
-<mml:mtr>
+<xsl:template mode="c2p" match="m:matrix/m:matrixrow">
+<m:mtr>
 <xsl:for-each select="*">
-<mml:mtd><xsl:apply-templates mode="c2p" select="."/></mml:mtd>
+<m:mtd><xsl:apply-templates mode="c2p" select="."/></m:mtd>
 </xsl:for-each>
-</mml:mtr>
+</m:mtr>
+</xsl:template>
+
+<xsl:template mode="c2p" match="m:matrixrow">
+<m:mtable>
+<m:mtr>
+<xsl:for-each select="*">
+<m:mtd><xsl:apply-templates mode="c2p" select="."/></m:mtd>
+</xsl:for-each>
+</m:mtr>
+</m:mtable>
+</xsl:template>
+
+<xsl:template mode="c2p" match="m:apply[*[1][self::m:csymbol.='matrixrow']]">
+<m:mtr>
+<xsl:for-each select="*[position()!=1]">
+<m:mtd><xsl:apply-templates mode="c2p" select="."/></m:mtd>
+</xsl:for-each>
+</m:mtr>
 </xsl:template>
 
 <!-- 4.4.10.4 determinant  -->
-<xsl:template mode="c2p" match="mml:apply[*[1][self::mml:determinant]]">
-<mml:mrow>
-<mml:mi>det</mml:mi>
+<xsl:template mode="c2p" match="m:apply[*[1][self::m:determinant]]
+                       |m:apply[*[1][self::m:csymbol='determinant']]">
+<m:mrow>
+<m:mi>det</m:mi>
+ <m:mo>&#8289;<!--function application--></m:mo>
 <xsl:apply-templates mode="c2p" select="*[2]">
   <xsl:with-param name="p" select="7"/>
 </xsl:apply-templates>
-</mml:mrow>
+</m:mrow>
 </xsl:template>
 
 <xsl:template
-match="mml:apply[*[1][self::mml:determinant]][*[2][self::mml:matrix]]" priority="2">
-<mml:mrow>
-<mml:mo>|</mml:mo>
-<mml:mtable>
-<xsl:apply-templates mode="c2p" select="mml:matrix/*"/>
-</mml:mtable>
-<mml:mo>|</mml:mo>
-</mml:mrow>
+match="m:apply[*[1][self::m:determinant]][*[2][self::m:matrix]]" priority="2">
+<m:mrow>
+<m:mo>|</m:mo>
+<m:mtable>
+<xsl:apply-templates mode="c2p" select="m:matrix/*"/>
+</m:mtable>
+<m:mo>|</m:mo>
+</m:mrow>
 </xsl:template>
 
 <!-- 4.4.10.5 transpose -->
-<xsl:template mode="c2p" match="mml:apply[*[1][self::mml:transpose]]">
-<mml:msup>
+<xsl:template mode="c2p" match="m:apply[*[1][self::m:transpose]]
+                       |m:apply[*[1][self::m:csymbol='transpose']]">
+<m:msup>
 <xsl:apply-templates mode="c2p" select="*[2]">
   <xsl:with-param name="p" select="7"/>
 </xsl:apply-templates>
-<mml:mi>T</mml:mi>
-</mml:msup>
+<m:mi>T</m:mi>
+</m:msup>
 </xsl:template>
 
 <!-- 4.4.10.5 selector -->
-<xsl:template mode="c2p" match="mml:apply[*[1][self::mml:selector]]">
-<mml:msub>
+<xsl:template mode="c2p" match="m:apply[*[1][self::m:selector]]
+                       |m:apply[*[1][self::m:csymbol='selector']]">
+<m:msub>
 <xsl:apply-templates mode="c2p" select="*[2]">
   <xsl:with-param name="p" select="7"/>
 </xsl:apply-templates>
-<mml:mrow>
+<m:mrow>
     <xsl:for-each select="*[position()&gt;2]">
       <xsl:apply-templates mode="c2p" select="."/>
-      <xsl:if test="position() !=last()"><mml:mo>,</mml:mo></xsl:if>
+      <xsl:if test="position() !=last()"><m:mo>,</m:mo></xsl:if>
     </xsl:for-each>
-</mml:mrow>
-</mml:msub>
+</m:mrow>
+</m:msub>
 </xsl:template>
 
 <!-- *** -->
@@ -1160,99 +1879,110 @@ match="mml:apply[*[1][self::mml:determinant]][*[2][self::mml:matrix]]" priority=
 
 
 <!-- 4.4.10.7 scalarproduct-->
-<xsl:template mode="c2p" match="mml:apply[*[1][self::mml:scalarproduct or self::mml:outerproduct]]">
+<xsl:template mode="c2p" match="m:apply[*[1][self::m:scalarproduct]]
+                       |m:apply[*[1][self::m:csymbol='scalarproduct']]">
 <xsl:param name="p" select="0"/>
 <xsl:call-template name="infix">
  <xsl:with-param name="this-p" select="2"/>
  <xsl:with-param name="p" select="$p"/>
- <xsl:with-param name="mo"><mml:mo>.</mml:mo></xsl:with-param>
+ <xsl:with-param name="mo"><m:mo>.</m:mo></xsl:with-param>
 </xsl:call-template>
 </xsl:template>
 
 <!-- 4.4.10.8 outerproduct-->
 
+<xsl:template mode="c2p" match="m:apply[*[1][self::m:outerproduct]]
+                       |m:apply[*[1][self::m:csymbol='outerproduct']]">
+<xsl:param name="p" select="0"/>
+<xsl:call-template name="infix">
+ <xsl:with-param name="this-p" select="2"/>
+ <xsl:with-param name="p" select="$p"/>
+ <xsl:with-param name="mo"><m:mo>&#x2297;</m:mo></xsl:with-param>
+</xsl:call-template>
+</xsl:template>
+
 <!-- 4.4.11.2 semantics -->
-<xsl:template mode="c2p" match="mml:semantics">
+<xsl:template mode="c2p" match="m:semantics">
  <xsl:apply-templates mode="c2p" select="*[1]"/>
 </xsl:template>
-<xsl:template mode="c2p" match="mml:semantics[mml:annotation-xml/@encoding='MathML-Presentation']">
- <xsl:apply-templates mode="c2p" select="mml:annotation-xml[@encoding='MathML-Presentation']/node()"/>
+<xsl:template mode="c2p" match="m:semantics[m:annotation-xml/@encoding='MathML-Presentation']">
+ <xsl:apply-templates mode="c2p" select="m:annotation-xml[@encoding='MathML-Presentation']/node()"/>
 </xsl:template>
 
 <!-- 4.4.12.1 integers -->
-<xsl:template mode="c2p" match="mml:integers">
-<mml:mi mathvariant="double-struck">Z</mml:mi>
+<xsl:template mode="c2p" match="m:integers">
+<m:mi mathvariant="double-struck">Z</m:mi>
 </xsl:template>
 
 <!-- 4.4.12.2 reals -->
-<xsl:template mode="c2p" match="mml:reals">
-<mml:mi mathvariant="double-struck">R</mml:mi>
+<xsl:template mode="c2p" match="m:reals">
+<m:mi mathvariant="double-struck">R</m:mi>
 </xsl:template>
 
 <!-- 4.4.12.3 rationals -->
-<xsl:template mode="c2p" match="mml:rationals">
-<mml:mi mathvariant="double-struck">Q</mml:mi>
+<xsl:template mode="c2p" match="m:rationals">
+<m:mi mathvariant="double-struck">Q</m:mi>
 </xsl:template>
 
 <!-- 4.4.12.4 naturalnumbers -->
-<xsl:template mode="c2p" match="mml:naturalnumbers">
-<mml:mi mathvariant="double-struck">N</mml:mi>
+<xsl:template mode="c2p" match="m:naturalnumbers">
+<m:mi mathvariant="double-struck">N</m:mi>
 </xsl:template>
 
 <!-- 4.4.12.5 complexes -->
-<xsl:template mode="c2p" match="mml:complexes">
-<mml:mi mathvariant="double-struck">C</mml:mi>
+<xsl:template mode="c2p" match="m:complexes">
+<m:mi mathvariant="double-struck">C</m:mi>
 </xsl:template>
 
 <!-- 4.4.12.6 primes -->
-<xsl:template mode="c2p" match="mml:primes">
-<mml:mi mathvariant="double-struck">P</mml:mi>
+<xsl:template mode="c2p" match="m:primes">
+<m:mi mathvariant="double-struck">P</m:mi>
 </xsl:template>
 
 <!-- 4.4.12.7 exponentiale -->
-<xsl:template mode="c2p" match="mml:exponentiale">
-  <mml:mi>e<!-- exponential e--></mml:mi>
+<xsl:template mode="c2p" match="m:exponentiale">
+  <m:mi>e<!-- exponential e--></m:mi>
 </xsl:template>
 
 <!-- 4.4.12.8 imaginaryi -->
-<xsl:template mode="c2p" match="mml:imaginaryi">
-  <mml:mi>i<!-- imaginary i--></mml:mi>
+<xsl:template mode="c2p" match="m:imaginaryi">
+  <m:mi>i<!-- imaginary i--></m:mi>
 </xsl:template>
 
 <!-- 4.4.12.9 notanumber -->
-<xsl:template mode="c2p" match="mml:notanumber">
-  <mml:mi>NaN</mml:mi>
+<xsl:template mode="c2p" match="m:notanumber">
+  <m:mi>NaN</m:mi>
 </xsl:template>
 
 <!-- 4.4.12.10 true -->
-<xsl:template mode="c2p" match="mml:true">
-  <mml:mi>true</mml:mi>
+<xsl:template mode="c2p" match="m:true">
+  <m:mi>true</m:mi>
 </xsl:template>
 
 <!-- 4.4.12.11 false -->
-<xsl:template mode="c2p" match="mml:false">
-  <mml:mi>false</mml:mi>
+<xsl:template mode="c2p" match="m:false">
+  <m:mi>false</m:mi>
 </xsl:template>
 
 <!-- 4.4.12.12 emptyset -->
-<xsl:template mode="c2p" match="mml:emptyset">
-  <mml:mi>&#8709;<!-- emptyset --></mml:mi>
+<xsl:template mode="c2p" match="m:emptyset|m:csymbol[.='emptyset']">
+  <m:mi>&#8709;<!-- emptyset --></m:mi>
 </xsl:template>
 
 
 <!-- 4.4.12.13 pi -->
-<xsl:template mode="c2p" match="mml:pi">
-  <mml:mi>&#960;<!-- pi --></mml:mi>
+<xsl:template mode="c2p" match="m:pi|m:csymbol[.='pi']">
+  <m:mi>&#960;<!-- pi --></m:mi>
 </xsl:template>
 
 <!-- 4.4.12.14 eulergamma -->
-<xsl:template mode="c2p" match="mml:eulergamma">
-  <mml:mi>&#947;<!-- gamma --></mml:mi>
+<xsl:template mode="c2p" match="m:eulergamma|m:csymbol[.='gamma']">
+  <m:mi>&#947;<!-- gamma --></m:mi>
 </xsl:template>
 
 <!-- 4.4.12.15 infinity -->
-<xsl:template mode="c2p" match="mml:infinity">
-  <mml:mi>&#8734;<!-- infinity --></mml:mi>
+<xsl:template mode="c2p" match="m:infinity|m:csymbol[.='infinity']">
+  <m:mi>&#8734;<!-- infinity --></m:mi>
 </xsl:template>
 
 
@@ -1261,26 +1991,42 @@ match="mml:apply[*[1][self::mml:determinant]][*[2][self::mml:matrix]]" priority=
   <xsl:param name="mo"/>
   <xsl:param name="p" select="0"/>
   <xsl:param name="this-p" select="0"/>
-  <mml:mrow>
-  <xsl:if test="$this-p &lt; $p"><mml:mo>(</mml:mo></xsl:if>
-  <xsl:for-each select="*[position()&gt;1]">
+  <xsl:variable name="dmo">
+    <xsl:choose>
+     <xsl:when test="m:domainofapplication">
+      <m:munder>
+       <xsl:copy-of select="$mo"/>
+       <m:mrow>
+        <xsl:apply-templates mode="c2p" select="m:domainofapplication/*"/>
+       </m:mrow>
+      </m:munder>
+     </xsl:when>
+     <xsl:otherwise>
+       <xsl:copy-of select="$mo"/>
+     </xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable>
+  <m:mrow>
+  <xsl:if test="$this-p &lt; $p"><m:mo>(</m:mo></xsl:if>
+  <xsl:for-each select="*[not(self::m:domainofapplication)][position()&gt;1]">
    <xsl:if test="position() &gt; 1">
-    <xsl:copy-of select="$mo"/>
+    <xsl:copy-of select="$dmo"/>
    </xsl:if>   
    <xsl:apply-templates mode="c2p" select=".">
      <xsl:with-param name="p" select="$this-p"/>
    </xsl:apply-templates>
   </xsl:for-each>
-  <xsl:if test="$this-p &lt; $p"><mml:mo>)</mml:mo></xsl:if>
-  </mml:mrow>
+  <xsl:if test="$this-p &lt; $p"><m:mo>)</m:mo></xsl:if>
+  </m:mrow>
 </xsl:template>
 
+ <!-- make 1-(9-2) google code isse 3-->
 <xsl:template name="binary" >
   <xsl:param name="mo"/>
   <xsl:param name="p" select="0"/>
   <xsl:param name="this-p" select="0"/>
-  <mml:mrow>
-  <xsl:if test="$this-p &lt; $p"><mml:mo>(</mml:mo></xsl:if>
+  <m:mrow>
+  <xsl:if test="($this-p &lt; $p) or ($this-p=$p and $mo='&#8722;')"><m:mo>(</m:mo></xsl:if>
    <xsl:apply-templates mode="c2p" select="*[2]">
      <xsl:with-param name="p" select="$this-p"/>
    </xsl:apply-templates>
@@ -1288,30 +2034,63 @@ match="mml:apply[*[1][self::mml:determinant]][*[2][self::mml:matrix]]" priority=
    <xsl:apply-templates mode="c2p" select="*[3]">
      <xsl:with-param name="p" select="$this-p"/>
    </xsl:apply-templates>
-  <xsl:if test="$this-p &lt; $p"><mml:mo>)</mml:mo></xsl:if>
-  </mml:mrow>
+  <xsl:if test="($this-p &lt; $p) or ($this-p=$p and $mo='&#8722;')"><m:mo>)</m:mo></xsl:if>
+  </m:mrow>
 </xsl:template>
 
 <xsl:template name="set" >
   <xsl:param name="o" select="'{'"/>
   <xsl:param name="c" select="'}'"/>
-  <mml:mrow>
-   <mml:mo><xsl:value-of select="$o"/></mml:mo>
+  <m:mrow>
+   <m:mo><xsl:value-of select="$o"/></m:mo>
    <xsl:choose>
-   <xsl:when test="mml:condition">
-   <mml:mrow><xsl:apply-templates mode="c2p" select="mml:bvar/*[not(self::bvar or self::condition)]"/></mml:mrow>
-   <mml:mo>|</mml:mo>
-   <mml:mrow><xsl:apply-templates mode="c2p" select="mml:condition/node()"/></mml:mrow>
+   <xsl:when test="m:condition">
+   <m:mrow><xsl:apply-templates mode="c2p" select="m:condition/following-sibling::*"/></m:mrow>
+   <m:mo>|</m:mo>
+   <m:mrow><xsl:apply-templates mode="c2p" select="m:condition/node()"/></m:mrow>
+   </xsl:when>
+   <xsl:when test="m:domainofapplication">
+    <m:mrow><xsl:apply-templates mode="c2p" select="m:domainofapplication/following-sibling::*"/></m:mrow>
+    <m:mo>|</m:mo>
+    <m:mrow><xsl:apply-templates mode="c2p" select="m:bvar/node()"/></m:mrow>
+    <m:mo>&#8712;<!-- in --></m:mo>
+    <m:mrow><xsl:apply-templates mode="c2p" select="m:domainofapplication/node()"/></m:mrow>
    </xsl:when>
    <xsl:otherwise>
-    <xsl:for-each select="*">
+    <xsl:for-each select="*[not(position()=1 and parent::m:apply)]">
       <xsl:apply-templates mode="c2p" select="."/>
-      <xsl:if test="position() !=last()"><mml:mo>,</mml:mo></xsl:if>
+      <xsl:if test="position() !=last()"><m:mo>,</m:mo></xsl:if>
     </xsl:for-each>
    </xsl:otherwise>
    </xsl:choose>
-   <mml:mo><xsl:value-of select="$c"/></mml:mo>
-  </mml:mrow>
+   <m:mo><xsl:value-of select="$c"/></m:mo>
+  </m:mrow>
+</xsl:template>
+
+
+<!-- mathml 3 addtitions -->
+
+<xsl:template mode="c2p" match="m:cs">
+  <m:ms>
+   <xsl:value-of select="
+                         translate(.,
+                         '&#9;&#10;&#13;&#32;',
+                         '&#160;&#160;&#160;&#160;')"/>
+ </m:ms>
+</xsl:template>
+
+<xsl:template mode="c2p" match="m:cbytes">
+ <m:mrow/>
+</xsl:template>
+
+<xsl:template mode="c2p" match="m:cerror">
+ <m:merror>
+   <xsl:apply-templates mode="c2p"/>
+ </m:merror>
+</xsl:template>
+ 
+<xsl:template mode="c2p" match="m:share" priority="4">
+ <m:mi href="{@href}">share<xsl:value-of select="substring-after(@href,'#')"/></m:mi>
 </xsl:template>
 
 </xsl:stylesheet>
