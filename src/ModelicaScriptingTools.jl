@@ -473,6 +473,15 @@ function getcode(omc:: OMCSession, model:: String)
     return read(tmpfile, String)
 end
 
+function getequations(omc:: OMCSession, model::String)
+    res = sendExpression(omc, "dumpXMLDAE($model, addMathMLCode=true)")
+    err = sendExpression(omc, "getErrorString()")
+    if !isempty(err)
+        throw(MoSTError("Could not save model as independent XML file", err))
+    end
+    println(res)
+end
+
 # extend Documenter with new code block type @modelica
 abstract type ModelicaBlocks <: Documenter.Expanders.ExpanderPipeline end
 Documenter.Selectors.order(::Type{ModelicaBlocks}) = 5.0
@@ -514,6 +523,8 @@ function Documenter.Selectors.runner(::Type{ModelicaBlocks}, x, page, doc)
                     # get model code
                     rawcode = getcode(omc, model)
                     push!(result, Documenter.Utilities.mdparse("```modelica\n$rawcode\n```\n"))
+                    # get model equations
+                    equations = getequations(omc, model)
                 end
             end
         catch err
