@@ -489,6 +489,9 @@ function getequations(omc:: OMCSession, model::String)
         for eq in equations
             math = find_element(find_element(eq, "MathML"), "math")
             dom = lxml_et.parse(pyio.StringIO(string(math)))
+            xslt = lxml_et.parse(joinpath(@__DIR__, "..", "res", "ctop.xsl"))
+            transform = lxml_et.XSLT(xslt)
+            newdom = transform(dom)
             push!(res, string(math))
         end
     finally
