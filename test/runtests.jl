@@ -161,7 +161,10 @@ end
         end
         @testset "getequations" begin
             loadModel(omc, "Example")
-            eqn = getequations(omc, "Example")
+            expected = [
+                "<math xmlns=\"http://www.w3.org/1998/Math/MathML\">\n<apply>\n<equivalent/>\n<apply>\n<diff/>\n<ci> r \n</ci>\n</apply>\n<cn type=\"real\"> 1.0 \n</cn>\n</apply>\n</math>"
+            ]
+            @test expected == getequations(omc, "Example")
         end
     end
 end
