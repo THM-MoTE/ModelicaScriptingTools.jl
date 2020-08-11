@@ -562,6 +562,17 @@ function __init__()
         tf = et.XSLT(xslt)
         return tf
 
+    def cleanup_mathml(dom):
+        # reference: https://stackoverflow.com/a/18160164
+        for e in dom.getiterator():
+            if not hasattr(e.tag, "find"):
+                continue
+            i = e.tag.find('}')
+            if i >= 0:
+                e.tag = e.tag[i+1:]
+        dom.attrib["xmlns"] = "http://www.w3.org/1998/Math/MathML"
+        lo.deannotate(dom, cleanup_namespaces=True)
+
     def extract_equations(fname, xslt_dir="."):
         dom = et.parse(fname)
         ns = {"mml": "http://www.w3.org/1998/Math/MathML"}
@@ -569,7 +580,7 @@ function __init__()
         content_to_pres = load_ctop(xslt_dir)
         newdoms = [content_to_pres(x) for x in mathdoms]
         for x in newdoms:
-            lo.deannotate(x, cleanup_namespaces=True)
+            cleanup_mathml(x)
         return [et.tostring(x) for x in newdoms]
     """
 end
