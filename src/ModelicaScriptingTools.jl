@@ -6,7 +6,6 @@ using CSV: CSV
 using OMJulia: OMCSession, sendExpression, Parser
 using ZMQ: send, recv # only needed for sendExpressionRaw which is a workaround for OMJulia bugs
 using DataFrames: DataFrame
-using LightXML: parse_file, free, find_element, root, child_elements
 using PyCall: PyNULL, pyimport_conda, pyimport, @py_str
 import Documenter
 
@@ -545,12 +544,9 @@ function Documenter.Selectors.runner(::Type{ModelicaBlocks}, x, page, doc)
     end
 end
 
-const lxml_et = PyNULL()
-const pyio = PyNULL()
-
 function __init__()
-    copy!(lxml_et, pyimport_conda("lxml.etree", "lxml"))
-    copy!(pyio, pyimport("io"))
+    # import only used to install lxml automatically
+    pyimport_conda("lxml.etree", "lxml")
     py"""
     import lxml.etree as et
     import lxml.objectify as lo
