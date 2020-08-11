@@ -567,7 +567,9 @@ function __init__()
         ns = {"mml": "http://www.w3.org/1998/Math/MathML"}
         mathdoms = dom.xpath("/dae/equations/equation/MathML/mml:math", namespaces=ns)
         content_to_pres = load_ctop(xslt_dir)
-        newdoms = [lo.deannotate(content_to_pres(x), cleanup_namespaces=True) for x in mathdoms]
+        newdoms = [content_to_pres(x) for x in mathdoms]
+        for x in newdoms:
+            lo.deannotate(x, cleanup_namespaces=True)
         return [et.tostring(x) for x in newdoms]
     """
 end
