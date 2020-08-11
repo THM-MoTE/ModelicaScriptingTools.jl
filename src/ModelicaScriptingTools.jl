@@ -482,19 +482,7 @@ function getequations(omc:: OMCSession, model::String)
     if !isempty(err)
         throw(MoSTError("Could not save model as independent XML file", err))
     end
-    xeq = parse_file(res[2])
-    res = []
-    try
-        equations = child_elements(find_element(root(xeq), "equations"))
-        for eq in equations
-            cmath = find_element(find_element(eq, "MathML"), "math")
-            pmath = py"content_to_pres"(string(cmath), xslt_dir=joinpath(@__DIR__,"..","res"))
-            println(pmath)
-            push!(res, string(pmath))
-        end
-    finally
-        free(xeq)
-    end
+    res = py"extract_equations"(res[2], xslt_dir=joinpath(@__DIR__, "..", "res"))
     return res
 end
 
@@ -565,15 +553,22 @@ function __init__()
     copy!(pyio, pyimport("io"))
     py"""
     import lxml.etree as et
+    import lxml.objectify as lo
     import io
     import os
 
-    def content_to_pres(math, xslt_dir="."):
-        dom = et.parse(io.StringIO(math))
-        xslt = et.parse(os.path.join(xslt_dir, "ctop.xsl"))
+    def load_ctop(dirname):
+        xslt = et.parse(os.path.join(dirname, "ctop.xsl"))
         tf = et.XSLT(xslt)
-        newdom = tf(dom)
-        return et.tostring(newdom)
+        return tf
+
+    def extract_equations(fname, xslt_dir="."):
+        dom = et.parse(fname)
+        ns = {"mml": "http://www.w3.org/1998/Math/MathML"}
+        mathdoms = dom.xpath("/dae/equations/equation/MathML/mml:math", namespaces=ns)
+        content_to_pres = load_ctop(xslt_dir)
+        newdoms = [lo.deannotate(content_to_pres(x), cleanup_namespaces=True) for x in mathdoms]
+        return [et.tostring(x) for x in newdoms]
     """
 end
 
