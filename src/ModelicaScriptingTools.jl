@@ -7,7 +7,7 @@ using OMJulia: OMCSession, sendExpression, Parser
 using ZMQ: send, recv # only needed for sendExpressionRaw which is a workaround for OMJulia bugs
 using DataFrames: DataFrame
 using LightXML: parse_file, free, find_element, root, child_elements
-using PyCall: PyNULL, pyimport_conda, pyimport
+using PyCall: PyNULL, pyimport_conda, pyimport, @py_str
 import Documenter
 
 export moescape, mounescape, MoSTError, loadModel, getSimulationSettings,
@@ -487,12 +487,10 @@ function getequations(omc:: OMCSession, model::String)
     try
         equations = child_elements(find_element(root(xeq), "equations"))
         for eq in equations
-            math = find_element(find_element(eq, "MathML"), "math")
-            dom = lxml_et.parse(pyio.StringIO(string(math)))
-            xslt = lxml_et.parse(joinpath(@__DIR__, "..", "res", "ctop.xsl"))
-            transform = lxml_et.XSLT(xslt)
-            newdom = transform(dom)
-            push!(res, string(math))
+            cmath = find_element(find_element(eq, "MathML"), "math")
+            pmath = py"content_to_pres"(string(cmath), xslt_dir=joinpath(@__DIR__,"..","res"))
+            println(pmath)
+            push!(res, string(pmath))
         end
     finally
         free(xeq)
@@ -565,6 +563,18 @@ const pyio = PyNULL()
 function __init__()
     copy!(lxml_et, pyimport_conda("lxml.etree", "lxml"))
     copy!(pyio, pyimport("io"))
+    py"""
+    import lxml.etree as et
+    import io
+    import os
+
+    def content_to_pres(math, xslt_dir="."):
+        dom = et.parse(io.StringIO(math))
+        xslt = et.parse(os.path.join(xslt_dir, "ctop.xsl"))
+        tf = et.XSLT(xslt)
+        newdom = tf(dom)
+        return et.tostring(newdom)
+    """
 end
 
 end
