@@ -162,7 +162,7 @@ end
         @testset "getequations" begin
             loadModel(omc, "Example")
             expected = [
-                "<math xmlns=\"http://www.w3.org/1998/Math/MathML\">\n<m:mrow xmlns:m=\"http://www.w3.org/1998/Math/MathML\"><m:msup><m:mrow><m:mrow><m:mi> r \n</m:mi></m:mrow></m:mrow><m:mo>&#8242;</m:mo></m:msup><m:mo>&#8801;</m:mo><m:mn> 1.0 \n</m:mn></m:mrow>\n</math>"
+                "<math xmlns=\"http://www.w3.org/1998/Math/MathML\">\n<mrow><msup><mrow><mrow><mi> r \n</mi></mrow></mrow><mo>&#8242;</mo></msup><mo>&#8801;</mo><mn> 1.0 \n</mn></mrow>\n</math>"
             ]
             @test expected == getequations(omc, "Example")
         end

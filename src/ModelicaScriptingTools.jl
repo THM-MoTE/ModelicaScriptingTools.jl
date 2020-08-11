@@ -567,11 +567,12 @@ function __init__()
         for e in dom.getiterator():
             if not hasattr(e.tag, "find"):
                 continue
+            if e.tag.endswith("math"):
+                continue
             i = e.tag.find('}')
             if i >= 0:
                 e.tag = e.tag[i+1:]
-        dom.attrib["xmlns"] = "http://www.w3.org/1998/Math/MathML"
-        lo.deannotate(dom, cleanup_namespaces=True)
+        lo.deannotate(dom.getroot(), cleanup_namespaces=True)
 
     def extract_equations(fname, xslt_dir="."):
         dom = et.parse(fname)
