@@ -31,8 +31,8 @@ Example
 Currently, the documentation features
 
 * The full code of the model.
-<!--* A list of all parameters and variables of the model (only available if the model can be insantiated using the `instantiateModel()` function of the OpenModelica Scripting API)-->
 * A list of all equations of the model as presentation MathML (only available if the model can be insantiated using the [`instantiateModel()`](https://www.openmodelica.org/doc/OpenModelicaUsersGuide/latest/scripting_api.html#instantiatemodel) function of the OpenModelica Scripting API)
+
 
 ### Configuration with magic lines
 
@@ -44,5 +44,3 @@ These lines are not interpreted as model names, but instead are parsed to set co
 
     If two or more of these lines are present, the last directory is used for the whole block.
     If you need to load two models from separate directories, you need to use two separate `@modelica` blocks.
-
-<!--TODO: ## Implementation-->
