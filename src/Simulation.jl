@@ -48,7 +48,7 @@ ensure that as many errors in the model are caught and thrown as
 If `ismodel`, `check`, or `instantiate` are false, the loading process is
 stopped at the respective steps.
 """ # TODO: which errors are found by instantiateModel that checkModel does not find?
-function loadModel(omc:: OMCSession, name:: String; ismodel=true; check=true, instantiate=true)
+function loadModel(omc:: OMCSession, name:: String; ismodel=true, check=true, instantiate=true)
     success = sendExpression(omc, "loadModel($name)")
     es = getErrorString(omc)
     if !success || length(es) > 0
