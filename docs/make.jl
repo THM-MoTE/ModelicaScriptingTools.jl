@@ -8,6 +8,7 @@ makedocs(
     pages = [
         "index.md",
         "api.md"
+        "documentation.md"
     ]
 )
 deploydocs(

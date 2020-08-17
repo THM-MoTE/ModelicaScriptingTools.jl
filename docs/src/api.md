@@ -1,10 +1,5 @@
 # API
 
-```@modelica
-%modeldir = ../../test/res
-Example
-```
-
 ## Basic utility functions
 
 ```@docs
