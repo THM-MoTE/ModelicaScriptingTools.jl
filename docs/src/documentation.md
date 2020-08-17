@@ -17,7 +17,7 @@ MyOtherPackage.MySecondModel
 ```
 ````
 
-This will display documentation for the two models `MyPackage.MyFirstModel` and `MyOtherPackage.MySecondModel` which are both assumed to be found in the folder `../../src`, which is relative to the working directory where Documenter.jl places its output (usually a folder called `build` in the directory where `make.jl` is located)
+This will display documentation for the two models `MyPackage.MyFirstModel` and `MyOtherPackage.MySecondModel` which are both assumed to be found in the folder `../../src`, which is relative to the working directory where Documenter.jl places its output (usually a folder called `build` in the directory where `make.jl` is located).
 
 ## Features and Example
 
