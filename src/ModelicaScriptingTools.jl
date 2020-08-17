@@ -468,6 +468,11 @@ function getDocAnnotation(omc:: OMCSession, model:: String)
     return htmldoc
 end
 
+"""
+    getcode(omc:: OMCSession, model:: String)
+
+Returns the code of the given model or class as a string.
+"""
 function getcode(omc:: OMCSession, model:: String)
     cwd = sendExpression(omc, "cd()")
     tmpfile = joinpath(cwd, "export_$model.mo")
@@ -475,6 +480,12 @@ function getcode(omc:: OMCSession, model:: String)
     return read(tmpfile, String)
 end
 
+"""
+    getequations(omc:: OMCSession, model::String)
+
+Returns all equations of the given model as a list of strings with
+presentation MathML syntax.
+"""
 function getequations(omc:: OMCSession, model::String)
     res = sendExpression(omc, "dumpXMLDAE($model, addMathMLCode=true)")
     err = sendExpression(omc, "getErrorString()")
