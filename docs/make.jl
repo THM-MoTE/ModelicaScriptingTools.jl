@@ -7,7 +7,7 @@ makedocs(
     sitename="ModelicaScriptingTools.jl",
     pages = [
         "index.md",
-        "api.md"
+        "api.md",
         "documentation.md"
     ]
 )
