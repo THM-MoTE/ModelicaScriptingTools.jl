@@ -75,7 +75,8 @@ function Documenter.Selectors.runner(::Type{ModelicaBlocks}, x, page, doc)
             outdir = joinpath(modeldir, "../out")
             withOMC(outdir, modeldir) do omc
                 for (model) in modelnames
-                    loadModel(omc, model)
+                    # load model without all extra checks
+                    loadModel(omc, model; ismodel=false)
                     # get documentation as HTML string
                     htmldoc = getDocAnnotation(omc, model)
                     push!(result, Documenter.Documents.RawHTML(htmldoc))
