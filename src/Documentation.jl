@@ -84,7 +84,8 @@ function Documenter.Selectors.runner(::Type{ModelicaBlocks}, x, page, doc)
                     push!(result, Documenter.Utilities.mdparse("```modelica\n$rawcode\n```\n"))
                     # get model equations
                     equations = getequations(omc, model)
-                    push!(result, Documenter.Documents.RawHTML(join(equations, "")))
+                    htmleqs = "<ol><li>$(join(equations, "\n<li>"))</ol>"
+                    push!(result, Documenter.Documents.RawHTML(htmleqs))
                 end
             end
         catch err
