@@ -19,6 +19,15 @@ MyOtherPackage.MySecondModel
 
 This will display documentation for the two models `MyPackage.MyFirstModel` and `MyOtherPackage.MySecondModel` which are both assumed to be found in the folder `../../src`, which is relative to the working directory where Documenter.jl places its output (usually a folder called `build` in the directory where `make.jl` is located).
 
+## Detailed setup guide
+
+[WIP] This section of the documentation is work in progress.
+
+* `julia -e 'using DocumenterTools; DocumenterTools.generate("docs"; name="MyModelicaProject")'`
+* `julia --project=docs/ -e 'using Pkg; Pkg.add("ModelicaScriptingTools")'`
+* Replace `using MyModelicaProject` with `using ModelicaScriptingTools` in `docs/make.jl`.
+* Also change `[MyModelicaProject]` to `Module[]` in `make.jl`.
+
 ## Features and Example
 
 The following shows the documentation of the model `Example.mo` in the folder `test/res` of this project.
