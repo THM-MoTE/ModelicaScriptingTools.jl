@@ -13,6 +13,7 @@ This currently includes the following main features:
 * Easy setup of `OMCSession` with configurable output and model directory
 * Escaping and unescaping Modelica strings for use in `sendExpression()`
 * Support for unit tests and regression tests using Julia's `Test` package
+* Documentation generation for Modelica models using [Documenter.jl](https://github.com/JuliaDocs/Documenter.jl)
 
 ## Documentation
 

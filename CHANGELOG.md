@@ -8,11 +8,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
-[nothing]
+* Experimental support for documenting Modelica models using [Documenter.jl](https://github.com/JuliaDocs/Documenter.jl).
+* New dependencies:
+  * PyCall (for XML handling using lxml)
+  * Documenter
 
 ### Changed
 
-[nothing]
+* Split code into multiple files.
+* `setupOMCSession` and `withOMC` now create the output directory if it does not already exist
 
 ### Fixed
 
