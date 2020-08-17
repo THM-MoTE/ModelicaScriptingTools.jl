@@ -4,3 +4,6 @@ regRefData
 
 # Documenter.jl output
 build
+
+# Merge conflicts
+*.orig
