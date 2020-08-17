@@ -41,3 +41,10 @@ regressionTest
 MoSTError
 MoSTError(::OMJulia.OMCSession, ::String)
 ```
+
+## Documentation
+```@docs
+getDocAnnotation
+getcode
+getequations
+```
