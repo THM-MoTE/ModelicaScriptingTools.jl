@@ -22,7 +22,7 @@ as OMC error message.
 MoSTError(omc:: OMCSession, msg:: String) = MoSTError(msg, getErrorString(omc))
 
 """
-    loadModel(omc:: OMCSession, name:: String)
+    loadModel(omc:: OMCSession, name:: String; check=true, instantiate=true)
 
 Loads the model with fully qualified name `name` from a source file available
 from the model directory.
@@ -44,21 +44,33 @@ ensure that as many errors in the model are caught and thrown as
 * With `checkModel(name)` we find errors such as missing or mistyped variables.
 * Finally, we use `instantiateModel(name)` which can sometimes find additional
     errors in the model structure.
+
+If `ismodel`, `check`, or `instantiate` are false, the loading process is
+stopped at the respective steps.
 """ # TODO: which errors are found by instantiateModel that checkModel does not find?
-function loadModel(omc:: OMCSession, name:: String)
+function loadModel(omc:: OMCSession, name:: String; ismodel=true; check=true, instantiate=true)
     success = sendExpression(omc, "loadModel($name)")
     es = getErrorString(omc)
     if !success || length(es) > 0
         throw(MoSTError("Could not load $name", es))
     end
+    if !ismodel
+        return
+    end
     success = sendExpression(omc, "isModel($name)")
     if !success
         throw(MoSTError("Model $name not found in MODELICAPATH", ""))
+    end
+    if !check
+        return
     end
     check = sendExpression(omc, "checkModel($name)")
     es = getErrorString(omc)
     if !startswith(check, "Check of $name completed successfully")
         throw(MoSTError("Model check of $name failed", join([check, es], "\n")))
+    end
+    if !instantiate
+        return
     end
     inst = sendExpression(omc, "instantiateModel($name)")
     es = getErrorString(omc)
