@@ -213,36 +213,36 @@ Or the Apache 2, MIT or MPL 1.1 or MPL 2.0 licences.
 
 <!-- 4.4.2.4 interval -->
 <xsl:template mode="c2p" match="m:interval[*[2]]">
- <m:mrow><m:mo>[</m:mo><xsl:apply-templates mode="sep,"/><m:mo>]</m:mo></m:mrow>
+ <m:mrow><m:mo>[</m:mo><xsl:apply-templates mode="sepcomma"/><m:mo>]</m:mo></m:mrow>
 </xsl:template>
 <xsl:template mode="c2p" match="m:interval[*[2]][@closure='open']" priority="2">
- <m:mrow><m:mo>(</m:mo><xsl:apply-templates mode="sep,"/><m:mo>)</m:mo></m:mrow>
+ <m:mrow><m:mo>(</m:mo><xsl:apply-templates mode="sepcomma"/><m:mo>)</m:mo></m:mrow>
 </xsl:template>
 <xsl:template mode="c2p" match="m:interval[*[2]][@closure='open-closed']" priority="2">
- <m:mrow><m:mo>(</m:mo><xsl:apply-templates mode="sep,"/><m:mo>]</m:mo></m:mrow>
+ <m:mrow><m:mo>(</m:mo><xsl:apply-templates mode="sepcomma"/><m:mo>]</m:mo></m:mrow>
 </xsl:template>
 <xsl:template mode="c2p" match="m:interval[*[2]][@closure='closed-open']" priority="2">
- <m:mrow><m:mo>[</m:mo><xsl:apply-templates mode="sep,"/><m:mo>)</m:mo></m:mrow>
+ <m:mrow><m:mo>[</m:mo><xsl:apply-templates mode="sepcomma"/><m:mo>)</m:mo></m:mrow>
 </xsl:template>
 
 <xsl:template mode="c2p" match="m:interval">
- <m:mrow><m:mo>{{</m:mo><xsl:apply-templates mode="sep,"/><m:mo>}}</m:mo></m:mrow>
+ <m:mrow><m:mo>{{</m:mo><xsl:apply-templates mode="sepcomma"/><m:mo>}}</m:mo></m:mrow>
 </xsl:template>
 
 <xsl:template mode="c2p" match="m:apply[*[1][self::m:csymbol='integer_interval']]">
- <m:mrow><m:mo>[</m:mo><xsl:apply-templates mode="sep," select="*[position()!=1]"/><m:mo>]</m:mo></m:mrow>
+ <m:mrow><m:mo>[</m:mo><xsl:apply-templates mode="sepcomma" select="*[position()!=1]"/><m:mo>]</m:mo></m:mrow>
 </xsl:template>
 <xsl:template mode="c2p" match="m:apply[*[1][self::m:csymbol='interval']]">
- <m:mrow><m:mo>[</m:mo><xsl:apply-templates mode="sep," select="*[position()!=1]"/><m:mo>]</m:mo></m:mrow>
+ <m:mrow><m:mo>[</m:mo><xsl:apply-templates mode="sepcomma" select="*[position()!=1]"/><m:mo>]</m:mo></m:mrow>
 </xsl:template>
 <xsl:template mode="c2p" match="m:apply[*[1][self::m:csymbol='interval-cc']]">
- <m:mrow><m:mo>[</m:mo><xsl:apply-templates mode="sep," select="*[position()!=1]"/><m:mo>]</m:mo></m:mrow>
+ <m:mrow><m:mo>[</m:mo><xsl:apply-templates mode="sepcomma" select="*[position()!=1]"/><m:mo>]</m:mo></m:mrow>
 </xsl:template>
 <xsl:template mode="c2p" match="m:apply[*[1][self::m:csymbol='interval-oo']]">
- <m:mrow><m:mo>(</m:mo><xsl:apply-templates mode="sep," select="*[position()!=1]"/><m:mo>)</m:mo></m:mrow>
+ <m:mrow><m:mo>(</m:mo><xsl:apply-templates mode="sepcomma" select="*[position()!=1]"/><m:mo>)</m:mo></m:mrow>
 </xsl:template>
 <xsl:template mode="c2p" match="m:apply[*[1][self::m:csymbol='oriented_interval']]">
- <m:mrow><m:mo>(</m:mo><xsl:apply-templates mode="sep," select="*[position()!=1]"/><m:mo>)</m:mo></m:mrow>
+ <m:mrow><m:mo>(</m:mo><xsl:apply-templates mode="sepcomma" select="*[position()!=1]"/><m:mo>)</m:mo></m:mrow>
 </xsl:template>
 
 <!-- 4.4.2.5 inverse -->
@@ -1207,7 +1207,7 @@ Or the Apache 2, MIT or MPL 1.1 or MPL 2.0 licences.
 
 <xsl:template mode="c2p"  match="m:apply[*[1][self::m:csymbol='set']]">
 <m:mrow><m:mo>{{</m:mo>
-  <xsl:apply-templates mode="sep," select="*[position()!=1]"/>
+  <xsl:apply-templates mode="sepcomma" select="*[position()!=1]"/>
 <m:mo>}}</m:mo></m:mrow>
 </xsl:template>
 
@@ -1223,7 +1223,7 @@ Or the Apache 2, MIT or MPL 1.1 or MPL 2.0 licences.
 
 <xsl:template mode="c2p" match="m:apply[*[1][self::m:csymbol='list']]">
 <m:mrow><m:mo>(</m:mo>
-  <xsl:apply-templates mode="sep," select="*[position()!=1]"/>
+  <xsl:apply-templates mode="sepcomma" select="*[position()!=1]"/>
 <m:mo>)</m:mo></m:mrow>
 </xsl:template>
 
