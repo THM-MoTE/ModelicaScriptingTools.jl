@@ -30,11 +30,11 @@ This will display documentation for the two models `MyPackage.MyFirstModel` and 
 
 ## Features and Example
 
-The following shows the documentation of the model `Example.mo` in the folder `test/res` of this project.
+The following shows the documentation of the model `DocExample.mo` in the folder `test/res` of this project.
 
 ```@modelica
 %modeldir = ../../test/res
-Example
+DocExample
 ```
 
 Currently, the documentation features
