@@ -213,36 +213,36 @@ Or the Apache 2, MIT or MPL 1.1 or MPL 2.0 licences.
 
 <!-- 4.4.2.4 interval -->
 <xsl:template mode="c2p" match="m:interval[*[2]]">
- <m:mfenced open="[" close="]"><xsl:apply-templates mode="c2p"/></m:mfenced>
+ <m:mrow><m:mo>[</m:mo><xsl:apply-templates mode="sep,"/><m:mo>]</m:mo></mrow>
 </xsl:template>
 <xsl:template mode="c2p" match="m:interval[*[2]][@closure='open']" priority="2">
- <m:mfenced open="(" close=")"><xsl:apply-templates mode="c2p"/></m:mfenced>
+ <m:mrow><m:mo>(</m:mo><xsl:apply-templates mode="sep,"/><m:mo>)</m:mo></mrow>
 </xsl:template>
 <xsl:template mode="c2p" match="m:interval[*[2]][@closure='open-closed']" priority="2">
- <m:mfenced open="(" close="]"><xsl:apply-templates mode="c2p"/></m:mfenced>
+ <m:mrow><m:mo>(</m:mo><xsl:apply-templates mode="sep,"/><m:mo>]</m:mo></mrow>
 </xsl:template>
 <xsl:template mode="c2p" match="m:interval[*[2]][@closure='closed-open']" priority="2">
- <m:mfenced open="[" close=")"><xsl:apply-templates mode="c2p"/></m:mfenced>
+ <m:mrow><m:mo>[</m:mo><xsl:apply-templates mode="sep,"/><m:mo>)</m:mo></mrow>
 </xsl:template>
 
 <xsl:template mode="c2p" match="m:interval">
- <m:mfenced open="{{" close="}}"><xsl:apply-templates mode="c2p"/></m:mfenced>
+ <m:mrow><m:mo>{{</m:mo><xsl:apply-templates mode="sep,"/><m:mo>}}</m:mo></mrow>
 </xsl:template>
 
 <xsl:template mode="c2p" match="m:apply[*[1][self::m:csymbol='integer_interval']]">
- <m:mfenced open="[" close="]"><xsl:apply-templates mode="c2p" select="*[position()!=1]"/></m:mfenced>
+ <m:mrow><m:mo>[</m:mo><xsl:apply-templates mode="sep," select="*[position()!=1]"/><m:mo>]</m:mo></mrow>
 </xsl:template>
 <xsl:template mode="c2p" match="m:apply[*[1][self::m:csymbol='interval']]">
- <m:mfenced open="[" close="]"><xsl:apply-templates mode="c2p" select="*[position()!=1]"/></m:mfenced>
+ <m:mrow><m:mo>[</m:mo><xsl:apply-templates mode="sep," select="*[position()!=1]"/><m:mo>]</m:mo></mrow>
 </xsl:template>
 <xsl:template mode="c2p" match="m:apply[*[1][self::m:csymbol='interval-cc']]">
- <m:mfenced open="[" close="]"><xsl:apply-templates mode="c2p" select="*[position()!=1]"/></m:mfenced>
+ <m:mrow><m:mo>[</m:mo><xsl:apply-templates mode="sep," select="*[position()!=1]"/><m:mo>]</m:mo></mrow>
 </xsl:template>
 <xsl:template mode="c2p" match="m:apply[*[1][self::m:csymbol='interval-oo']]">
- <m:mfenced open="(" close=")"><xsl:apply-templates mode="c2p" select="*[position()!=1]"/></m:mfenced>
+ <m:mrow><m:mo>(</m:mo><xsl:apply-templates mode="sep," select="*[position()!=1]"/><m:mo>)</m:mo></mrow>
 </xsl:template>
 <xsl:template mode="c2p" match="m:apply[*[1][self::m:csymbol='oriented_interval']]">
- <m:mfenced open="(" close=")"><xsl:apply-templates mode="c2p" select="*[position()!=1]"/></m:mfenced>
+ <m:mrow><m:mo>(</m:mo><xsl:apply-templates mode="sep," select="*[position()!=1]"/><m:mo>)</m:mo></mrow>
 </xsl:template>
 
 <!-- 4.4.2.5 inverse -->
