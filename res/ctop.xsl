@@ -1206,9 +1206,9 @@ Or the Apache 2, MIT or MPL 1.1 or MPL 2.0 licences.
 </xsl:template>
 
 <xsl:template mode="c2p"  match="m:apply[*[1][self::m:csymbol='set']]">
-<m:mfenced open="{{" close="}}" separators=",">
-  <xsl:apply-templates mode="c2p" select="*[position()!=1]"/>
-</m:mfenced>
+<m:mrow><m:mo>{{</m:mo>
+  <xsl:apply-templates mode="sep," select="*[position()!=1]"/>
+<m:mo>}}</m:mo></m:mrow>
 </xsl:template>
 
 <!-- 4.4.6.2 list -->
@@ -1222,9 +1222,9 @@ Or the Apache 2, MIT or MPL 1.1 or MPL 2.0 licences.
 
 
 <xsl:template mode="c2p" match="m:apply[*[1][self::m:csymbol='list']]">
-<m:mfenced open="(" close=")" separators=",">
-  <xsl:apply-templates mode="c2p" select="*[position()!=1]"/>
-</m:mfenced>
+<m:mrow><m:mo>(</m:mo>
+  <xsl:apply-templates mode="sep," select="*[position()!=1]"/>
+<m:mo>)</m:mo></m:mrow>
 </xsl:template>
 
 <!-- 4.4.6.3 union -->
