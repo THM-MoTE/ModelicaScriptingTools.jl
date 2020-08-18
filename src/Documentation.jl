@@ -55,12 +55,13 @@ function Documenter.Selectors.runner(::Type{ModelicaBlocks}, x, page, doc)
         unary(x) = Regex("%\\s*$x\\s*=\\s*(.*)")
         magics = Dict(
             "modeldir" => unary("modeldir"),
+            "outdir" => unary("outdir"),
             "nocode" => nullary("nocode"),
             "noequations" => nullary("noequations"),
             "noinfo" => nullary("noinfo")
         )
         magicvalues = Dict()
-        # get list of models and directory
+        # get list of models and magic values
         for (line) in split(x.code, '\n')
             if startswith(line, '%')
                 try
@@ -91,7 +92,7 @@ function Documenter.Selectors.runner(::Type{ModelicaBlocks}, x, page, doc)
         # communicate with OMC to obtain documentation and equations
         try
             modeldir = get(magicvalues, "modeldir", "../..")
-            outdir = joinpath(modeldir, "../out")
+            outdir = get(magicvalues, "outdir", joinpath(modeldir, "../out"))
             withOMC(outdir, modeldir) do omc
                 for (model) in modelnames
                     # TODO automatically decide what to do based on class type
