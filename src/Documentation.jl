@@ -163,7 +163,7 @@ function __init__doc()
         applies = dom.xpath("//mml:apply/*[1]", namespaces=ns)
         for app in applies:
             appq = et.QName(app)
-            if appq.localname in functions:
+            if appq.localname.replace("_dollar_", "$") in functions:
                 app.tag = et.QName(ns["mml"], "ci")
                 app.text = appq.localname
         mathdoms = dom.xpath("/dae/equations/equation/MathML/mml:math", namespaces=ns)
