@@ -51,12 +51,30 @@ function Documenter.Selectors.runner(::Type{ModelicaBlocks}, x, page, doc)
         result = ""
         modelnames = []
         result = []
-        modeldir = "../.."
+        nullary(x) = Regex("%\\s*$x\\s*")
+        unary(x) = Regex("%\\s*$x\\s*=\\s*(.*)")
+        magics = Dict(
+            "modeldir" => unary("modeldir"),
+            "nocode" => nullary("nocode"),
+            "noequations" => nullary("noequations"),
+            "noinfo" => nullary("noinfo")
+        )
+        magicvalues = Dict()
         # get list of models and directory
         for (line) in split(x.code, '\n')
             if startswith(line, '%')
                 try
-                    modeldir = match(r"%\s*modeldir\s*=\s*(.*)", line).captures[1]
+                    matches = [(k, match(v, line)) for (k, v) in magics]
+                    matches = filter(p -> !isnothing(p[2]), matches)
+                    if isempty(matches)
+                        throw(MoSTError("magic line type in '$line' not recognized", ""))
+                    end
+                    name, rmatch = first(matches)
+                    magicvalues[name] = if isempty(rmatch.captures)
+                        true
+                    else
+                        rmatch.captures[1]
+                    end
                 catch err
                     push!(doc.internal.errors, :eval_block)
                     @warn("""
@@ -72,21 +90,29 @@ function Documenter.Selectors.runner(::Type{ModelicaBlocks}, x, page, doc)
         end
         # communicate with OMC to obtain documentation and equations
         try
+            modeldir = get(magicvalues, "modeldir", "../..")
             outdir = joinpath(modeldir, "../out")
             withOMC(outdir, modeldir) do omc
                 for (model) in modelnames
+                    # TODO automatically decide what to do based on class type
                     # load model without all extra checks
                     loadModel(omc, model; ismodel=false)
                     # get documentation as HTML string
-                    htmldoc = getDocAnnotation(omc, model)
-                    push!(result, Documenter.Documents.RawHTML(htmldoc))
+                    if !get(magicvalues, "noinfo", false)
+                        htmldoc = getDocAnnotation(omc, model)
+                        push!(result, Documenter.Documents.RawHTML(htmldoc))
+                    end
                     # get model code
-                    rawcode = getcode(omc, model)
-                    push!(result, Documenter.Utilities.mdparse("```modelica\n$rawcode\n```\n"))
+                    if !get(magicvalues, "nocode", false)
+                        rawcode = getcode(omc, model)
+                        push!(result, Documenter.Utilities.mdparse("```modelica\n$rawcode\n```\n"))
+                    end
                     # get model equations
-                    equations = getequations(omc, model)
-                    htmleqs = "<ol><li>$(join(equations, "\n<li>"))</ol>"
-                    push!(result, Documenter.Documents.RawHTML(htmleqs))
+                    if !get(magicvalues, "noequations", false)
+                        equations = getequations(omc, model)
+                        htmleqs = "<ol><li>$(join(equations, "\n<li>"))</ol>"
+                        push!(result, Documenter.Documents.RawHTML(htmleqs))
+                    end
                 end
             end
         catch err
