@@ -353,7 +353,7 @@ Or the Apache 2, MIT or MPL 1.1 or MPL 2.0 licences.
    </m:mrow>
   </m:munder>
   <m:mrow><m:mo>(</m:mo>
-   <xsl:apply-templates mode="c2p" select="m:domainofapplication/following-sibling::*"/>
+   <xsl:apply-templates mode="sepcomma" select="m:domainofapplication/following-sibling::*"/>
   <m:mo>)</m:mo></m:mrow>
  </m:mrow>
 </xsl:template>
@@ -362,12 +362,12 @@ Or the Apache 2, MIT or MPL 1.1 or MPL 2.0 licences.
  <m:mrow>
   <m:mrow><m:mi>restriction</m:mi>
   <m:mrow><m:mo>(</m:mo>
-   <xsl:apply-templates mode="c2p" select="*[1]"/>
-   <xsl:apply-templates mode="c2p" select="m:domainofapplication/*"/>
+   <xsl:apply-templates mode="sepcomma" select="*[1]"/>
+   <xsl:apply-templates mode="sepcomma" select="m:domainofapplication/*"/>
   <m:mo>)</m:mo></m:mrow>
   </m:mrow>
   <m:mrow><m:mo>(</m:mo>
-   <xsl:apply-templates mode="c2p" select="m:domainofapplication/following-sibling::*"/>
+   <xsl:apply-templates mode="sepcomma" select="m:domainofapplication/following-sibling::*"/>
   <m:mo>)</m:mo></m:mrow>
  </m:mrow>
 </xsl:template>
@@ -1163,7 +1163,7 @@ Or the Apache 2, MIT or MPL 1.1 or MPL 2.0 licences.
 <m:mrow>
 <m:mo>(</m:mo>
 <m:mrow><m:mo>(</m:mo>
-<xsl:apply-templates mode="c2p" select="m:bvar/*"/>
+<xsl:apply-templates mode="sepcomma" select="m:bvar/*"/>
 <m:mo>)</m:mo></m:mrow>
 <m:mo>&#x21a6;<!-- map--></m:mo>
 <xsl:apply-templates mode="c2p" select="*[position()!=1][not(self::m:bvar)]"/>
@@ -1190,7 +1190,7 @@ Or the Apache 2, MIT or MPL 1.1 or MPL 2.0 licences.
 <m:mrow>
 <m:mo>(</m:mo>
 <m:mrow><m:mo>(</m:mo>
-<xsl:apply-templates mode="c2p" select="m:bvar/*"/>
+<xsl:apply-templates mode="sepcomma" select="m:bvar/*"/>
 <m:mo>)</m:mo></m:mrow>
 <m:mo>&#x21a6;<!-- map--></m:mo>
 <xsl:apply-templates mode="c2p" select="*[position()!=1][not(self::m:bvar)]"/>
@@ -1611,7 +1611,7 @@ priority="2">
 <m:mo>&#963;<!--sigma--></m:mo>
  <m:mo>&#8289;<!--function application--></m:mo>
 <m:mrow><m:mo>(</m:mo>
-<xsl:apply-templates mode="c2p" select="*[position()!=1]"/>
+<xsl:apply-templates mode="sepcomma" select="*[position()!=1]"/>
 <m:mo>)</m:mo></m:mrow>
 </m:mrow>
 <m:mn>2</m:mn>
@@ -1641,7 +1641,7 @@ priority="2">
       <xsl:choose>
         <xsl:when test="$data[2]">
           <m:mrow><m:mo>(</m:mo>
-            <xsl:apply-templates mode="c2p" select="$data"/>
+            <xsl:apply-templates mode="sepcomma" select="$data"/>
           <m:mo>)</m:mo></m:mrow>
         </xsl:when>
         <xsl:otherwise>
@@ -1682,7 +1682,7 @@ priority="2">
         <xsl:choose>
           <xsl:when test="$data[2]">
             <m:mrow><m:mo>(</m:mo>
-              <xsl:apply-templates mode="c2p" select="$data"/>
+              <xsl:apply-templates mode="sepcomma" select="$data"/>
             <m:mo>)</m:mo></m:mrow>
           </xsl:when>
           <xsl:otherwise>
