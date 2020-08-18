@@ -171,12 +171,18 @@ Or the Apache 2, MIT or MPL 1.1 or MPL 2.0 licences.
      </xsl:otherwise>
    </xsl:choose>
  <m:mo>&#8289;<!--function application--></m:mo>
- <m:mfenced open="(" close=")" separators=",">
- <xsl:apply-templates mode="c2p" select="*[position()>1]"/>
- </m:mfenced>
+ <m:mrow><m:mo>(</m:mo>
+ <xsl:apply-templates mode="sepcomma" select="*[position()>1]"/>
+ <m:mo>)</m:mo></m:mrow>
  </m:mrow>
 </xsl:template>
 
+<xsl:template mode="sepcomma" match="*">
+  <xsl:apply-templates mode="c2p" select="."/>
+  <xsl:if test="position() != last()">
+    <m:mo>,</m:mo>
+  </xsl:if>
+</xsl:template>
 
 <xsl:template mode="c2p" match="m:bind">
  <m:mrow>
