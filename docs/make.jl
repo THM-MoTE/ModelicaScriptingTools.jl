@@ -1,4 +1,4 @@
-push!(LOAD_PATH,joinpath(dirname(@__FILE__),"../src/"))
+pushfirst!(LOAD_PATH,joinpath(dirname(@__FILE__),"../src/"))
 using Documenter
 using ModelicaScriptingTools
 using OMJulia
