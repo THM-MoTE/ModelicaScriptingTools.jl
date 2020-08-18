@@ -280,9 +280,9 @@ Or the Apache 2, MIT or MPL 1.1 or MPL 2.0 licences.
    </xsl:if>
   </m:mrow>
   <m:mo>.</m:mo>
-  <m:mfenced>
+  <m:mrow><m:mo>(</m:mo>
    <xsl:apply-templates mode="c2p" select="*[last()]"/>
-  </m:mfenced>
+  <m:mo>)</m:mo></m:mrow>
  </m:mrow>
 </xsl:template>
 
@@ -346,23 +346,23 @@ Or the Apache 2, MIT or MPL 1.1 or MPL 2.0 licences.
     <xsl:apply-templates mode="c2p" select="m:domainofapplication/*"/>
    </m:mrow>
   </m:munder>
-  <m:mfenced>
+  <m:mrow><m:mo>(</m:mo>
    <xsl:apply-templates mode="c2p" select="m:domainofapplication/following-sibling::*"/>
-  </m:mfenced>
+  <m:mo>)</m:mo></m:mrow>
  </m:mrow>
 </xsl:template>
 
 <xsl:template mode="c2p" match="m:apply[m:domainofapplication]" priority="0.3">
  <m:mrow>
   <m:mrow><m:mi>restriction</m:mi>
-  <m:mfenced>
+  <m:mrow><m:mo>(</m:mo>
    <xsl:apply-templates mode="c2p" select="*[1]"/>
    <xsl:apply-templates mode="c2p" select="m:domainofapplication/*"/>
-  </m:mfenced>
+  <m:mo>)</m:mo></m:mrow>
   </m:mrow>
-  <m:mfenced>
+  <m:mrow><m:mo>(</m:mo>
    <xsl:apply-templates mode="c2p" select="m:domainofapplication/following-sibling::*"/>
-  </m:mfenced>
+  <m:mo>)</m:mo></m:mrow>
  </m:mrow>
 </xsl:template>
 
@@ -696,9 +696,9 @@ Or the Apache 2, MIT or MPL 1.1 or MPL 2.0 licences.
   <m:mo>&#8704;<!--forall--></m:mo>
  <m:mrow><xsl:apply-templates mode="c2p" select="m:bvar[not(current()/m:condition)]/*|m:condition/*"/></m:mrow>
  <m:mo>.</m:mo>
- <m:mfenced>
+ <m:mrow><m:mo>(</m:mo>
   <xsl:apply-templates mode="c2p" select="*[last()]"/>
- </m:mfenced>
+ <m:mo>)</m:mo></m:mrow>
 </m:mrow>
 </xsl:template>
 
@@ -1098,9 +1098,9 @@ Or the Apache 2, MIT or MPL 1.1 or MPL 2.0 licences.
      <xsl:apply-templates mode="c2p" select="*[2]"/>
     </m:mrow>
    </m:msub>
-   <m:mfenced>
+   <m:mrow><m:mo>(</m:mo>
      <xsl:apply-templates mode="c2p" select="*[4]"/>
-   </m:mfenced>
+   <m:mo>)</m:mo></m:mrow>
   </m:mrow>
 </xsl:template>
 
@@ -1156,9 +1156,9 @@ Or the Apache 2, MIT or MPL 1.1 or MPL 2.0 licences.
 <m:mo>&#8289;<!--function application--></m:mo>
 <m:mrow>
 <m:mo>(</m:mo>
-<m:mfenced>
+<m:mrow><m:mo>(</m:mo>
 <xsl:apply-templates mode="c2p" select="m:bvar/*"/>
-</m:mfenced>
+<m:mo>)</m:mo></m:mrow>
 <m:mo>&#x21a6;<!-- map--></m:mo>
 <xsl:apply-templates mode="c2p" select="*[position()!=1][not(self::m:bvar)]"/>
 <m:mo>)</m:mo>
@@ -1183,9 +1183,9 @@ Or the Apache 2, MIT or MPL 1.1 or MPL 2.0 licences.
 <m:mo>&#8289;<!--function application--></m:mo>
 <m:mrow>
 <m:mo>(</m:mo>
-<m:mfenced>
+<m:mrow><m:mo>(</m:mo>
 <xsl:apply-templates mode="c2p" select="m:bvar/*"/>
-</m:mfenced>
+<m:mo>)</m:mo></m:mrow>
 <m:mo>&#x21a6;<!-- map--></m:mo>
 <xsl:apply-templates mode="c2p" select="*[position()!=1][not(self::m:bvar)]"/>
 <m:mo>)</m:mo>
@@ -1604,9 +1604,9 @@ priority="2">
 <m:mrow>
 <m:mo>&#963;<!--sigma--></m:mo>
  <m:mo>&#8289;<!--function application--></m:mo>
-<m:mfenced>
+<m:mrow><m:mo>(</m:mo>
 <xsl:apply-templates mode="c2p" select="*[position()!=1]"/>
-</m:mfenced>
+<m:mo>)</m:mo></m:mrow>
 </m:mrow>
 <m:mn>2</m:mn>
 </m:msup>
@@ -1634,9 +1634,9 @@ priority="2">
                             [not(self::m:degree or self::m:momentabout)]"/>
       <xsl:choose>
         <xsl:when test="$data[2]">
-          <m:mfenced>
+          <m:mrow><m:mo>(</m:mo>
             <xsl:apply-templates mode="c2p" select="$data"/>
-          </m:mfenced>
+          <m:mo>)</m:mo></m:mrow>
         </xsl:when>
         <xsl:otherwise>
           <xsl:apply-templates mode="c2p" select="$data"/>
@@ -1675,9 +1675,9 @@ priority="2">
                               [not(self::m:degree or self::m:momentabout)]"/>
         <xsl:choose>
           <xsl:when test="$data[2]">
-            <m:mfenced>
+            <m:mrow><m:mo>(</m:mo>
               <xsl:apply-templates mode="c2p" select="$data"/>
-            </m:mfenced>
+            <m:mo>)</m:mo></m:mrow>
           </xsl:when>
           <xsl:otherwise>
             <xsl:apply-templates mode="c2p" select="$data"/>
