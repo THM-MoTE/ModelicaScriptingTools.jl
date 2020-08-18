@@ -164,7 +164,7 @@ Or the Apache 2, MIT or MPL 1.1 or MPL 2.0 licences.
          </xsl:apply-templates>
        </m:mfenced>
      </xsl:when>
-     <xsl:otherwise>       
+     <xsl:otherwise>
        <xsl:apply-templates mode="c2p" select="*[1]">
          <xsl:with-param name="p" select="10"/>
        </xsl:apply-templates>
@@ -188,7 +188,7 @@ Or the Apache 2, MIT or MPL 1.1 or MPL 2.0 licences.
          </xsl:apply-templates>
        </m:mfenced>
      </xsl:when>
-     <xsl:otherwise>       
+     <xsl:otherwise>
        <xsl:apply-templates mode="c2p" select="*[1]">
          <xsl:with-param name="p" select="10"/>
        </xsl:apply-templates>
@@ -474,7 +474,7 @@ Or the Apache 2, MIT or MPL 1.1 or MPL 2.0 licences.
   <xsl:if test="$p &gt; 2"><m:mo>(</m:mo></xsl:if>
   <xsl:for-each select="*[position()&gt;1]">
    <xsl:choose>
-    <xsl:when test="self::m:apply[*[1][self::m:times] and *[2][self::m:apply/*[1][self::m:minus] or 
+    <xsl:when test="self::m:apply[*[1][self::m:times] and *[2][self::m:apply/*[1][self::m:minus] or
 		                  self::m:cn[not(m:sep) and (number(.) &lt; 0)]]] or
 	            self::m:apply[count(*)=2 and *[1][self::m:minus]] or
 		    self::m:cn[not(m:sep) and (number(.) &lt; 0)]">
@@ -586,7 +586,7 @@ Or the Apache 2, MIT or MPL 1.1 or MPL 2.0 licences.
       <xsl:otherwise>&#8290;<!--invisible times--></xsl:otherwise>
     </xsl:choose>
     </m:mo>
-   </xsl:if> 
+   </xsl:if>
    <xsl:if test="position()&gt;= $first">
    <xsl:apply-templates mode="c2p" select=".">
      <xsl:with-param name="p" select="3"/>
@@ -1012,7 +1012,7 @@ Or the Apache 2, MIT or MPL 1.1 or MPL 2.0 licences.
   <xsl:param name="b" select="m:lambda/m:bvar"/>
   <xsl:param name="l" select="m:list/*"/>
   <xsl:choose>
-    <xsl:when 
+    <xsl:when
        test="number($l[1])=number($l[2])">
      <xsl:call-template name="pddx">
      <xsl:with-param name="n" select="$n+1"/>
@@ -1447,7 +1447,7 @@ priority="2">
         <xsl:otherwise>&#8594;<!--rightarrow--></xsl:otherwise>
       </xsl:choose>
     </m:mo>
- <xsl:apply-templates mode="c2p" select="*[2]"/>    
+ <xsl:apply-templates mode="c2p" select="*[2]"/>
 </m:mrow>
  </m:munder>
  <xsl:apply-templates mode="c2p" select="m:bind/*[last()]"/>
@@ -1629,7 +1629,7 @@ priority="2">
   <m:mrow>
     <m:mo>&#9001;<!--langle--></m:mo>
     <m:msup>
-      <xsl:variable name="data" 
+      <xsl:variable name="data"
                     select="*[not(position()=1)]
                             [not(self::m:degree or self::m:momentabout)]"/>
       <xsl:choose>
@@ -1658,7 +1658,7 @@ priority="2">
     </m:msup>
     <m:mo>&#9002;<!--rangle--></m:mo>
   </m:mrow>
-  <xsl:apply-templates mode="c2p" select="*[3]"/>         
+  <xsl:apply-templates mode="c2p" select="*[3]"/>
 </m:msub>
 </xsl:template>
 
@@ -1670,7 +1670,7 @@ priority="2">
     <m:mrow>
       <m:mo>&#9001;<!--langle--></m:mo>
       <m:msup>
-        <xsl:variable name="data" 
+        <xsl:variable name="data"
                       select="*[not(position()=1)]
                               [not(self::m:degree or self::m:momentabout)]"/>
         <xsl:choose>
@@ -2011,7 +2011,7 @@ match="m:apply[*[1][self::m:determinant]][*[2][self::m:matrix]]" priority="2">
   <xsl:for-each select="*[not(self::m:domainofapplication)][position()&gt;1]">
    <xsl:if test="position() &gt; 1">
     <xsl:copy-of select="$dmo"/>
-   </xsl:if>   
+   </xsl:if>
    <xsl:apply-templates mode="c2p" select=".">
      <xsl:with-param name="p" select="$this-p"/>
    </xsl:apply-templates>
@@ -2088,10 +2088,9 @@ match="m:apply[*[1][self::m:determinant]][*[2][self::m:matrix]]" priority="2">
    <xsl:apply-templates mode="c2p"/>
  </m:merror>
 </xsl:template>
- 
+
 <xsl:template mode="c2p" match="m:share" priority="4">
  <m:mi href="{@href}">share<xsl:value-of select="substring-after(@href,'#')"/></m:mi>
 </xsl:template>
 
 </xsl:stylesheet>
-
