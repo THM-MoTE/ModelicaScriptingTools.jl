@@ -158,11 +158,11 @@ Or the Apache 2, MIT or MPL 1.1 or MPL 2.0 licences.
  <m:mrow>
    <xsl:choose>
      <xsl:when test="*[1]/*/*">
-       <m:mfenced separators="">
+       <m:mrow><m:mo>(</m:mo>
          <xsl:apply-templates mode="c2p" select="*[1]">
            <xsl:with-param name="p" select="10"/>
          </xsl:apply-templates>
-       </m:mfenced>
+       <m:mo>)</m:mo></m:mrow>
      </xsl:when>
      <xsl:otherwise>
        <xsl:apply-templates mode="c2p" select="*[1]">
@@ -188,11 +188,11 @@ Or the Apache 2, MIT or MPL 1.1 or MPL 2.0 licences.
  <m:mrow>
    <xsl:choose>
      <xsl:when test="*[1]/*/*">
-       <m:mfenced separators="">
+       <m:mrow><m:mo>(</m:mo>
          <xsl:apply-templates mode="c2p" select="*[1]">
            <xsl:with-param name="p" select="10"/>
          </xsl:apply-templates>
-       </m:mfenced>
+       <m:mo>)</m:mo></m:mrow>
      </xsl:when>
      <xsl:otherwise>
        <xsl:apply-templates mode="c2p" select="*[1]">
@@ -719,7 +719,7 @@ Or the Apache 2, MIT or MPL 1.1 or MPL 2.0 licences.
   <m:mo>&#8707;<!--exists--></m:mo>
  <m:mrow><xsl:apply-templates mode="c2p" select="m:bvar[not(current()/m:condition)]/*|m:condition/*"/></m:mrow>
  <m:mo>.</m:mo>
- <m:mfenced separators="">
+ <m:mrow><m:mo>(</m:mo>
    <xsl:choose>
      <xsl:when test="m:condition">
        <xsl:apply-templates mode="c2p" select="m:condition/*"/>
@@ -742,7 +742,7 @@ Or the Apache 2, MIT or MPL 1.1 or MPL 2.0 licences.
      </xsl:when>
    </xsl:choose>
   <xsl:apply-templates mode="c2p" select="*[last()]"/>
- </m:mfenced>
+ <m:mo>)</m:mo></m:mrow>
 </m:mrow>
 </xsl:template>
 
