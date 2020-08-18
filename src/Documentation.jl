@@ -108,6 +108,7 @@ function Documenter.Selectors.runner(::Type{ModelicaBlocks}, x, page, doc)
                         rawcode = getcode(omc, model)
                         push!(result, Documenter.Utilities.mdparse("```modelica\n$rawcode\n```\n"))
                     end
+                    # TODO alternative way to get equations through getNthEquationItem()
                     # get model equations
                     if !get(magicvalues, "noequations", false)
                         equations = getequations(omc, model)
