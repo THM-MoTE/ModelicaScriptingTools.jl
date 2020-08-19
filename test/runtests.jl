@@ -4,7 +4,7 @@ using ModelicaScriptingTools: setupOMCSession, loadModel, simulate,
     getequations
 using Test: @testset, @test, @test_nowarn, @test_throws
 using OMJulia: sendExpression
-using DataFrames: Not, select!
+using DataFrames: Not, select!, DataFrame
 using CSV
 
 if !isdir("out")
@@ -128,7 +128,7 @@ end
                 cp("out/Example_res.csv", "regRefData/Example_res.csv"; force=true)
                 # remove column r from reference data, which should not have been selected in the first place
                 csvfile = "regRefData/Example_res.csv"
-                data = CSV.read(csvfile)
+                data = DataFrame(CSV.File(csvfile))
                 select!(data, Not(:r))
                 CSV.write(csvfile, data)
                 regressionTest(omc, "Example", "regRefData"; relTol=1e-3, variableFilter="sub\\.alias")
