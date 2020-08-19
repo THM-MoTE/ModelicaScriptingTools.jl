@@ -58,7 +58,7 @@ function variabletable(vars:: Array{Dict{Any, Any},1})
     """
     lines = []
     for v in vars
-        if !isnothing(v["aliasof"])
+        if length(v["aliasof"]) > 0
             continue # exclude aliases from table
         end
         value = if isnothing(v["initial"])
@@ -218,8 +218,8 @@ function __init__doc()
             }
             vdict["aliasof"] = vdict["bindExpression"] if isalias else None
             for k in vdict:
-                if vdict[k] is not None and len(vdict[k]) == 0:
-                    vdict[k] = None
+                if vdict[k] is None:
+                    vdict[k] = ""
             # if len(vdict["bindExpression"]) > 0:
             #     vdict["bindExpression"] = c2p(vdict["bindExpression"], xslt_dir=xslt_dir)
             result.append(vdict)
