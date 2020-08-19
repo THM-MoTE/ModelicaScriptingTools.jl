@@ -66,7 +66,7 @@ function variabletable(vars:: Array{Dict{Any, Any},1})
         if length(v["aliasof"]) > 0
             continue # exclude aliases from table
         end
-        value = if isnothing(v["initial"])
+        value = if len(v["initial"]) == 0
             v["bindExpression"]
         else
             v["initial"]
