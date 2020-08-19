@@ -74,7 +74,7 @@ function Documenter.Selectors.runner(::Type{ModelicaBlocks}, x, page, doc)
                     magicvalues[name] = if isempty(rmatch.captures)
                         true
                     else
-                        rmatch.captures[1]
+                        string(rmatch.captures[1])
                     end
                 catch err
                     push!(doc.internal.errors, :eval_block)
