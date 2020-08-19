@@ -192,10 +192,11 @@ function __init__doc()
                 "initial": v.xpath("string(attributesValues/initialValue/@string)"),
                 "bindExpression": v.xpath("bindExpression/MathML/math")
             }
+            for k in vdict:
+                if len(vdict[k]) == 0:
+                    vdict[k] = None
             if len(vdict["bindExpression"]) > 0:
                 vdict["bindExpression"] = c2p(vdict["bindExpression"], xslt_dir=xslt_dir)
-            else:
-                vdict["bindExpression"] = None
             result.append(vdict)
         return result
 
