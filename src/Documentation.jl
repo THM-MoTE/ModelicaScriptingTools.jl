@@ -51,6 +51,11 @@ function getvariables(omc:: OMCSession, model::String)
     return res
 end
 
+function mdescape(s:: String)
+    escape_chars = "\\`*_#+-.!{}[]()\$"
+    return join([(x in escape_chars ? "\\$x" : x) for x in s])
+end
+
 function variabletable(vars:: Array{Dict{Any, Any},1})
     header = """
     |name|unit|value|label|
@@ -67,6 +72,7 @@ function variabletable(vars:: Array{Dict{Any, Any},1})
             v["initial"]
         end
         vals = [v["name"], v["unit"], value, v["label"]]
+        vals = [mdescape(x) for x in vals]
         push!(lines, "|$(join(vals, "|"))|")
     end
     table = "$(header)$(join(lines, "\n"))"
