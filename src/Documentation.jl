@@ -177,22 +177,21 @@ function __init__doc()
                 # use dot in output to not confuse MathJax
                 app.text = tag_name.replace("$", ".")
 
-    class XMLVariable:
-        def __init__(self, elem):
-            self.name = elem.get("name")
-            self.variability = elem.get("variability")
-            self.type = elem.get("type")
-            self.label = elem.get("comment")
-            self.quantity = elem.xpath("string(attributesValues/quantity/@string)")
-            self.unit = elem.xpath("string(attributesValues/unit/@string)")
-            self.initial = elem.xpath("string(attributesValues/initialValue/@string)")
-
     def extract_variables(fname):
         dom = et.parse(fname)
         vars = dom.xpath("//variables")
         result = []
         for v in vars:
-            result.append(XMLVariable(v))
+            vdict = {
+                "name": v.get("name"),
+                "variability": v.get("variability"),
+                "type": v.get("type"),
+                "label": v.get("comment"),
+                "quantity": v.xpath("string(attributesValues/quantity/@string)"),
+                "unit": v.xpath("string(attributesValues/unit/@string)"),
+                "initial": v.xpath("string(attributesValues/initialValue/@string)")
+            }
+            result.append(vdict)
         return result
 
     def extract_equations(fname, xslt_dir="."):
