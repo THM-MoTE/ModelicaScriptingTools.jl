@@ -159,7 +159,7 @@ function __init__doc()
     def extract_equations(fname, xslt_dir="."):
         dom = et.parse(fname)
         ns = {"mml": "http://www.w3.org/1998/Math/MathML"}
-        functions = dom.xpath("string(/dae/functions/function/@name)")
+        functions = [str(x) for x in dom.xpath("/dae/functions/function/@name")]
         print(functions)
         applies = dom.xpath("//mml:apply/*[1]", namespaces=ns)
         print(applies)
