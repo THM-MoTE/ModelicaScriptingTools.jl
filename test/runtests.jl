@@ -174,14 +174,14 @@ end
                     "variability" => "continuousState", "unit" => "\"V\"",
                     "initial" => "0.0", "type" => "Real",
                     "quantity" => "\"ElectricPotential\"",
-                    "bindEquation" => nothing
+                    "bindExpression" => nothing
                 ),
                 Dict(
                     "label" => nothing, "name" => "sub.alias",
                     "variability" => "continuous", "unit" => "\"V\"",
-                    "initial" => "", "type" => "Real",
+                    "initial" => nothing, "type" => "Real",
                     "quantity" => "\"ElectricPotential\"",
-                    "bindEquation" => nothing
+                    "bindExpression" => "r"
                 )
             ]
             @test expected == getvariables(omc, "Example")
