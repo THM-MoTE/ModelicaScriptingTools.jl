@@ -47,7 +47,7 @@ function getvariables(omc:: OMCSession, model::String)
     if !isempty(err)
         throw(MoSTError("Could not save model as independent XML file", err))
     end
-    res = py"extract_variables"(res[2])
+    res = py"extract_variables"(res[2], xslt_dir=joinpath(@__DIR__, "..", "res"))
     return res
 end
 
@@ -177,7 +177,7 @@ function __init__doc()
                 # use dot in output to not confuse MathJax
                 app.text = tag_name.replace("$", ".")
 
-    def extract_variables(fname):
+    def extract_variables(fname, xslt_dir="."):
         dom = et.parse(fname)
         vars = dom.xpath("//variable")
         result = []
@@ -189,8 +189,13 @@ function __init__doc()
                 "label": v.get("comment"),
                 "quantity": v.xpath("string(attributesValues/quantity/@string)"),
                 "unit": v.xpath("string(attributesValues/unit/@string)"),
-                "initial": v.xpath("string(attributesValues/initialValue/@string)")
+                "initial": v.xpath("string(attributesValues/initialValue/@string)"),
+                "bindExpression": v.xpath("bindExpression/MathML/math")
             }
+            if len(vdict["bindExpression"]) > 0:
+                vdict["bindExpression"] = c2p(vdict["bindExpression"], xslt_dir=xslt_dir)
+            else:
+                vdict["bindExpression"] = None
             result.append(vdict)
         return result
 
