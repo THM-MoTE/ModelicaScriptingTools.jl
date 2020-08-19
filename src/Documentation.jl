@@ -41,6 +41,10 @@ function getequations(omc:: OMCSession, model::String)
     return res
 end
 
+function getvariables(omc:: OMCSession, model::String)
+
+end
+
 # extend Documenter with new code block type @modelica
 abstract type ModelicaBlocks <: Documenter.Expanders.ExpanderPipeline end
 Documenter.Selectors.order(::Type{ModelicaBlocks}) = 5.0
@@ -162,10 +166,10 @@ function __init__doc()
         functions = [str(x) for x in dom.xpath("/dae/functions/function/@name")]
         applies = dom.xpath("//mml:apply/*[1]", namespaces=ns)
         for app in applies:
-            appq = et.QName(app)
-            if appq.localname.replace("_dollar_", "$") in functions:
+            tag_name = et.QName(app).localname.replace("_dollar_", "$")
+            if tag_name in functions:
                 app.tag = et.QName(ns["mml"], "ci")
-                app.text = appq.localname
+                app.text = tag_name
         mathdoms = dom.xpath("/dae/equations/equation/MathML/mml:math", namespaces=ns)
         content_to_pres = load_ctop(xslt_dir)
         newdoms = [content_to_pres(x) for x in mathdoms]
