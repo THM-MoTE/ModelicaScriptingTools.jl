@@ -170,16 +170,16 @@ end
             loadModel(omc, "Example")
             expected = [
                 Dict(
-                    "label" => nothing, "name" => "r",
+                    "label" => "", "name" => "r",
                     "variability" => "continuousState", "unit" => "\"V\"",
                     "initial" => "0.0", "type" => "Real",
                     "quantity" => "\"ElectricPotential\"",
-                    "bindExpression" => nothing, "aliasof" => nothing
+                    "bindExpression" => "", "aliasof" => ""
                 ),
                 Dict(
-                    "label" => nothing, "name" => "sub.alias",
+                    "label" => "", "name" => "sub.alias",
                     "variability" => "continuous", "unit" => "\"V\"",
-                    "initial" => nothing, "type" => "Real",
+                    "initial" => "", "type" => "Real",
                     "quantity" => "\"ElectricPotential\"",
                     "bindExpression" => "r", "aliasof" => "r"
                 )
