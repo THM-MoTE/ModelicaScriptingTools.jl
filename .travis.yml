@@ -19,6 +19,11 @@ jobs:
         - julia -e 'using Pkg; Pkg.add("Coverage"); using Coverage; Codecov.submit(process_folder())'
     - stage: "Documentation"
       julia: 1.4
+      install:
+          - for deb in deb deb-src; do echo "$deb http://build.openmodelica.org/apt `lsb_release -cs` release"; done | sudo tee /etc/apt/sources.list.d/openmodelica.list
+          - wget -q http://build.openmodelica.org/apt/openmodelica.asc -O- | sudo apt-key add -
+          - sudo apt update
+          - sudo apt install openmodelica
       script:
         - julia --project=docs/ -e 'ENV["PYTHON"]=""; using Pkg; Pkg.develop(PackageSpec(path=pwd()));
                                                Pkg.instantiate()'
