@@ -160,9 +160,7 @@ function __init__doc()
         dom = et.parse(fname)
         ns = {"mml": "http://www.w3.org/1998/Math/MathML"}
         functions = [str(x) for x in dom.xpath("/dae/functions/function/@name")]
-        print(functions)
         applies = dom.xpath("//mml:apply/*[1]", namespaces=ns)
-        print(applies)
         for app in applies:
             appq = et.QName(app)
             if appq.localname.replace("_dollar_", "$") in functions:
