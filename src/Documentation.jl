@@ -179,7 +179,7 @@ function __init__doc()
 
     def extract_variables(fname):
         dom = et.parse(fname)
-        vars = dom.xpath("//variables")
+        vars = dom.xpath("//variable")
         result = []
         for v in vars:
             vdict = {
