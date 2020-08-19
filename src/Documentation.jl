@@ -58,6 +58,9 @@ function variabletable(vars:: Array{Dict{Any, Any},1})
     """
     lines = []
     for v in vars
+        if !isnothing(v["aliasof"])
+            continue # exclude aliases from table
+        end
         value = if isnothing(v["initial"])
             v["bindExpression"]
         else
