@@ -169,7 +169,8 @@ function __init__doc()
             tag_name = et.QName(app).localname.replace("_dollar_", "$")
             if tag_name in functions:
                 app.tag = et.QName(ns["mml"], "ci")
-                app.text = tag_name
+                # use dot in output to not confuse MathJax
+                app.text = tag_name.replace("$", ".")
         mathdoms = dom.xpath("/dae/equations/equation/MathML/mml:math", namespaces=ns)
         content_to_pres = load_ctop(xslt_dir)
         newdoms = [content_to_pres(x) for x in mathdoms]
