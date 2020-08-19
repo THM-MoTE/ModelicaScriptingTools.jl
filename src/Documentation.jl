@@ -67,7 +67,6 @@ function variabletable(vars:: Array{Dict{Any, Any},1})
         push!(lines, "|$(join(vals, "|"))|")
     end
     table = "$(header)$(join(lines, "\n"))"
-    println(table)
     return Markdown.parse(table)
 end
 
