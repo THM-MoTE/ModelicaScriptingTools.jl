@@ -202,6 +202,7 @@ function __init__doc()
         vars = dom.xpath("//variable")
         result = []
         for v in vars:
+            isalias = str(v.getparent().getparent().tag) == "aliasVariables"
             vdict = {
                 "name": v.get("name"),
                 "variability": v.get("variability"),
@@ -212,6 +213,7 @@ function __init__doc()
                 "initial": v.xpath("string(attributesValues/initialValue/@string)"),
                 "bindExpression": v.xpath("string(bindExpression/@string)")
             }
+            vdict["aliasof"] = vdict["bindExpression"] if isalias else None
             for k in vdict:
                 if vdict[k] is not None and len(vdict[k]) == 0:
                     vdict[k] = None
