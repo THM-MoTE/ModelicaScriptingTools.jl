@@ -168,7 +168,20 @@ end
         end
         @testset "getvariables" begin
             loadModel(omc, "Example")
-            expected = []
+            expected = [
+                Dict(
+                    "label" => nothing, "name" => "r",
+                    "variability" => "continuousState", "unit" => "\"V\"",
+                    "initial" => "0.0", "type" => "Real",
+                    "quantity" => "\"ElectricPotential\""
+                ),
+                Dict(
+                    "label" => nothing, "name" => "sub.alias",
+                    "variability" => "continuous", "unit" => "\"V\"",
+                    "initial" => "", "type" => "Real",
+                    "quantity" => "\"ElectricPotential\""
+                )
+            ]
             @test expected == getvariables(omc, "Example")
         end
     end
