@@ -42,7 +42,13 @@ function getequations(omc:: OMCSession, model::String)
 end
 
 function getvariables(omc:: OMCSession, model::String)
-
+    res = sendExpression(omc, "dumpXMLDAE($model, addMathMLCode=true)")
+    err = sendExpression(omc, "getErrorString()")
+    if !isempty(err)
+        throw(MoSTError("Could not save model as independent XML file", err))
+    end
+    res = py"extract_variables"(res[2])
+    return res
 end
 
 # extend Documenter with new code block type @modelica
@@ -118,6 +124,7 @@ function Documenter.Selectors.runner(::Type{ModelicaBlocks}, x, page, doc)
                         equations = getequations(omc, model)
                         htmleqs = "<ol><li>$(join(equations, "\n<li>"))</ol>"
                         push!(result, Documenter.Documents.RawHTML(htmleqs))
+                        println(getvariables(omc, model))
                     end
                 end
             end
@@ -169,6 +176,24 @@ function __init__doc()
                 app.tag = et.QName(ns["mml"], "ci")
                 # use dot in output to not confuse MathJax
                 app.text = tag_name.replace("$", ".")
+
+    class XMLVariable:
+        def __init__(self, elem):
+            self.name = elem.get("name")
+            self.variability = elem.get("variability")
+            self.type = elem.get("type")
+            self.label = elem.get("comment")
+            self.quantity = elem.xpath("string(attributesValues/quantity/@string)")
+            self.unit = elem.xpath("string(attributesValues/unit/@string)")
+            self.initial = elem.xpath("string(attributesValues/initialValue/@string)")
+
+    def extract_variables(fname):
+        dom = et.parse(fname)
+        vars = dom.xpath("//variables")
+        result = []
+        for v in vars:
+            result.append(XMLVariable(v))
+        return result
 
     def extract_equations(fname, xslt_dir="."):
         dom = et.parse(fname)

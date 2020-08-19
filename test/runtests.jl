@@ -166,5 +166,10 @@ end
             ]
             @test expected == getequations(omc, "Example")
         end
+        @testset "getvariables" begin
+            loadModel(omc, "Example")
+            expected = []
+            @test expected == getvariables(omc, "Example")
+        end
     end
 end
