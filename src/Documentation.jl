@@ -194,15 +194,26 @@ function __init__doc()
             result.append(vdict)
         return result
 
+    def c2p(content, xslt_dir="."):
+        single = False
+        if not isinstance(content, list):
+            content = [content]
+            single = True
+        content_to_pres = load_ctop(xslt_dir)
+        presentation = [content_to_pres(c) for c in content]
+        for p in presentation:
+            cleanup_mathml(p)
+        if single:
+            return presentation[0]
+        else:
+            return presentation
+
     def extract_equations(fname, xslt_dir="."):
         dom = et.parse(fname)
         ns = {"mml": "http://www.w3.org/1998/Math/MathML"}
         fix_function_names(dom, ns=ns)
         mathdoms = dom.xpath("/dae/equations/equation/MathML/mml:math", namespaces=ns)
-        content_to_pres = load_ctop(xslt_dir)
-        newdoms = [content_to_pres(x) for x in mathdoms]
-        for x in newdoms:
-            cleanup_mathml(x)
+        newdoms = c2p(mathdoms, xslt_dir=xslt_dir)
         return [et.tostring(x) for x in newdoms]
     """
 end
