@@ -5,3 +5,5 @@
 * remove common prefix from function names
 * display list of functions in documentation
 * make float values human-readable by (optionally) restricting precision
+* add a proper header for Modelica autodoc entries
+* add possibility to show equations and variables of non-instantiatable classes
