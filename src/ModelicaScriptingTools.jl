@@ -7,6 +7,7 @@ using OMJulia: OMCSession, sendExpression, Parser
 using ZMQ: send, recv # only needed for sendExpressionRaw which is a workaround for OMJulia bugs
 using DataFrames: DataFrame
 using PyCall: PyNULL, pyimport_conda, pyimport, @py_str
+using Markdown: Markdown
 import Documenter
 
 export moescape, mounescape, MoSTError, loadModel, getSimulationSettings,

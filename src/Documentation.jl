@@ -51,22 +51,22 @@ function getvariables(omc:: OMCSession, model::String)
     return res
 end
 
-function variabletable(vars:: Array{Dict})
+function variabletable(vars:: Array{Dict{Any, Any},1})
     header = """
     |name|unit|value|label|
     |----|----|-----|-----|
     """
     lines = []
     for v in vars
-        value = if isnothing(vars["initial"])
-            vars["bindExpression"]
+        value = if isnothing(v["initial"])
+            v["bindExpression"]
         else
-            vars["initial"]
+            v["initial"]
         end
-        vals = [vars["name"], vars["unit"], value, vars["label"]]
+        vals = [v["name"], v["unit"], value, v["label"]]
         push!(lines, "|$(join(vals, "|"))|")
     end
-    table = "$header\n$(join(lines, "\n"))"
+    table = "$(header)$(join(lines, "\n"))"
     println(table)
     return Markdown.parse(table)
 end
