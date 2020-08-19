@@ -1,4 +1,5 @@
 model DocExample
+  parameter Real k = 2 "some parameter";
   Modelica.SIunits.Voltage r(start=0, fixed=true) "some potential";
   model ExSub
     Modelica.SIunits.Voltage alias;
@@ -20,7 +21,7 @@ model DocExample
   end g;
 equation
   der(r) = 1 / g(foo);
-  foo = f(r, 2);
+  foo = f(r, k);
 annotation(
   experiment(StartTime = 0, StopTime = 5, Tolerance = 1e-6, Interval = 1e-1),
   __MoST_experiment(variableFilter="sub\\.alias"),
