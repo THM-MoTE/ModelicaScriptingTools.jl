@@ -28,6 +28,21 @@ This will display documentation for the two models `MyPackage.MyFirstModel` and 
 * Replace `using MyModelicaProject` with `using ModelicaScriptingTools` in `docs/make.jl`.
 * Also change `[MyModelicaProject]` to `Module[]` in `make.jl`.
 
+### Deploy docs with Travis CI
+
+* Add this to `make.jl`:
+    ```
+    deploydocs(
+        repo = "github.com/MyGithubUsername/MyRepo.git",
+    )
+    ```
+* Add this to `.travis.yml`
+    * `- export PYTHON=""`
+    * `- julia --project=docs/ -e "using Pkg; Pkg.instantiate()"`
+    * `- julia --project=docs/ docs/make.jl`
+* `julia -e 'using DocumenterTools; DocumenterTools.genkeys(user="MyGithubUsername", repo="MyRepo")'`
+* Follow instructions
+
 ## Features and Example
 
 The following shows the documentation of the model `DocExample.mo` in the folder `test/res` of this project.
