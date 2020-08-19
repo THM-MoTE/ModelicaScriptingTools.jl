@@ -33,6 +33,7 @@ This will display documentation for the two models `MyPackage.MyFirstModel` and 
 The following shows the documentation of the model `DocExample.mo` in the folder `test/res` of this project.
 
 ```@modelica
+%outdir=../../test/out
 %modeldir = ../../test/res
 DocExample
 ```
