@@ -12,8 +12,14 @@ model DocExample
   algorithm
     res := x ^ y + y;
   end f;
+  function g
+    input Real x;
+    output Real y;
+  algorithm
+    y := x * 2;
+  end g;
 equation
-  der(r) = 1 / foo;
+  der(r) = 1 / g(foo);
   foo = f(r, 2);
 annotation(
   experiment(StartTime = 0, StopTime = 5, Tolerance = 1e-6, Interval = 1e-1),
