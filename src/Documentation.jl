@@ -51,6 +51,26 @@ function getvariables(omc:: OMCSession, model::String)
     return res
 end
 
+function variabletable(vars:: Array{Dict})
+    header = """
+    |name|unit|value|label|
+    |----|----|-----|-----|
+    """
+    lines = []
+    for v in vars
+        value = if isnothing(vars["initial"])
+            vars["bindExpression"]
+        else
+            vars["initial"]
+        end
+        vals = [vars["name"], vars["unit"], value, vars["label"]]
+        push!(lines, "|$(join(vals, "|"))|")
+    end
+    table = "$header\n$(join(lines, "\n"))"
+    println(table)
+    return Markdown.parse(table)
+end
+
 # extend Documenter with new code block type @modelica
 abstract type ModelicaBlocks <: Documenter.Expanders.ExpanderPipeline end
 Documenter.Selectors.order(::Type{ModelicaBlocks}) = 5.0
@@ -124,7 +144,8 @@ function Documenter.Selectors.runner(::Type{ModelicaBlocks}, x, page, doc)
                         equations = getequations(omc, model)
                         htmleqs = "<ol><li>$(join(equations, "\n<li>"))</ol>"
                         push!(result, Documenter.Documents.RawHTML(htmleqs))
-                        println(getvariables(omc, model))
+                        vartab = variabletable(getvariables(omc, model))
+                        push!(result, vartab)
                     end
                 end
             end
