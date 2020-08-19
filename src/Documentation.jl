@@ -211,13 +211,13 @@ function __init__doc()
                 "quantity": v.xpath("string(attributesValues/quantity/@string)"),
                 "unit": v.xpath("string(attributesValues/unit/@string)"),
                 "initial": v.xpath("string(attributesValues/initialValue/@string)"),
-                "bindExpression": v.xpath("bindExpression/MathML/math")
+                "bindExpression": v.xpath("string(bindExpression/@string)")
             }
             for k in vdict:
                 if vdict[k] is not None and len(vdict[k]) == 0:
                     vdict[k] = None
-            if len(vdict["bindExpression"]) > 0:
-                vdict["bindExpression"] = c2p(vdict["bindExpression"], xslt_dir=xslt_dir)
+            # if len(vdict["bindExpression"]) > 0:
+            #     vdict["bindExpression"] = c2p(vdict["bindExpression"], xslt_dir=xslt_dir)
             result.append(vdict)
         return result
 
