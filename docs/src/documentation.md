@@ -41,7 +41,8 @@ DocExample
 Currently, the documentation features
 
 * The full code of the model.
-* A list of all equations of the model as presentation MathML (only available if the model can be insantiated using the [`instantiateModel()`](https://www.openmodelica.org/doc/OpenModelicaUsersGuide/latest/scripting_api.html#instantiatemodel) function of the OpenModelica Scripting API)
+* A list of all equations of the model as presentation MathML (only available if the model can be instantiated using the [`instantiateModel()`](https://www.openmodelica.org/doc/OpenModelicaUsersGuide/latest/scripting_api.html#instantiatemodel) function of the OpenModelica Scripting API)
+* A table listing all variables and parameters of the model (also only available if the model can be instantiated)
 
 
 ### Configuration with magic lines
