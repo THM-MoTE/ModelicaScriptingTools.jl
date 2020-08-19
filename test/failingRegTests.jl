@@ -13,12 +13,12 @@ modeldir = "test/res"
 refdir = "test/regRefData"
 
 function removeColumn(csvfile, colname)
-    data = CSV.read(csvfile)
+    data = DataFrame(CSV.File(csvfile))
     select!(data, Not(Symbol(colname)))
     CSV.write(csvfile, data)
 end
 function multiplyColumn(csvfile, colname, factor)
-    data = CSV.read(csvfile)
+    data = DataFrame(CSV.File(csvfile))
     data[!, Symbol(colname)] = data[Symbol(colname)] .* factor
     CSV.write(csvfile, data)
 end
