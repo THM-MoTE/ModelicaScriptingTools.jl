@@ -21,7 +21,7 @@ This will display documentation for the two models `MyPackage.MyFirstModel` and 
 
 ## Detailed setup guide
 
-!!! warn
+!!! warning
     This section of the documentation is work in progress.
 
 * `julia -e 'using DocumenterTools; DocumenterTools.generate("docs"; name="MyModelicaProject")'`
@@ -31,7 +31,7 @@ This will display documentation for the two models `MyPackage.MyFirstModel` and 
 
 ### Deploy docs with Travis CI
 
-!!! warn
+!!! warning
     This section of the documentation is work in progress.
 
 * Add this to `make.jl`:
