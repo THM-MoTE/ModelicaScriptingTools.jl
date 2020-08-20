@@ -42,4 +42,7 @@ MoSTError(::OMJulia.OMCSession, ::String)
 getDocAnnotation
 getcode
 getequations
+getvariables
+mdescape
+variabletable
 ```

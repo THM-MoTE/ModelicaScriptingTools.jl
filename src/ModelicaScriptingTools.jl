@@ -13,7 +13,7 @@ import Documenter
 export moescape, mounescape, MoSTError, loadModel, getSimulationSettings,
     getVariableFilter, simulate, regressionTest, testmodel,
     setupOMCSession, closeOMCSession, withOMC, ModelicaBlocks, getDocAnnotation,
-    getequations, getcode, getvariables
+    getequations, getcode, getvariables, mdescape, variabletable
 
 include("Simulation.jl")
 include("Testing.jl")

@@ -41,6 +41,24 @@ function getequations(omc:: OMCSession, model::String)
     return res
 end
 
+"""
+    getvariables(omc:: OMCSession, model::String)
+
+Returns an array of dictionaries that contain the following keys describing
+the variables and parameters of the given model.
+
+* "name": the name of the variable
+* "variability": is the variable a parameter, a constant, or a variable?
+* "type": the data type of the variable (usually "Real")
+* "label": the string label attached to the variable
+* "quantity": the kind of physical quantity modeled by the variable
+* "unit": the unit of the variable in Modelica unit syntax
+* "initial": the initial value of the variable, if existent
+* "bindExpression": the expression used to fix the variable value, if existent
+* "aliasof": the name of the other variable of which this variable is an alias
+
+An empty string is used as value for keys which are not applicable for the given variable.
+"""
 function getvariables(omc:: OMCSession, model::String)
     res = sendExpression(omc, "dumpXMLDAE($model, addMathMLCode=true)")
     err = sendExpression(omc, "getErrorString()")
@@ -51,11 +69,22 @@ function getvariables(omc:: OMCSession, model::String)
     return res
 end
 
+"""
+    mdescape(s:: String)
+
+Escapes characters that have special meaning in Markdown with a backslash.
+"""
 function mdescape(s:: String)
     escape_chars = "\\`*_#+-.!{}[]()\$"
     return join([(x in escape_chars ? "\\$x" : x) for x in s])
 end
 
+"""
+    variabletable(vars:: Array{Dict{Any, Any},1})
+
+Creates a Markdown table from an array of variable descriptions as returned
+by [`getvariables(omc:: OMCSession, model::String)`](@ref).
+"""
 function variabletable(vars:: Array{Dict{Any, Any},1})
     header = """
     |name|unit|value|label|

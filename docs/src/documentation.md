@@ -21,7 +21,8 @@ This will display documentation for the two models `MyPackage.MyFirstModel` and 
 
 ## Detailed setup guide
 
-[WIP] This section of the documentation is work in progress.
+!!! warn
+    This section of the documentation is work in progress.
 
 * `julia -e 'using DocumenterTools; DocumenterTools.generate("docs"; name="MyModelicaProject")'`
 * `julia --project=docs/ -e 'using Pkg; Pkg.add("ModelicaScriptingTools")'`
@@ -29,6 +30,9 @@ This will display documentation for the two models `MyPackage.MyFirstModel` and 
 * Also change `[MyModelicaProject]` to `Module[]` in `make.jl`.
 
 ### Deploy docs with Travis CI
+
+!!! warn
+    This section of the documentation is work in progress.
 
 * Add this to `make.jl`:
     ```
@@ -55,6 +59,7 @@ DocExample
 
 Currently, the documentation features
 
+* The HTML documentation in the `Documentation(info=...)` anotation.
 * The full code of the model.
 * A list of all equations of the model as presentation MathML (only available if the model can be instantiated using the [`instantiateModel()`](https://www.openmodelica.org/doc/OpenModelicaUsersGuide/latest/scripting_api.html#instantiatemodel) function of the OpenModelica Scripting API)
 * A table listing all variables and parameters of the model (also only available if the model can be instantiated)
@@ -67,6 +72,15 @@ These lines are not interpreted as model names, but instead are parsed to set co
 
 * `%modeldir = some/dir` changes the directory from which models are loaded, which is given relative to the working directory where Documenter.jl places its output (usually a folder called `build` in the directory where `make.jl` is located).
     The default location is `../`, which means that if your documentation lies in `docs` and your models are saved in the root directory of your project, you do not need to add this magic line.
+* `%outdir = some/dir` changes the directory where output files will be placed.
+    Like `modeldir`, it is given relative to the working directory of Documenter.jl.
+    The default
+* `%nocode` removes the model source code from the documentation output.
+* `%noequations` removes the list of equations and variables from the documentation output.
+    This is a required step for models that cannot be instantiated using `instantiateModel()`.
+* `%noinfo` removes the content of the `Documentation(info=...)` annotation from the documentation output.
 
-    If two or more of these lines are present, the last directory is used for the whole block.
-    If you need to load two models from separate directories, you need to use two separate `@modelica` blocks.
+!!! note
+    Magic lines always change the behavior of the whole `@modelica` block, regardless where they appear in the block.
+    If the same type of line occurs multiple times, the last value takes precedence.
+    If you need to load two models with separate settings, you therefore need to use two separate `@modelica` blocks.
