@@ -8,10 +8,25 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+[nothing]
+
+### Changed
+
+[nothing]
+
+### Fixed
+
+[nothing]
+
+## [1.1.0-alpha.1]
+
+### Added
+
 * Experimental support for documenting Modelica models using [Documenter.jl](https://github.com/JuliaDocs/Documenter.jl).
 * New dependencies:
   * PyCall (for XML handling using lxml)
   * Documenter
+  * Markdown
 
 ### Changed
 
