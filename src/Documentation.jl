@@ -284,7 +284,7 @@ function __init__doc()
                 e.tag = e.tag[i+1:]
         lo.deannotate(dom.getroot(), cleanup_namespaces=True)
 
-    def fix_function_names(dom, ns={}):
+    def fix_function_names(dom, class_name, ns={}):
         functions = [str(x) for x in dom.xpath("/dae/functions/function/@name")]
         applies = dom.xpath("//mml:apply/*[1]", namespaces=ns)
         for app in applies:
@@ -292,7 +292,10 @@ function __init__doc()
             if tag_name in functions:
                 app.tag = et.QName(ns["mml"], "ci")
                 # use dot in output to not confuse MathJax
-                app.text = tag_name.replace("$", ".")
+                newname = tag_name.replace("$", ".")
+                if newname.startswith(class_name):
+                    newname = newname[len(class_name)+1:]
+                app.text = newname
 
     def extract_variables(fname, xslt_dir="."):
         dom = et.parse(fname)
@@ -336,7 +339,7 @@ function __init__doc()
     def extract_equations(fname, xslt_dir="."):
         dom = et.parse(fname)
         ns = {"mml": "http://www.w3.org/1998/Math/MathML"}
-        fix_function_names(dom, ns=ns)
+        fix_function_names(dom, os.path.splitext(os.path.basename(fname))[0], ns=ns)
         mathdoms = dom.xpath("/dae/equations/equation/MathML/mml:math", namespaces=ns)
         newdoms = c2p(mathdoms, xslt_dir=xslt_dir)
         return [et.tostring(x) for x in newdoms]
