@@ -253,7 +253,7 @@ function deprefix(str:: AbstractString, aliases:: Dict{<:AbstractString, <:Set{<
     aliasgroups = [get(aliases, n, Set()) ∪ Set([n]) for n in varnames]
     pref = commonhierarchy(aliasgroups...)
     return replace(
-        Regex("<mi>\\s*$pref\.([\\w.]+)\\s*</mi>"),
+        Regex("<mi>\\s*$pref\\.([\\w.]+)\\s*</mi>"),
         s"<mi>~\1</mi>"
     )
 end
