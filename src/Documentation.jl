@@ -179,9 +179,12 @@ function Documenter.Selectors.runner(::Type{ModelicaBlocks}, x, page, doc)
                     # get model equations
                     if !get(magicvalues, "noequations", false)
                         equations = getequations(omc, model)
+                        vars = getvariables(omc, model)
+                        aliases = aliasdict(vars)
+                        equations = [deprefix(e, aliases) for e in equations]
                         htmleqs = "<ol><li>$(join(equations, "\n<li>"))</ol>"
                         push!(result, Documenter.Documents.RawHTML(htmleqs))
-                        vartab = variabletable(getvariables(omc, model))
+                        vartab = variabletable(vars)
                         push!(result, vartab)
                     end
                 end
