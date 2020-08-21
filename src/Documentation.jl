@@ -270,6 +270,7 @@ function aliasdict(vars:: Array{Dict{Any, Any},1})
         aliases[original] = get(aliases, original, [])
         push!(aliases[original], alias)
     end
+    return aliases
 end
 
 function __init__doc()
