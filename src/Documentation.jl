@@ -258,6 +258,16 @@ function deprefix(str:: AbstractString, aliases:: Dict{<:AbstractString, <:Set{<
     )
 end
 
+function aliasdict(vars:: Array{Dict{Any, Any},1})
+    aliases = Dict()
+    for v in keys(vars)
+        a = v["aliasof"]
+        if length(a) == 0 continue end
+        aliases[a] = get(aliases, a, [])
+        push!(aliases[a], v)
+    end
+end
+
 function __init__doc()
     # import only used to install lxml automatically
     pyimport_conda("lxml.etree", "lxml")
