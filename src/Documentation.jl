@@ -262,12 +262,12 @@ function deprefix(str:: AbstractString, aliases:: Dict{<:AbstractString, <:Set{<
 end
 
 function aliasdict(vars:: Array{Dict{Any, Any},1})
-    aliases = Dict()
+    aliases = Dict{String, Set{String}}()
     for v in vars
         alias = v["name"]
         original = v["aliasof"]
         if length(original) == 0 continue end
-        aliases[original] = get(aliases, original, [])
+        aliases[original] = get(aliases, original, Set{String}())
         push!(aliases[original], alias)
     end
     return aliases
