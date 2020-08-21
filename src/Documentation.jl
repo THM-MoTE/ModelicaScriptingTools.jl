@@ -199,6 +199,65 @@ function Documenter.Selectors.runner(::Type{ModelicaBlocks}, x, page, doc)
     end
 end
 
+function commonprefix(str:: AbstractString...)
+    # based on https://rosettacode.org/wiki/Longest_common_prefix#Julia
+    if isempty(str) return "" end
+    i = 1
+    ref = str[1]
+    while all(i ≤ length(s) && s[i] == ref[i] for s in str)
+        i += 1
+    end
+    return ref[1:i-1]
+end
+
+function commonprefix(aliasgroups:: Set{<:AbstractString}...)
+    if isempty(aliasgroups) return "" end
+    res = []
+    # if all aliasgroups have >= 2 elements, iterate over smallest group
+    smallest = reduce((x, y) -> if length(x) < length(y) x else y end, aliasgroups)
+    for ref in smallest
+        push!(res, commonprefix(aliasgroups, ref))
+    end
+    largestprefix = reduce((x, y) -> if length(x) > length(y) x else y end, res)
+    return largestprefix
+end
+
+function commonprefix(aliasgroups:: Array{<:Set{<:AbstractString},1}, ref:: AbstractString)
+    if isempty(aliasgroups) return "" end
+    aliasgroups = deepcopy(aliasgroups)
+    i = 1
+    while all(length(g) > 0 for g in aliasgroups)
+        for g in aliasgroups
+            filter!(x -> length(x) ≥ i && x[i] == ref[i], g)
+        end
+        i += 1
+    end
+    return ref[1:i-2]
+end
+
+function commonhierarchy(str:: Union{AbstractString, Set{<:AbstractString}}...)
+    pref = commonprefix(str...)
+    i = findlast('.', pref)
+    if isnothing(i) return "" end
+    return pref[1:i-1]
+end
+
+function findvarnames(str:: AbstractString)
+    mi = r"<mi>\s*([\w.]+)\s*<\/mi>"
+    varnames = [x.captures[1] for x in eachmatch(mi, str)]
+    return varnames
+end
+
+function deprefix(str:: AbstractString, aliases:: Dict{<:AbstractString, <:Set{<:AbstractString}})
+    varnames = findvarnames(str)
+    aliasgroups = [get(aliases, n, Set()) ∪ Set([n]) for n in varnames]
+    pref = commonhierarchy(aliasgroups...)
+    return replace(
+        Regex("<mi>\\s*$pref\.([\\w.]+)\\s*</mi>"),
+        s"<mi>~\1</mi>"
+    )
+end
+
 function __init__doc()
     # import only used to install lxml automatically
     pyimport_conda("lxml.etree", "lxml")
