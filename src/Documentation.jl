@@ -263,11 +263,12 @@ end
 
 function aliasdict(vars:: Array{Dict{Any, Any},1})
     aliases = Dict()
-    for v in keys(vars)
-        a = v["aliasof"]
-        if length(a) == 0 continue end
-        aliases[a] = get(aliases, a, [])
-        push!(aliases[a], v)
+    for v in vars
+        alias = v["name"]
+        original = v["aliasof"]
+        if length(original) == 0 continue end
+        aliases[original] = get(aliases, original, [])
+        push!(aliases[original], alias)
     end
 end
 
