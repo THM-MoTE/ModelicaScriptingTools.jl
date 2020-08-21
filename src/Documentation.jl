@@ -219,7 +219,7 @@ function commonprefix(aliasgroups:: Set{<:AbstractString}...)
     # if all aliasgroups have >= 2 elements, iterate over smallest group
     smallest = reduce((x, y) -> if length(x) < length(y) x else y end, aliasgroups)
     for ref in smallest
-        push!(res, commonprefix(aliasgroups, ref))
+        push!(res, commonprefix(collect(aliasgroups), ref))
     end
     largestprefix = reduce((x, y) -> if length(x) > length(y) x else y end, res)
     return largestprefix
