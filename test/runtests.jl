@@ -186,6 +186,17 @@ DummyDocument() = DummyDocument(DummyInternal([]))
             ]
             @test expected == getequations(omc, "Example")
         end
+        @testset "deprefix" begin
+            @testset "FunctionNames" begin
+                loadModel(omc, "FunctionNames")
+                vars = getvariables(omc, "FunctionNames")
+                adict = ModelicaScriptingTools.aliasdict(vars)
+                eqs = getequations(omc, "FunctionNames")
+                de = [deprefix(e, adict) for e in eqs]
+                @test ["x", "f", "sm.b"] == findvarnames(de[1])
+                @test ["sm.b", "x", "Submodel.g", "x"] == findvarnames(de[2])
+            end
+        end
         @testset "getvariables" begin
             loadModel(omc, "Example")
             expected = [
