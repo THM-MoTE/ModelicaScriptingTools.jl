@@ -108,6 +108,30 @@ function variabletable(vars:: Array{Dict{Any, Any},1})
     return Markdown.parse(table)
 end
 
+function equationlist(equations:: Array{<: AbstractString}, vars:: Array{Dict{Any, Any}, 1})
+    aliases = aliasdict(vars)
+    equations = [deprefix(e, aliases) for e in equations]
+    grouped = Dict()
+    for (pref, de) in equations
+        if !haskey(grouped, pref) grouped[pref] = [] end
+        push!(grouped[pref], de)
+    end
+    htmleqs = []
+    for pref in sort(collect(keys(grouped)))
+        if length(pref) == 0 continue end
+        push!(htmleqs, """
+        <li>Group $pref (_* = $pref.*)
+            <ol>
+                <li>$(join(grouped[pref], "\n         <li>"))
+            </ol>
+        """)
+    end
+    for topeq in grouped[""]
+        push!(htmleqs, "<li>$topeq")
+    end
+    htmleqs = "<ol>$(join(htmleqs))</ol>"
+end
+
 # extend Documenter with new code block type @modelica
 abstract type ModelicaBlocks <: Documenter.Expanders.ExpanderPipeline end
 Documenter.Selectors.order(::Type{ModelicaBlocks}) = 5.0
@@ -179,9 +203,7 @@ function Documenter.Selectors.runner(::Type{ModelicaBlocks}, x, page, doc)
                     if !get(magicvalues, "noequations", false)
                         equations = getequations(omc, model)
                         vars = getvariables(omc, model)
-                        aliases = aliasdict(vars)
-                        equations = [deprefix(e, aliases) for e in equations]
-                        htmleqs = "<ol><li>$(join(equations, "\n<li>"))</ol>"
+                        htmleqs = equationlist(equations, vars)
                         push!(result, Documenter.Documents.RawHTML(htmleqs))
                         vartab = variabletable(vars)
                         push!(result, vartab)
@@ -267,7 +289,8 @@ function deprefix(str:: AbstractString, aliases:: Dict{<:AbstractString, <:Set{<
     varnames = findvarnames(str)
     aliasgroups = [get(aliases, n, Set{String}()) ∪ Set([n]) for n in varnames]
     pref = commonhierarchy(aliasgroups...)
-    return replace(str, Regex("<mi>\\s*$pref\\.([\\w.]+)\\s*</mi>") => s"<mi>_\1</mi>")
+    de = replace(str, Regex("<mi>\\s*$pref\\.([\\w.]+)\\s*</mi>") => s"<mi>_\1</mi>")
+    return (pref, de)
 end
 
 function aliasdict(vars:: Array{Dict{Any, Any},1})
