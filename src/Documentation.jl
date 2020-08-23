@@ -113,7 +113,6 @@ abstract type ModelicaBlocks <: Documenter.Expanders.ExpanderPipeline end
 Documenter.Selectors.order(::Type{ModelicaBlocks}) = 5.0
 Documenter.Selectors.matcher(::Type{ModelicaBlocks}, node, page, doc) = Documenter.Expanders.iscode(node, "@modelica")
 function Documenter.Selectors.runner(::Type{ModelicaBlocks}, x, page, doc)
-    lines = Documenter.Utilities.find_block_in_file(x.code, page.source)
     cd(page.workdir) do
         result = ""
         modelnames = []
@@ -246,9 +245,22 @@ function commonhierarchy(str:: Union{AbstractString, Set{<:AbstractString}}...)
 end
 
 function findvarnames(str:: AbstractString)
-    mi = r"<mi>\s*([\w.]+)\s*<\/mi>"
-    varnames = [x.captures[1] for x in eachmatch(mi, str)]
+    idnames = findidentifiers(str)
+    fnames = findfuncnames(str)
+    varnames = setdiff(varnames, fnames)
     return varnames
+end
+
+function findfuncnames(str:: AbstractString)
+    pattern = r"<mi>\s*([\w.]+)\s*<\/mi>\s*</mrow>\s*<mo>&#8289;</mo>"
+    funcnames = [x.captures[1] for x in eachmatch(pattern, str)]
+    return funcnames
+end
+
+function findidentifiers(str:: AbstractString)
+    mi = r"<mi>\s*([\w.]+)\s*<\/mi>"
+    identifiers = [x.captures[1] for x in eachmatch(mi, str)]
+    return identifiers
 end
 
 function deprefix(str:: AbstractString, aliases:: Dict{<:AbstractString, <:Set{<:AbstractString}})
