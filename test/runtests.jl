@@ -189,9 +189,9 @@ DummyDocument() = DummyDocument(DummyInternal([]))
                 vars = getvariables(omc, "FunctionNames")
                 adict = ModelicaScriptingTools.aliasdict(vars)
                 eqs = getequations(omc, "FunctionNames")
-                de = [deprefix(e, adict) for e in eqs]
-                @test ["x", "f", "sm.b"] == findvarnames(de[1])
-                @test ["sm.b", "x", "Submodel.g", "x"] == findvarnames(de[2])
+                de = [deprefix(e, adict)[2] for e in eqs]
+                @test ["x", "f", "_b"] == findidentifiers(de[1])
+                @test ["_b", "x", "Submodel.g", "x"] == findidentifiers(de[2])
             end
         end
         @testset "getvariables" begin
