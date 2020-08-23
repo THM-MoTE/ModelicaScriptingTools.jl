@@ -1,7 +1,4 @@
-using ModelicaScriptingTools: setupOMCSession, loadModel, simulate,
-    getSimulationSettings, testmodel, closeOMCSession, withOMC, moescape,
-    mounescape, MoSTError, regressionTest, getDocAnnotation, getcode,
-    getequations, getvariables
+using ModelicaScriptingTools
 using Test: @testset, @test, @test_nowarn, @test_throws
 using OMJulia: sendExpression
 using DataFrames: Not, select!, DataFrame
