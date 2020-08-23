@@ -247,7 +247,7 @@ end
 function findvarnames(str:: AbstractString)
     idnames = findidentifiers(str)
     fnames = findfuncnames(str)
-    varnames = setdiff(varnames, fnames)
+    varnames = setdiff(idnames, fnames)
     return varnames
 end
 
