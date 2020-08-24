@@ -305,8 +305,11 @@ function findidentifiers(str:: AbstractString)
     return identifiers
 end
 
+const commonconsts = Set(["e", "π", "c", "h", "G", "F", "R"])
+
 function commonhierarchy(str:: AbstractString, aliases:: Dict{<:AbstractString, <:Set{<:AbstractString}})
     varnames = findvarnames(str)
+    varnames = setdiff(varnames, commonconsts)
     aliasgroups = [get(aliases, n, Set{String}()) ∪ Set([n]) for n in varnames]
     pref = commonhierarchy(aliasgroups...)
     return pref
