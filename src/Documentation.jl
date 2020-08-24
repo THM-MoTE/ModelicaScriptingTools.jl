@@ -109,27 +109,42 @@ function variabletable(vars:: Array{Dict{Any, Any},1})
 end
 
 function equationlist(equations:: Array{<: AbstractString}, vars:: Array{Dict{Any, Any}, 1})
+    function hierarchify(equations:: Array)
+        res = Dict()
+        for (pref, eq) in equations
+            levels = split(pref, ".")
+            target = res
+            for l in levels
+                if !haskey(target, l) target[l] = Dict() end
+                target = target[l]
+            end
+            if !haskey(target, "") target[""] = [] end
+            push!(target[""], eq)
+        end
+    end
+    function htmlify(hierarchy:: Dict)
+        entries = []
+        for k in sort(collect(keys(hierarchy)))
+            v = hierarchy[k]
+            if k == ""
+                for e in v
+                    push!(entries, "<li>$v")
+                end
+            else
+                push!(entries, "<li>$(htmlify(v))")
+            end
+        end
+        """
+        <ol>
+        $(join(entries, "\n")))
+        </ol>
+        """
+    end
     aliases = aliasdict(vars)
-    equations = [deprefix(e, aliases) for e in equations]
-    grouped = Dict()
-    for (pref, de) in equations
-        if !haskey(grouped, pref) grouped[pref] = [] end
-        push!(grouped[pref], de)
-    end
-    htmleqs = []
-    for pref in sort(collect(keys(grouped)))
-        if length(pref) == 0 continue end
-        push!(htmleqs, """
-        <li>Group $pref (_* = $pref.*)
-            <ol>
-                <li>$(join(grouped[pref], "\n         <li>"))
-            </ol>
-        """)
-    end
-    for topeq in grouped[""]
-        push!(htmleqs, "<li>$topeq")
-    end
-    htmleqs = "<ol>$(join(htmleqs))</ol>"
+    prefixes = [commonhierarchy(e, aliases) for e in equations]
+    pruneprefixes!(prefixes)
+    equations = [(p, deprefix(e, p)) for (e, p) in zip(equations, prefixes)]
+    return htmlify(hierarchify(equations))
 end
 
 # extend Documenter with new code block type @modelica
@@ -285,12 +300,31 @@ function findidentifiers(str:: AbstractString)
     return identifiers
 end
 
-function deprefix(str:: AbstractString, aliases:: Dict{<:AbstractString, <:Set{<:AbstractString}})
+function commonhierarchy(str:: AbstractString, aliases:: Dict{<:AbstractString, <:Set{<:AbstractString}})
     varnames = findvarnames(str)
     aliasgroups = [get(aliases, n, Set{String}()) ∪ Set([n]) for n in varnames]
     pref = commonhierarchy(aliasgroups...)
+    return pref
+end
+
+function deprefix(str:: AbstractString, pref:: AbstractString)
     de = replace(str, Regex("<mi>\\s*$pref\\.([\\w.]+)\\s*</mi>") => s"<mi>_\1</mi>")
-    return (pref, de)
+    return de
+end
+
+function pruneprefixes!(prefs:: Array{<: AbstractString})
+    counts = Dict(k => 0 for k in prefs)
+    for p in prefs
+        counts[p] += 1
+    end
+    while !all(([counts[p] for p in prefs] .> 1) .| (prefs .== ""))
+        # index of longest single entry
+        pi = argmax(map(x -> if counts[x] == 1 length(x) else 0 end, prefs))
+        delete!(counts, prefs[pi])
+        # remove last hierarchical level from prefix
+        prefs[pi] = join(split(prefs[pi], ".")[1:end-1], ".")
+        counts[prefs[pi]] = get(counts, prefs[pi], 0) + 1
+    end
 end
 
 function aliasdict(vars:: Array{Dict{Any, Any},1})
