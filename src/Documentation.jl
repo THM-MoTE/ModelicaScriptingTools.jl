@@ -108,6 +108,8 @@ function variabletable(vars:: Array{Dict{Any, Any},1})
     return Markdown.parse(table)
 end
 
+const ellipse = "_"
+
 function equationlist(equations:: Array{<: AbstractString}, vars:: Array{Dict{Any, Any}, 1})
     function hierarchify(equations:: Array)
         res = Dict()
@@ -133,7 +135,7 @@ function equationlist(equations:: Array{<: AbstractString}, vars:: Array{Dict{An
                     push!(entries, "<li>$e")
                 end
             else
-                push!(entries, "<li>Within group $k\n$(htmlify(v))")
+                push!(entries, "<li>Within group $k (prefix $ellipse indicates shortened variable name)\n$(htmlify(v))")
             end
         end
         """
@@ -310,7 +312,11 @@ function commonhierarchy(str:: AbstractString, aliases:: Dict{<:AbstractString, 
 end
 
 function deprefix(str:: AbstractString, pref:: AbstractString)
-    de = replace(str, Regex("<mi>\\s*$pref\\.([\\w.]+)\\s*</mi>") => s"<mi>_\1</mi>")
+    de = replace(
+        str,
+        Regex("<mi>\\s*$pref\\.([\\w.]+)\\s*</mi>")
+        => SubstitutionString("<mi>$ellipse\\1</mi>")
+    )
     return de
 end
 
