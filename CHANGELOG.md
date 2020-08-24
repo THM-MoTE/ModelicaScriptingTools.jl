@@ -8,11 +8,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
-[nothing]
+* test case for Documenter.jl extension
 
 ### Changed
 
-[nothing]
+* list of equations in Documenter.jl extension is now grouped by common prefix
+* equations in Documenter.jl extension now use "dot operator" instead of "invisible times"
 
 ### Fixed
 
