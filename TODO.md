@@ -1,5 +1,6 @@
 # TODO list
 
+* use full group name in "Within group ..." text
 * parse unit definitions and display as MathML
 * shorten function names
   * proposed algorithm: use part after last dot and add number to disambiguate
