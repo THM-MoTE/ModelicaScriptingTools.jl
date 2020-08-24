@@ -23,11 +23,11 @@ This will display documentation for the two models `MyPackage.MyFirstModel` and 
 
 !!! warning
     This section of the documentation is work in progress.
-
+* `julia -e 'using Pkg; Pkg.add("Documenter"); Pkg.add("DocumenterTools")'`
 * `julia -e 'using DocumenterTools; DocumenterTools.generate("docs"; name="MyModelicaProject")'`
 * `julia --project=docs/ -e 'using Pkg; Pkg.add("ModelicaScriptingTools")'`
 * Replace `using MyModelicaProject` with `using ModelicaScriptingTools` in `docs/make.jl`.
-* Also change `[MyModelicaProject]` to `Module[]` in `make.jl`.
+* Also remove the line `modules = [MyModelicaProject]` and the `,` at the end of the previous line.
 
 ### Deploy docs with Travis CI
 
