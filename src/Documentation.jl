@@ -115,6 +115,7 @@ function equationlist(equations:: Array{<: AbstractString}, vars:: Array{Dict{An
             levels = split(pref, ".")
             target = res
             for l in levels
+                if l == "" continue end
                 if !haskey(target, l) target[l] = Dict() end
                 target = target[l]
             end
