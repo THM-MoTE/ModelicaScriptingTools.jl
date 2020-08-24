@@ -235,20 +235,21 @@ DummyDocument() = DummyDocument(DummyInternal([]))
         @test strip(result.content[1].code) == """
         <p>This is an example documentation for the DocExample class.</p>"""
         @test result.content[2] isa Markdown.Code
-        @test replace(result.content[2].code, r"\s*" => "") == replace(read("res/DocExample.mo", String), r"\s*" => "")
+        @test replace(result.content[2].code, r"\s+" => "") == replace(read("res/DocExample.mo", String), r"\s+" => "")
         @test result.content[3] isa Documenter.Documents.RawHTML
-        @test result.content[3].code == join([
-        "<ol><li><math xmlns=\"http://www.w3.org/1998/Math/MathML\">",
-        "<mrow><msup><mrow><mrow><mi> r ",
-        "</mi></mrow></mrow><mo>&#8242;</mo></msup><mo>&#8801;</mo><mrow><mn> 1.0 ",
-        "</mn><mo>/</mo><mrow><mrow><mi>g</mi></mrow><mo>&#8289;</mo><mrow><mo>(</mo><mrow><mi> foo ",
-        "</mi></mrow><mo>)</mo></mrow></mrow></mrow></mrow>",
-        "</math><li><math xmlns=\"http://www.w3.org/1998/Math/MathML\">",
-        "<mrow><mrow><mi> foo ",
-        "</mi></mrow><mo>&#8801;</mo><mrow><mrow><mi>f</mi></mrow><mo>&#8289;</mo><mrow><mo>(</mo><mrow><mi> r ",
-        "</mi></mrow><mo>,</mo><mrow><mi> k ",
-        "</mi></mrow><mo>)</mo></mrow></mrow></mrow>",
-        "</math></ol>"], "\n")
+        expected = """
+        <ol><li><math xmlns="http://www.w3.org/1998/Math/MathML">
+        <mrow><msup><mrow><mrow><mi> r
+        </mi></mrow></mrow><mo>&#8242;</mo></msup><mo>&#8801;</mo><mrow><mn> 1.0
+        </mn><mo>/</mo><mrow><mrow><mi>g</mi></mrow><mo>&#8289;</mo><mrow><mo>(</mo><mrow><mi> foo
+        </mi></mrow><mo>)</mo></mrow></mrow></mrow></mrow>
+        </math><li><math xmlns="http://www.w3.org/1998/Math/MathML">
+        <mrow><mrow><mi> foo
+        </mi></mrow><mo>&#8801;</mo><mrow><mrow><mi>f</mi></mrow><mo>&#8289;</mo><mrow><mo>(</mo><mrow><mi> r
+        </mi></mrow><mo>,</mo><mrow><mi> k
+        </mi></mrow><mo>)</mo></mrow></mrow></mrow>
+        </math></ol>"""
+        @test replace(result.content[3].code, r"\s+" => "") == replace(expected, r"\s+" => "")
         @test result.content[4] isa Markdown.MD
         @test result.content[4] == Markdown.parse("""
         | name | unit | value |                  label |
