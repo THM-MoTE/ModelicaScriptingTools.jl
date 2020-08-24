@@ -133,7 +133,7 @@ function equationlist(equations:: Array{<: AbstractString}, vars:: Array{Dict{An
                     push!(entries, "<li>$e")
                 end
             else
-                push!(entries, "<li>$(htmlify(v))")
+                push!(entries, "<li>Within group $k\n$(htmlify(v))")
             end
         end
         """
