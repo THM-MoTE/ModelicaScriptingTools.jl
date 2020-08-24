@@ -144,6 +144,7 @@ function equationlist(equations:: Array{<: AbstractString}, vars:: Array{Dict{An
         </ol>
         """
     end
+    equations = collect(map(explicify, equations))
     aliases = aliasdict(vars)
     prefixes = [commonhierarchy(e, aliases) for e in equations]
     pruneprefixes!(prefixes)
@@ -318,6 +319,12 @@ function deprefix(str:: AbstractString, pref:: AbstractString)
         => SubstitutionString("<mi>$ellipse\\1</mi>")
     )
     return de
+end
+
+function explicify(mml:: AbstractString)
+    # use visible "dot operator" instead of "invisible times"
+    # justification: our variables have multi-character names
+    replace(mml, "&#8290;" => "&sdot;")
 end
 
 function pruneprefixes!(prefs:: Array{<: AbstractString})
