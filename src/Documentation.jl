@@ -121,6 +121,7 @@ function equationlist(equations:: Array{<: AbstractString}, vars:: Array{Dict{An
             if !haskey(target, "") target[""] = [] end
             push!(target[""], eq)
         end
+        return res
     end
     function htmlify(hierarchy:: Dict)
         entries = []
