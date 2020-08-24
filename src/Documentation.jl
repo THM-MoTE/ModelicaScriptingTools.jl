@@ -138,7 +138,7 @@ function equationlist(equations:: Array{<: AbstractString}, vars:: Array{Dict{An
         end
         """
         <ol>
-        $(join(entries, "\n")))
+        $(join(entries, "\n"))
         </ol>
         """
     end
