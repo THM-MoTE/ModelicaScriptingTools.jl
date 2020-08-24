@@ -130,7 +130,7 @@ function equationlist(equations:: Array{<: AbstractString}, vars:: Array{Dict{An
             v = hierarchy[k]
             if k == ""
                 for e in v
-                    push!(entries, "<li>$v")
+                    push!(entries, "<li>$e")
                 end
             else
                 push!(entries, "<li>$(htmlify(v))")
