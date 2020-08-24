@@ -1,6 +1,7 @@
 # TODO list
 
 * shorten function names
+  * proposed algorithm: use part after last dot and add number to disambiguate
 * display list of functions in documentation (with original name)
 * make float values human-readable by (optionally) restricting precision
 * add a proper header for Modelica autodoc entries
