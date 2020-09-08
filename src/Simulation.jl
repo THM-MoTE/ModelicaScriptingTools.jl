@@ -264,13 +264,15 @@ If `quiet` is false, the resulting MODELICAPATH is printed to stdout.
 
 Returns the newly created OMCSession.
 """
-function setupOMCSession(outdir, modeldir; quiet=false, checkunits=true)
+function setupOMCSession(outdir, modeldir; quiet=false, checkunits=true, sleeptime=0.1)
     # create output directory
     if !isdir(outdir)
         mkpath(outdir)
     end
     # create sessions
     omc = OMCSession()
+    # sleep for a short while, because otherwise first ZMQ call may freeze
+    sleep(sleeptime)
     # move to output directory
     sendExpression(omc, "cd(\"$(moescape(outdir))\")")
     # set modelica path
