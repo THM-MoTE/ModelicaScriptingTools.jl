@@ -163,7 +163,7 @@ function variabletable(vars:: Array{Dict{Any, Any},1})
     return Markdown.parse(table)
 end
 
-function replacefuncnames(equation:: AbstractString, replacements:: Dict{<: AbstractString, <: AbstractString})
+function replacefuncnames(equation:: AbstractString, replacements:: Dict)
     res = equation
     for n in keys(replacements)
         res = replace(
