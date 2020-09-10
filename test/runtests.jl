@@ -238,7 +238,7 @@ DummyDocument() = DummyDocument(DummyInternal([]))
         )
         result = page.mapping[x]
         @test result isa Documenter.Documents.MultiOutput
-        @test length(result.content) == 4
+        @test length(result.content) == 5
         @test result.content[1] isa Documenter.Documents.RawHTML
         @test strip(result.content[1].code) == """
         <p>This is an example documentation for the DocExample class.</p>"""
@@ -260,6 +260,22 @@ DummyDocument() = DummyDocument(DummyInternal([]))
         @test replace(result.content[3].code, r"\s+" => "") == replace(expected, r"\s+" => "")
         @test result.content[4] isa Markdown.MD
         @test result.content[4] == Markdown.parse("""
+        ```
+        Functions:
+
+        function g"Inline if necessary"
+          input Real x;
+          output Real y;
+        algorithm
+          y := 2.0 * x;
+        end g;
+
+
+
+        ```
+        """)
+        @test result.content[5] isa Markdown.MD
+        @test result.content[5] == Markdown.parse("""
         | name | unit | value |                  label |
         | ----:| ----:| -----:| ----------------------:|
         |    r |  "V" |   0.0 |         some potential |
