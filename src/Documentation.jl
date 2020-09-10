@@ -41,7 +41,13 @@ function getequations(omc:: OMCSession, model::String)
     return res
 end
 
+"""
+    getfunctions(omc:: OMCSession, model:: String)
 
+Returns all functions of the given model as a twodimensional array where each
+row contains the function name, the function header, and the modelica definition
+of the function in this order.
+"""
 function getfunctions(omc:: OMCSession, model:: String)
     res = sendExpression(omc, "dumpXMLDAE($model, addMathMLCode=true)")
     err = sendExpression(omc, "getErrorString()")
