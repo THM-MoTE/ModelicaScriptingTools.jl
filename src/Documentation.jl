@@ -56,6 +56,7 @@ function getfunctions(omc:: OMCSession, model:: String)
     end
     funcs = py"extract_functions"(res[2])
     for i in 1:size(funcs)[1]
+        # removes function name from end of header (i.e. from return type)
         if endswith(funcs[i,2], funcs[i,1])
             funcs[i,2] = funcs[i,2][1:end-length(funcs[i,1])-1]
         end
@@ -225,6 +226,19 @@ function equationlist(equations:: Array{<: AbstractString}, vars:: Array{Dict{An
     return htmlify(hierarchify(equations))
 end
 
+function functionlist(funcs:: Array)
+    replacements = uniquehierarchy(funcs[1:end, 1])
+    res = ["Functions: "]
+    for i in size(funcs)[1]
+        fun = funcs[i, 1]
+        rep = replacements[fun]
+        code = funcs[i, 3]
+        cleaned = replace(code, fun, rep)
+        push!(res, "```\n$cleaned\n```")
+    end
+    return Markdown.parse(join(res, "\n\n"))
+end
+
 # extend Documenter with new code block type @modelica
 abstract type ModelicaBlocks <: Documenter.Expanders.ExpanderPipeline end
 Documenter.Selectors.order(::Type{ModelicaBlocks}) = 5.0
@@ -299,6 +313,8 @@ function Documenter.Selectors.runner(::Type{ModelicaBlocks}, x, page, doc)
                         funcs = getfunctions(omc, model)
                         htmleqs = equationlist(equations, vars, funcs)
                         push!(result, Documenter.Documents.RawHTML(htmleqs))
+                        funclist = functionlist(funcs)
+                        push!(result, funclist)
                         vartab = variabletable(vars)
                         push!(result, vartab)
                     end
