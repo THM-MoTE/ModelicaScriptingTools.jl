@@ -259,10 +259,9 @@ DummyDocument() = DummyDocument(DummyInternal([]))
         </math></ol>"""
         @test replace(result.content[3].code, r"\s+" => "") == replace(expected, r"\s+" => "")
         @test result.content[4] isa Markdown.MD
-        @test result.content[4] == Markdown.parse("""
-        ```
-        Functions:
+        @test result.content[4] == Markdown.parse("""Functions:
 
+        ```
         function g"Inline if necessary"
           input Real x;
           output Real y;
@@ -272,8 +271,7 @@ DummyDocument() = DummyDocument(DummyInternal([]))
 
 
 
-        ```
-        """)
+        ```""")
         @test result.content[5] isa Markdown.MD
         @test result.content[5] == Markdown.parse("""
         | name | unit | value |                  label |
