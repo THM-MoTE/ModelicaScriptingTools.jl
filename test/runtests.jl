@@ -215,6 +215,14 @@ DummyDocument() = DummyDocument(DummyInternal([]))
             ]
             @test expected == getvariables(omc, "Example")
         end
+        @testset "getfunctions" begin
+            loadModel(omc, "DocExample")
+            expected = [
+                "DocExample.f" "function(x :: Real * y :: Real) => Real.DocExample.f" "function DocExample.f\"Inline if necessary\"\n  input Real x;\n  input Real y;\n  output Real res;\nalgorithm\n  res := x ^ y + y;\nend DocExample.f;\n\n\n";
+                "DocExample.g" "function(x :: Real) => Real.DocExample.g" "function DocExample.g\"Inline if necessary\"\n  input Real x;\n  output Real y;\nalgorithm\n  y := 2.0 * x;\nend DocExample.g;\n\n\n"
+            ]
+            @test expected == getfunctions(omc, "DocExample")
+        end
     end
     @testset "Documenter.jl extension" begin
         x = Markdown.parse("""

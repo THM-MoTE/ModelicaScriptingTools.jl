@@ -41,6 +41,17 @@ function getequations(omc:: OMCSession, model::String)
     return res
 end
 
+
+function getfunctions(omc:: OMCSession, model:: String)
+    res = sendExpression(omc, "dumpXMLDAE($model, addMathMLCode=true)")
+    err = sendExpression(omc, "getErrorString()")
+    if !isempty(err)
+        throw(MoSTError("Could not save model as independent XML file", err))
+    end
+    return py"extract_functions"(res[2])
+end
+
+
 """
     getvariables(omc:: OMCSession, model::String)
 
@@ -442,5 +453,18 @@ function __init__doc()
         mathdoms = dom.xpath("/dae/equations/equation/MathML/mml:math", namespaces=ns)
         newdoms = c2p(mathdoms, xslt_dir=xslt_dir)
         return [et.tostring(x) for x in newdoms]
+
+    def extract_functions(fname):
+        dom = et.parse(fname)
+        functions = dom.xpath("//function")
+        res = []
+        for f in functions:
+            name = f.get("name")
+            impl = f[0].text
+            headi = impl.find("function " + name)
+            head = impl[:headi]
+            impl = impl[headi:]
+            res.append([name, head, impl])
+        return res
     """
 end
