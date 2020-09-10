@@ -65,6 +65,37 @@ end
 
 
 """
+    uniquehierarchy(names:: Array{<: AbstractString})
+
+Returns a dictionary that maps the given names to the minimal hierarchical
+postfix that is required to make the name unique.
+A hierarchical postfix is a postfix that begins after a dot.
+For example, `ab.cd.ef` has the hierarchical postfixes `ef`, `cd.ef` and
+`ab.cd.ef`.
+"""
+function uniquehierarchy(names:: Array{<: AbstractString})
+    function postfix(n, i)
+        join(split(n, ".")[end-i+1:end], ".")
+    end
+    res = Dict()
+    remaining = Set(names)
+    i = 1
+    while !isempty(remaining)
+        namesdone = filter(
+            x -> count(a -> endswith(a, postfix(x, i)), remaining) == 1,
+            remaining
+        )
+        for n in namesdone
+            res[n] = postfix(n, i)
+            delete!(remaining, n)
+        end
+        i += 1
+    end
+    return res
+end
+
+
+"""
     getvariables(omc:: OMCSession, model::String)
 
 Returns an array of dictionaries that contain the following keys describing
@@ -131,9 +162,26 @@ function variabletable(vars:: Array{Dict{Any, Any},1})
     return Markdown.parse(table)
 end
 
+function replacefuncnames(equation:: AbstractString, replacements:: Dict{<: AbstractString, <: AbstractString})
+    res = equation
+    for n in keys(replacements)
+        res = replace(
+            res,
+            Regex("<mi>\\s*$n\\s*</mi>")
+            => SubstitutionString("<mi>$(replacements[n])</mi>")
+        )
+    end
+    de = replace(
+        str,
+        Regex("<mi>\\s*$pref\\.([\\w.]+)\\s*</mi>")
+        => SubstitutionString("<mi>$ellipse\\1</mi>")
+    )
+    return de
+end
+
 const ellipse = "_"
 
-function equationlist(equations:: Array{<: AbstractString}, vars:: Array{Dict{Any, Any}, 1})
+function equationlist(equations:: Array{<: AbstractString}, vars:: Array{Dict{Any, Any}, 1}, funcs:: Array)
     function hierarchify(equations:: Array)
         res = Dict()
         for (pref, eq) in equations
@@ -167,6 +215,8 @@ function equationlist(equations:: Array{<: AbstractString}, vars:: Array{Dict{An
         </ol>
         """
     end
+    funcdict = uniquehierarchy(funcs[1:end, 1])
+    equations = [replacefuncnames(e, funcdict) for e in equations]
     equations = collect(map(explicify, equations))
     aliases = aliasdict(vars)
     prefixes = [commonhierarchy(e, aliases) for e in equations]
@@ -246,7 +296,8 @@ function Documenter.Selectors.runner(::Type{ModelicaBlocks}, x, page, doc)
                     if !get(magicvalues, "noequations", false)
                         equations = getequations(omc, model)
                         vars = getvariables(omc, model)
-                        htmleqs = equationlist(equations, vars)
+                        funcs = getfunctions(omc, model)
+                        htmleqs = equationlist(equations, vars, funcs)
                         push!(result, Documenter.Documents.RawHTML(htmleqs))
                         vartab = variabletable(vars)
                         push!(result, vartab)
