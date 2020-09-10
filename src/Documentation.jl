@@ -172,12 +172,7 @@ function replacefuncnames(equation:: AbstractString, replacements:: Dict)
             => SubstitutionString("<mi>$(replacements[n])</mi>")
         )
     end
-    de = replace(
-        str,
-        Regex("<mi>\\s*$pref\\.([\\w.]+)\\s*</mi>")
-        => SubstitutionString("<mi>$ellipse\\1</mi>")
-    )
-    return de
+    return res
 end
 
 const ellipse = "_"
