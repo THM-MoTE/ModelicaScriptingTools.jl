@@ -54,7 +54,13 @@ function getfunctions(omc:: OMCSession, model:: String)
     if !isempty(err)
         throw(MoSTError("Could not save model as independent XML file", err))
     end
-    return py"extract_functions"(res[2])
+    funcs = py"extract_functions"(res[2])
+    for i in 1:size(funcs)[1]
+        if endswith(funcs[i,2], funcs[i,1])
+            funcs[i,2] = funcs[i,2][1:end-length(funcs[i,1])-1]
+        end
+    end
+    return funcs
 end
 
 
