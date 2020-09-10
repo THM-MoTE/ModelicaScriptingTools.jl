@@ -223,7 +223,7 @@ end
 
 function functionlist(funcs:: Array)
     replacements = uniquehierarchy(funcs[1:end, 1])
-    res = ["Functions: "]
+    res = ["Functions:"]
     for i in size(funcs)[1]
         fun = funcs[i, 1]
         rep = replacements[fun]
