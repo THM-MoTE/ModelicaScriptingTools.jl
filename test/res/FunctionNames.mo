@@ -3,6 +3,7 @@ model FunctionNames
   model Submodel
     Real a;
     Real b;
+    replaceable function h = f;
     function g
       input Real x;
       output Real y;
@@ -10,14 +11,15 @@ model FunctionNames
       y := x + 1;
     end g;
   equation
-    b = a + g(a);
+    b = h(a) + g(a);
   end Submodel;
-  Submodel sm;
+  Submodel sm(redeclare function h = f(x2=1));
   function f
-    input Real x;
+    input Real x1;
+    input Real x2 = 0;
     output Real y;
   algorithm
-    y := 2 * x;
+    y := 2 * x1 + x2;
   end f;
 equation
   sm.a = x;
