@@ -15,7 +15,7 @@ export moescape, mounescape, MoSTError, loadModel, getSimulationSettings,
     setupOMCSession, closeOMCSession, withOMC, ModelicaBlocks, getDocAnnotation,
     getequations, getcode, getvariables, mdescape, variabletable, commonprefix,
     commonhierarchy, findvarnames, deprefix, aliasdict, findidentifiers,
-    getfunctions
+    getfunctions, findfuncnames
 
 include("Simulation.jl")
 include("Testing.jl")
