@@ -379,13 +379,13 @@ function findvarnames(str:: AbstractString)
 end
 
 function findfuncnames(str:: AbstractString)
-    pattern = r"<mi>\s*([\w.]+)\s*<\/mi>\s*</mrow>\s*<mo>&#8289;</mo>"
+    pattern = r"<mi>\s*([\w.$]+)\s*<\/mi>\s*</mrow>\s*<mo>&#8289;</mo>"
     funcnames = [x.captures[1] for x in eachmatch(pattern, str)]
     return funcnames
 end
 
 function findidentifiers(str:: AbstractString)
-    mi = r"<mi>\s*([\w.]+)\s*<\/mi>"
+    mi = r"<mi>\s*([\w.$]+)\s*<\/mi>"
     identifiers = [x.captures[1] for x in eachmatch(mi, str)]
     return identifiers
 end
