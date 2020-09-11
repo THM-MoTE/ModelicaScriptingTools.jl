@@ -192,7 +192,7 @@ DummyDocument() = DummyDocument(DummyInternal([]))
                 prefixes = [commonhierarchy(e, adict) for e in eqs]
                 de = [deprefix(e, p) for (e, p) in zip(eqs, prefixes)]
                 @test ["x", "FunctionNames.f", "_b"] == findidentifiers(de[1])
-                @test ["_b", "x", "FunctionNames.Submodel.g", "x"] == findidentifiers(de[2])
+                @test ["_b", "FunctionNames.Submodel\$sm.h", "x", "FunctionNames.Submodel\$sm.g", "x"] == findidentifiers(de[2])
             end
         end
         @testset "getvariables" begin
