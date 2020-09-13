@@ -26,4 +26,6 @@ function __init__()
     __init__doc()
 end
 
+__precompile__(false) # due to error in CSV precompile
+
 end
