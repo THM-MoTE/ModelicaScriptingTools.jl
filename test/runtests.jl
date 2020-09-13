@@ -115,7 +115,7 @@ DummyDocument() = DummyDocument(DummyInternal([]))
         @test result.content[4] == Markdown.parse("""Functions:
 
         ```modelica
-        function f"Inline if necessary"
+        function f
           input Real x;
           input Real y;
           output Real res;
@@ -125,7 +125,7 @@ DummyDocument() = DummyDocument(DummyInternal([]))
         ```
 
         ```modelica
-        function g"Inline if necessary"
+        function g
           input Real x;
           output Real y;
         algorithm
@@ -324,17 +324,17 @@ DummyDocument() = DummyDocument(DummyInternal([]))
             @testset "DocExample" begin
                 loadModel(omc, "DocExample")
                 expected = [
-                    "DocExample.f" "function(x :: Real * y :: Real) => Real" "function DocExample.f\"Inline if necessary\"\n  input Real x;\n  input Real y;\n  output Real res;\nalgorithm\n  res := x ^ y + y;\nend DocExample.f;\n\n\n";
-                    "DocExample.g" "function(x :: Real) => Real" "function DocExample.g\"Inline if necessary\"\n  input Real x;\n  output Real y;\nalgorithm\n  y := 2.0 * x;\nend DocExample.g;\n\n\n"
+                    "DocExample.f" "function(x :: Real * y :: Real) => Real" "function DocExample.f\n  input Real x;\n  input Real y;\n  output Real res;\nalgorithm\n  res := x ^ y + y;\nend DocExample.f;\n\n\n";
+                    "DocExample.g" "function(x :: Real) => Real" "function DocExample.g\n  input Real x;\n  output Real y;\nalgorithm\n  y := 2.0 * x;\nend DocExample.g;\n\n\n"
                 ]
                 @test expected == getfunctions(omc, "DocExample")
             end
             @testset "FunctionNames" begin
                 loadModel(omc, "FunctionNames")
                 expected = [
-                    "FunctionNames.f" "function(x1 :: Real * x2 :: Real) => Real" "function FunctionNames.f\"Inline if necessary\"\n  input Real x1;\n  input Real x2 = 0.0;\n  output Real y;\nalgorithm\n  y := 2.0 * x1 + x2;\nend FunctionNames.f;\n\n\n";
-                    "FunctionNames.Submodel\$sm.f" "function(x1 :: Real * x2 :: Real) => Real" "function FunctionNames.Submodel\$sm.f\"Inline if necessary\"\n  input Real x1;\n  input Real x2 = 1.0;\n  output Real y;\nalgorithm\n  y := 2.0 * x1 + x2;\nend FunctionNames.Submodel\$sm.f;\n\n\n";
-                    "FunctionNames.Submodel\$sm.g" "function(x :: Real) => Real" "function FunctionNames.Submodel\$sm.g\"Inline if necessary\"\n  input Real x;\n  output Real y;\nalgorithm\n  y := 1.0 + x;\nend FunctionNames.Submodel\$sm.g;\n\n\n"
+                    "FunctionNames.f" "function(x1 :: Real * x2 :: Real) => Real" "function FunctionNames.f\n  input Real x1;\n  input Real x2 = 0.0;\n  output Real y;\nalgorithm\n  y := 2.0 * x1 + x2;\nend FunctionNames.f;\n\n\n";
+                    "FunctionNames.Submodel\$sm.f" "function(x1 :: Real * x2 :: Real) => Real" "function FunctionNames.Submodel\$sm.f\n  input Real x1;\n  input Real x2 = 1.0;\n  output Real y;\nalgorithm\n  y := 2.0 * x1 + x2;\nend FunctionNames.Submodel\$sm.f;\n\n\n";
+                    "FunctionNames.Submodel\$sm.g" "function(x :: Real) => Real" "function FunctionNames.Submodel\$sm.g\n  input Real x;\n  output Real y;\nalgorithm\n  y := 1.0 + x;\nend FunctionNames.Submodel\$sm.g;\n\n\n"
                 ]
                 @test expected == getfunctions(omc, "FunctionNames")
             end
@@ -346,7 +346,7 @@ DummyDocument() = DummyDocument(DummyInternal([]))
             expected = Markdown.parse("""Functions:
 
             ```modelica
-            function FunctionNames.f"Inline if necessary"
+            function FunctionNames.f
               input Real x1;
               input Real x2 = 0.0;
               output Real y;
@@ -356,7 +356,7 @@ DummyDocument() = DummyDocument(DummyInternal([]))
             ```
 
             ```modelica
-            function sm.f"Inline if necessary"
+            function sm.f
               input Real x1;
               input Real x2 = 1.0;
               output Real y;
@@ -366,7 +366,7 @@ DummyDocument() = DummyDocument(DummyInternal([]))
             ```
 
             ```modelica
-            function g"Inline if necessary"
+            function g
               input Real x;
               output Real y;
             algorithm

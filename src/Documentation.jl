@@ -60,6 +60,7 @@ function getfunctions(omc:: OMCSession, model:: String)
         if endswith(funcs[i,2], funcs[i,1])
             funcs[i,2] = funcs[i,2][1:end-length(funcs[i,1])-1]
         end
+        funcs[i, 3] = replace(funcs[i, 3], "\"Inline if necessary\"" => "")
     end
     if isempty(funcs)
         return Array{String}(undef, 0, 2)
