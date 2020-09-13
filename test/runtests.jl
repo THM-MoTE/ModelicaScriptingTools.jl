@@ -39,6 +39,22 @@ DummyDocument() = DummyDocument(DummyInternal([]))
     @testset "mounescape" begin
         @test "\"test\t\\data?\"" == mounescape(raw"\\\"test\t\\data\?\\\"")
     end
+    @testset "uniquehierarchy" begin
+        funcnames = [
+            "a.b.c",
+            "x.y.c",
+            "ab.cd.ec",
+            "ab.cd\$c"
+        ]
+        hier = uniquehierarchy(funcnames)
+        expected = Dict(
+            "a.b.c" => "b.c",
+            "x.y.c" => "y.c",
+            "ab.cd.ec" => "ec",
+            "ab.cd\$c" => "cd.c"
+        )
+        @test expected == hier
+    end
     withOMC("out", "res") do omc
         @testset "loadModel" begin
             mopath = sendExpression(omc, "getModelicaPath()")
@@ -222,6 +238,8 @@ DummyDocument() = DummyDocument(DummyInternal([]))
                 "DocExample.g" "function(x :: Real) => Real" "function DocExample.g\"Inline if necessary\"\n  input Real x;\n  output Real y;\nalgorithm\n  y := 2.0 * x;\nend DocExample.g;\n\n\n"
             ]
             @test expected == getfunctions(omc, "DocExample")
+        end
+        @testset "replacefuncnames" begin
         end
     end
     @testset "Documenter.jl extension" begin
