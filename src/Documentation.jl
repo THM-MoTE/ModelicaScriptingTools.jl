@@ -76,10 +76,11 @@ For example, `ab.cd.ef` has the hierarchical postfixes `ef`, `cd.ef` and
 """
 function uniquehierarchy(names:: Array{<: AbstractString})
     function postfix(n, i)
-        join(split(n, r"[\.$]")[end-i+1:end], ".")
+        join(split(n, ".")[end-i+1:end], ".")
     end
+    restoredollar = Dict(replace(x, '$' => '.') => x for x in names)
     res = Dict()
-    remaining = Set(names)
+    remaining = Set(keys(restoredollar))
     i = 1
     while !isempty(remaining)
         namesdone = filter(
@@ -87,7 +88,7 @@ function uniquehierarchy(names:: Array{<: AbstractString})
             remaining
         )
         for n in namesdone
-            res[n] = postfix(n, i)
+            res[restoredollar[n]] = postfix(n, i)
             delete!(remaining, n)
         end
         i += 1
