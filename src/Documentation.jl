@@ -99,6 +99,9 @@ function uniquefunctions(funcs:: Array)
     end
     aliases = Dict()
     res = Array{String}(undef, 0, 3)
+    if size(funcs)[1] == 0
+        return aliases, res
+    end
     for a in keys(alg2func)
         group = alg2func[a]
         prototype = group[1, :]
