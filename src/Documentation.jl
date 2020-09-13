@@ -69,6 +69,37 @@ function getfunctions(omc:: OMCSession, model:: String)
     end
 end
 
+function algorithm(code:: AbstractString)
+    funcname = match(
+        r"^\s*function ([\w.$]+)",
+        split(code, r"\r?\n")[1]
+    ).captures[1]
+    return match(
+        Regex("algorithm\\n((?:.|\\n)+)end \\Q$funcname\\E;"),
+        code
+    ).captures[1]
+end
+
+function uniquefunctions(funcs:: Array)
+    alg2func = Dict{String, Array{String, 2}}()
+    for i in 1:size(funcs)[1]
+        a = algorithm(funcs[i, 3])
+        alg2func[a] = get(alg2func, a, Array{String}(undef, 0, 3))
+        alg2func[a] = [alg2func[a]; permutedims(funcs[i, :])]
+    end
+    aliases = Dict()
+    res = Array{String}(undef, 0, 3)
+    for a in keys(alg2func)
+        group = alg2func[a]
+        prototype = group[1, :]
+        res = [res; permutedims(prototype)]
+        for i in 1:size(group)[1]
+            aliases[group[i, 1]] = prototype[1,1]
+        end
+    end
+    return (aliases, res)
+end
+
 
 """
     uniquehierarchy(names:: Array{<: AbstractString})
