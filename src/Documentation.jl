@@ -291,7 +291,7 @@ function functionlist(funcs:: Array)
     for i in 1:size(funcs)[1]
         fun = funcs[i, 1]
         rep = replacements[fun]
-        code = funcs[i, 3]
+        code = replacefuncsincode(funcs[i, 3], replacements)
         cleaned = strip(replace(code, fun => rep))
         push!(res, "```modelica\n$cleaned\n```")
     end
