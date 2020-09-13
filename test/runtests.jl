@@ -330,8 +330,8 @@ DummyDocument() = DummyDocument(DummyInternal([]))
                 loadModel(omc, "FunctionNames")
                 expected = [
                     "FunctionNames.f" "function(x1 :: Real * x2 :: Real) => Real" "function FunctionNames.f\"Inline if necessary\"\n  input Real x1;\n  input Real x2 = 0.0;\n  output Real y;\nalgorithm\n  y := 2.0 * x1 + x2;\nend FunctionNames.f;\n\n\n";
-                    "FunctionNames.Submodel\$sm.g" "function(x :: Real) => Real" "function FunctionNames.Submodel\$sm.g\"Inline if necessary\"\n  input Real x;\n  output Real y;\nalgorithm\n  y := 1.0 + x;\nend FunctionNames.Submodel\$sm.g;\n\n\n";
-                    "FunctionNames.Submodel\$sm.f" "function(x1 :: Real * x2 :: Real) => Real" "function FunctionNames.Submodel\$sm.f\"Inline if necessary\"\n  input Real x1;\n  input Real x2 = 1.0;\n  output Real y;\nalgorithm\n  y := 2.0 * x1 + x2;\nend FunctionNames.Submodel\$sm.f;\n\n\n"
+                    "FunctionNames.Submodel\$sm.f" "function(x1 :: Real * x2 :: Real) => Real" "function FunctionNames.Submodel\$sm.f\"Inline if necessary\"\n  input Real x1;\n  input Real x2 = 1.0;\n  output Real y;\nalgorithm\n  y := 2.0 * x1 + x2;\nend FunctionNames.Submodel\$sm.f;\n\n\n";
+                    "FunctionNames.Submodel\$sm.g" "function(x :: Real) => Real" "function FunctionNames.Submodel\$sm.g\"Inline if necessary\"\n  input Real x;\n  output Real y;\nalgorithm\n  y := 1.0 + x;\nend FunctionNames.Submodel\$sm.g;\n\n\n"
                 ]
                 @test expected == getfunctions(omc, "FunctionNames")
             end
@@ -340,7 +340,7 @@ DummyDocument() = DummyDocument(DummyInternal([]))
             loadModel(omc, "FunctionNames")
             funcs = getfunctions(omc, "FunctionNames")
             funclist = functionlist(funcs)
-            expected = """Functions:
+            expected = Markdown.parse("""Functions:
 
             ```modelica
             function FunctionNames.f"Inline if necessary"
@@ -353,15 +353,6 @@ DummyDocument() = DummyDocument(DummyInternal([]))
             ```
 
             ```modelica
-            function g"Inline if necessary"
-              input Real x;
-              output Real y;
-            algorithm
-              y := 1.0 + x;
-            end g;
-            ```
-
-            ```modelica
             function sm.f"Inline if necessary"
               input Real x1;
               input Real x2 = 1.0;
@@ -370,8 +361,17 @@ DummyDocument() = DummyDocument(DummyInternal([]))
               y := 2.0 * x1 + x2;
             end sm.f;
             ```
-            """
-            @test expected == string(funclist)
+
+            ```modelica
+            function g"Inline if necessary"
+              input Real x;
+              output Real y;
+            algorithm
+              y := 1.0 + x;
+            end g;
+            ```
+            """)
+            @test expected == funclist
         end
     end
 end
