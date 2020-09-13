@@ -77,6 +77,63 @@ DummyDocument() = DummyDocument(DummyInternal([]))
         replaced = replacefuncnames(input, Dict("bla.f" => "f"))
         @test replace(input, "bla.f" => "f") == replaced
     end
+    @testset "Documenter.jl extension" begin
+        x = Markdown.parse("""
+        ```@modelica
+        %modeldir=res
+        DocExample
+        ```
+        """).content[1]
+        page = DummyPage(".")
+        Documenter.Selectors.dispatch(
+            Documenter.Expanders.ExpanderPipeline, x,
+            page, DummyDocument()
+        )
+        result = page.mapping[x]
+        @test result isa Documenter.Documents.MultiOutput
+        @test length(result.content) == 5
+        @test result.content[1] isa Documenter.Documents.RawHTML
+        @test strip(result.content[1].code) == """
+        <p>This is an example documentation for the DocExample class.</p>"""
+        @test result.content[2] isa Markdown.Code
+        @test replace(result.content[2].code, r"\s+" => "") == replace(read("res/DocExample.mo", String), r"\s+" => "")
+        @test result.content[3] isa Documenter.Documents.RawHTML
+        expected = """
+        <ol><li><math xmlns="http://www.w3.org/1998/Math/MathML">
+        <mrow><msup><mrow><mrow><mi> r
+        </mi></mrow></mrow><mo>&#8242;</mo></msup><mo>&#8801;</mo><mrow><mn> 1.0
+        </mn><mo>/</mo><mrow><mrow><mi>g</mi></mrow><mo>&#8289;</mo><mrow><mo>(</mo><mrow><mi> foo
+        </mi></mrow><mo>)</mo></mrow></mrow></mrow></mrow>
+        </math><li><math xmlns="http://www.w3.org/1998/Math/MathML">
+        <mrow><mrow><mi> foo
+        </mi></mrow><mo>&#8801;</mo><mrow><mrow><mi>f</mi></mrow><mo>&#8289;</mo><mrow><mo>(</mo><mrow><mi> r
+        </mi></mrow><mo>,</mo><mrow><mi> k
+        </mi></mrow><mo>)</mo></mrow></mrow></mrow>
+        </math></ol>"""
+        @test replace(result.content[3].code, r"\s+" => "") == replace(expected, r"\s+" => "")
+        @test result.content[4] isa Markdown.MD
+        @test result.content[4] == Markdown.parse("""Functions:
+
+        ```
+        function g"Inline if necessary"
+          input Real x;
+          output Real y;
+        algorithm
+          y := 2.0 * x;
+        end g;
+
+
+
+        ```""")
+        @test result.content[5] isa Markdown.MD
+        @test result.content[5] == Markdown.parse("""
+        | name | unit | value |                  label |
+        | ----:| ----:| -----:| ----------------------:|
+        |    r |  "V" |   0.0 |         some potential |
+        |  foo |      |       | second sample variable |
+        |    k |      |   2.0 |         some parameter |
+        """)
+    end
     withOMC("out", "res") do omc
         @testset "loadModel" begin
             mopath = sendExpression(omc, "getModelicaPath()")
@@ -261,62 +318,5 @@ DummyDocument() = DummyDocument(DummyInternal([]))
             ]
             @test expected == getfunctions(omc, "DocExample")
         end
-    end
-    @testset "Documenter.jl extension" begin
-        x = Markdown.parse("""
-        ```@modelica
-        %modeldir=res
-        DocExample
-        ```
-        """).content[1]
-        page = DummyPage(".")
-        Documenter.Selectors.dispatch(
-            Documenter.Expanders.ExpanderPipeline, x,
-            page, DummyDocument()
-        )
-        result = page.mapping[x]
-        @test result isa Documenter.Documents.MultiOutput
-        @test length(result.content) == 5
-        @test result.content[1] isa Documenter.Documents.RawHTML
-        @test strip(result.content[1].code) == """
-        <p>This is an example documentation for the DocExample class.</p>"""
-        @test result.content[2] isa Markdown.Code
-        @test replace(result.content[2].code, r"\s+" => "") == replace(read("res/DocExample.mo", String), r"\s+" => "")
-        @test result.content[3] isa Documenter.Documents.RawHTML
-        expected = """
-        <ol><li><math xmlns="http://www.w3.org/1998/Math/MathML">
-        <mrow><msup><mrow><mrow><mi> r
-        </mi></mrow></mrow><mo>&#8242;</mo></msup><mo>&#8801;</mo><mrow><mn> 1.0
-        </mn><mo>/</mo><mrow><mrow><mi>g</mi></mrow><mo>&#8289;</mo><mrow><mo>(</mo><mrow><mi> foo
-        </mi></mrow><mo>)</mo></mrow></mrow></mrow></mrow>
-        </math><li><math xmlns="http://www.w3.org/1998/Math/MathML">
-        <mrow><mrow><mi> foo
-        </mi></mrow><mo>&#8801;</mo><mrow><mrow><mi>f</mi></mrow><mo>&#8289;</mo><mrow><mo>(</mo><mrow><mi> r
-        </mi></mrow><mo>,</mo><mrow><mi> k
-        </mi></mrow><mo>)</mo></mrow></mrow></mrow>
-        </math></ol>"""
-        @test replace(result.content[3].code, r"\s+" => "") == replace(expected, r"\s+" => "")
-        @test result.content[4] isa Markdown.MD
-        @test result.content[4] == Markdown.parse("""Functions:
-
-        ```
-        function g"Inline if necessary"
-          input Real x;
-          output Real y;
-        algorithm
-          y := 2.0 * x;
-        end g;
-
-
-
-        ```""")
-        @test result.content[5] isa Markdown.MD
-        @test result.content[5] == Markdown.parse("""
-        | name | unit | value |                  label |
-        | ----:| ----:| -----:| ----------------------:|
-        |    r |  "V" |   0.0 |         some potential |
-        |  foo |      |       | second sample variable |
-        |    k |      |   2.0 |         some parameter |
-        """)
     end
 end
