@@ -291,10 +291,13 @@ DummyDocument() = DummyDocument(DummyInternal([]))
                 vars = getvariables(omc, "FunctionNames")
                 adict = ModelicaScriptingTools.aliasdict(vars)
                 eqs = getequations(omc, "FunctionNames")
+                funcs = getfunctions(omc, "FunctionNames")
+                funcdict = uniquehierarchy(funcs[1:end, 1])
+                eqs = [replacefuncnames(e, funcdict) for e in eqs]
                 prefixes = [commonhierarchy(e, adict) for e in eqs]
                 de = [deprefix(e, p) for (e, p) in zip(eqs, prefixes)]
                 @test ["x", "FunctionNames.f", "_b"] == findidentifiers(de[1])
-                @test ["_b", "FunctionNames.Submodel\$sm.f", "x", "FunctionNames.Submodel\$sm.g", "x"] == findidentifiers(de[2])
+                @test ["_b", "_f", "x", "g", "x"] == findidentifiers(de[2])
             end
         end
         @testset "getvariables" begin
