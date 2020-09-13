@@ -264,7 +264,7 @@ If `quiet` is false, the resulting MODELICAPATH is printed to stdout.
 
 Returns the newly created OMCSession.
 """
-function setupOMCSession(outdir, modeldir; quiet=false, checkunits=true, sleeptime=0.3)
+function setupOMCSession(outdir, modeldir; quiet=false, checkunits=true, sleeptime=0.5)
     # create output directory
     if !isdir(outdir)
         mkpath(outdir)
