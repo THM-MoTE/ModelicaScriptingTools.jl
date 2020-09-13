@@ -80,6 +80,16 @@ function algorithm(code:: AbstractString)
     ).captures[1]
 end
 
+function replacefuncsincode(code:: AbstractString, aliases:: Dict)
+    for a in keys(aliases)
+        code = replace(
+            code,
+            Regex("\\Q$a\\E\\(") => "$(aliases[a])("
+        )
+    end
+    return code
+end
+
 function uniquefunctions(funcs:: Array)
     alg2func = Dict{String, Array{String, 2}}()
     for i in 1:size(funcs)[1]
@@ -95,6 +105,20 @@ function uniquefunctions(funcs:: Array)
         res = [res; permutedims(prototype)]
         for i in 1:size(group)[1]
             aliases[group[i, 1]] = prototype[1,1]
+        end
+    end
+    # update uses of functions in other functions
+    for i in 1:size(res)[1]
+        res[i, 3] = replacefuncsincode(res[i, 3], aliases)
+    end
+    if maximum([size(x)[1] for x in values(alg2func)]) > 1
+        # there were some simplifications => repeat
+        (na, nf) = uniquefunctions(res)
+        # update aliases
+        for a in keys(aliases)
+            if haskey(na, aliases[a])
+                aliases[a] = na[aliases[a]]
+            end
         end
     end
     return (aliases, res)
