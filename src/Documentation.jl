@@ -248,6 +248,8 @@ function equationlist(equations:: Array{<: AbstractString}, vars:: Array{Dict{An
         </ol>
         """
     end
+    (funcdict, funcs) = uniquefunctions(funcs)
+    equations = [replacefuncnames(e, funcdict) for e in equations]
     funcdict = uniquehierarchy(funcs[1:end, 1])
     equations = [replacefuncnames(e, funcdict) for e in equations]
     equations = collect(map(explicify, equations))
