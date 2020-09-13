@@ -336,5 +336,42 @@ DummyDocument() = DummyDocument(DummyInternal([]))
                 @test expected == getfunctions(omc, "FunctionNames")
             end
         end
+        @testset "funclist" begin
+            loadModel(omc, "FunctionNames")
+            funcs = getfunctions(omc, "FunctionNames")
+            funclist = functionlist(funcs)
+            expected = """Functions:
+
+            ```modelica
+            function FunctionNames.f"Inline if necessary"
+              input Real x1;
+              input Real x2 = 0.0;
+              output Real y;
+            algorithm
+              y := 2.0 * x1 + x2;
+            end FunctionNames.f;
+            ```
+
+            ```modelica
+            function g"Inline if necessary"
+              input Real x;
+              output Real y;
+            algorithm
+              y := 1.0 + x;
+            end g;
+            ```
+
+            ```modelica
+            function sm.f"Inline if necessary"
+              input Real x1;
+              input Real x2 = 1.0;
+              output Real y;
+            algorithm
+              y := 2.0 * x1 + x2;
+            end sm.f;
+            ```
+            """
+            @test expected == string(funclist)
+        end
     end
 end
