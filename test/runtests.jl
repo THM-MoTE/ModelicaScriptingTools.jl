@@ -114,16 +114,23 @@ DummyDocument() = DummyDocument(DummyInternal([]))
         @test result.content[4] isa Markdown.MD
         @test result.content[4] == Markdown.parse("""Functions:
 
+        ```modelica
+        function f"Inline if necessary"
+          input Real x;
+          input Real y;
+          output Real res;
+        algorithm
+          res := x ^ y + y;
+        end f;
         ```
+
+        ```modelica
         function g"Inline if necessary"
           input Real x;
           output Real y;
         algorithm
           y := 2.0 * x;
         end g;
-
-
-
         ```""")
         @test result.content[5] isa Markdown.MD
         @test result.content[5] == Markdown.parse("""
@@ -287,7 +294,7 @@ DummyDocument() = DummyDocument(DummyInternal([]))
                 prefixes = [commonhierarchy(e, adict) for e in eqs]
                 de = [deprefix(e, p) for (e, p) in zip(eqs, prefixes)]
                 @test ["x", "FunctionNames.f", "_b"] == findidentifiers(de[1])
-                @test ["_b", "FunctionNames.Submodel\$sm.h", "x", "FunctionNames.Submodel\$sm.g", "x"] == findidentifiers(de[2])
+                @test ["_b", "FunctionNames.Submodel\$sm.f", "x", "FunctionNames.Submodel\$sm.g", "x"] == findidentifiers(de[2])
             end
         end
         @testset "getvariables" begin
@@ -324,7 +331,7 @@ DummyDocument() = DummyDocument(DummyInternal([]))
                 expected = [
                     "FunctionNames.f" "function(x1 :: Real * x2 :: Real) => Real" "function FunctionNames.f\"Inline if necessary\"\n  input Real x1;\n  input Real x2 = 0.0;\n  output Real y;\nalgorithm\n  y := 2.0 * x1 + x2;\nend FunctionNames.f;\n\n\n";
                     "FunctionNames.Submodel\$sm.g" "function(x :: Real) => Real" "function FunctionNames.Submodel\$sm.g\"Inline if necessary\"\n  input Real x;\n  output Real y;\nalgorithm\n  y := 1.0 + x;\nend FunctionNames.Submodel\$sm.g;\n\n\n";
-                    "FunctionNames.Submodel\$sm.h" "function(x1 :: Real * x2 :: Real) => Real" "function FunctionNames.Submodel\$sm.h\"Inline if necessary\"\n  input Real x1;\n  input Real x2 = 1.0;\n  output Real y;\nalgorithm\n  y := 2.0 * x1 + x2;\nend FunctionNames.Submodel\$sm.h;\n\n\n"
+                    "FunctionNames.Submodel\$sm.f" "function(x1 :: Real * x2 :: Real) => Real" "function FunctionNames.Submodel\$sm.f\"Inline if necessary\"\n  input Real x1;\n  input Real x2 = 1.0;\n  output Real y;\nalgorithm\n  y := 2.0 * x1 + x2;\nend FunctionNames.Submodel\$sm.f;\n\n\n"
                 ]
                 @test expected == getfunctions(omc, "FunctionNames")
             end
