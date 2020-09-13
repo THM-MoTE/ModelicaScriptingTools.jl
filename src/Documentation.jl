@@ -62,7 +62,7 @@ function getfunctions(omc:: OMCSession, model:: String)
         end
     end
     if isempty(funcs)
-        return Array{String,2}()
+        return Array{String}(undef, 0, 2)
     else
         return funcs
     end
