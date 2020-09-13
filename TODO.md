@@ -1,5 +1,6 @@
 # TODO list
 
+* also replace function names in code (and maybe iterate simplification with new algorithm sections)
 * combine all simplification steps into one function that simplifies both equations and functions
 * find a better way to determine the prototype from a set of equivalent functions
 * consistent ordering of equations (do not count groups)
