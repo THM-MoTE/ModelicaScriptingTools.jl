@@ -1,3 +1,5 @@
+__precompile__(false) # due to error in CSV precompile
+
 module ModelicaScriptingTools
 
 using Base.Filesystem: isfile
@@ -25,7 +27,5 @@ include("Documentation.jl")
 function __init__()
     __init__doc()
 end
-
-__precompile__(false) # due to error in CSV precompile
 
 end
