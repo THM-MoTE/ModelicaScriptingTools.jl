@@ -311,12 +311,23 @@ DummyDocument() = DummyDocument(DummyInternal([]))
             @test expected == getvariables(omc, "Example")
         end
         @testset "getfunctions" begin
-            loadModel(omc, "DocExample")
-            expected = [
-                "DocExample.f" "function(x :: Real * y :: Real) => Real" "function DocExample.f\"Inline if necessary\"\n  input Real x;\n  input Real y;\n  output Real res;\nalgorithm\n  res := x ^ y + y;\nend DocExample.f;\n\n\n";
-                "DocExample.g" "function(x :: Real) => Real" "function DocExample.g\"Inline if necessary\"\n  input Real x;\n  output Real y;\nalgorithm\n  y := 2.0 * x;\nend DocExample.g;\n\n\n"
-            ]
-            @test expected == getfunctions(omc, "DocExample")
+            @testset "DocExample" begin
+                loadModel(omc, "DocExample")
+                expected = [
+                    "DocExample.f" "function(x :: Real * y :: Real) => Real" "function DocExample.f\"Inline if necessary\"\n  input Real x;\n  input Real y;\n  output Real res;\nalgorithm\n  res := x ^ y + y;\nend DocExample.f;\n\n\n";
+                    "DocExample.g" "function(x :: Real) => Real" "function DocExample.g\"Inline if necessary\"\n  input Real x;\n  output Real y;\nalgorithm\n  y := 2.0 * x;\nend DocExample.g;\n\n\n"
+                ]
+                @test expected == getfunctions(omc, "DocExample")
+            end
+            @testset "FunctionNames" begin
+                loadModel(omc, "FunctionNames")
+                expected = [
+                    "FunctionNames.f" "function(x1 :: Real * x2 :: Real) => Real" "function FunctionNames.f\"Inline if necessary\"\n  input Real x1;\n  input Real x2 = 0.0;\n  output Real y;\nalgorithm\n  y := 2.0 * x1 + x2;\nend FunctionNames.f;\n\n\n";
+                    "FunctionNames.Submodel\$sm.g" "function(x :: Real) => Real" "function FunctionNames.Submodel\$sm.g\"Inline if necessary\"\n  input Real x;\n  output Real y;\nalgorithm\n  y := 1.0 + x;\nend FunctionNames.Submodel\$sm.g;\n\n\n";
+                    "FunctionNames.Submodel\$sm.h" "function(x1 :: Real * x2 :: Real) => Real" "function FunctionNames.Submodel\$sm.h\"Inline if necessary\"\n  input Real x1;\n  input Real x2 = 1.0;\n  output Real y;\nalgorithm\n  y := 2.0 * x1 + x2;\nend FunctionNames.Submodel\$sm.h;\n\n\n"
+                ]
+                @test expected == getfunctions(omc, "FunctionNames")
+            end
         end
     end
 end
