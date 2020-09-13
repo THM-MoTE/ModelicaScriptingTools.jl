@@ -113,7 +113,7 @@ function uniquefunctions(funcs:: Array)
     end
     if maximum([size(x)[1] for x in values(alg2func)]) > 1
         # there were some simplifications => repeat
-        (na, nf) = uniquefunctions(res)
+        (na, res) = uniquefunctions(res)
         # update aliases
         for a in keys(aliases)
             if haskey(na, aliases[a])
