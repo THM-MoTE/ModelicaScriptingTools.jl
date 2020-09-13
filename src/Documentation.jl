@@ -61,7 +61,11 @@ function getfunctions(omc:: OMCSession, model:: String)
             funcs[i,2] = funcs[i,2][1:end-length(funcs[i,1])-1]
         end
     end
-    return convert(Array{String,2}, funcs)
+    if isempty(funcs)
+        return Array{String,2}()
+    else
+        return funcs
+    end
 end
 
 
