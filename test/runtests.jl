@@ -298,8 +298,8 @@ DummyDocument() = DummyDocument(DummyInternal([]))
                 eqs = [replacefuncnames(e, funcdict) for e in eqs]
                 prefixes = [commonhierarchy(e, adict) for e in eqs]
                 de = [deprefix(e, p) for (e, p) in zip(eqs, prefixes)]
-                @test ["x", "f", "_b"] == findidentifiers(de[1])
-                @test ["_b", "f", "x", "g", "x"] == findidentifiers(de[2])
+                @test ["x", "_f", "_b", "_f", "_b"] == findidentifiers(de[1])
+                @test ["_b", "_f", "x", "g", "x"] == findidentifiers(de[2])
             end
         end
         @testset "getvariables" begin
@@ -333,12 +333,13 @@ DummyDocument() = DummyDocument(DummyInternal([]))
             end
             @testset "FunctionNames" begin
                 loadModel(omc, "FunctionNames")
+                funcs = getfunctions(omc, "FunctionNames")
                 expected = [
-                    "FunctionNames.f" "function(x1 :: Real * x2 :: Real) => Real" "function FunctionNames.f\n  input Real x1;\n  input Real x2 = 0.0;\n  output Real y;\nalgorithm\n  y := 2.0 * x1 + x2;\nend FunctionNames.f;\n\n\n";
-                    "FunctionNames.Submodel\$sm.f" "function(x1 :: Real * x2 :: Real) => Real" "function FunctionNames.Submodel\$sm.f\n  input Real x1;\n  input Real x2 = 1.0;\n  output Real y;\nalgorithm\n  y := 2.0 * x1 + x2;\nend FunctionNames.Submodel\$sm.f;\n\n\n";
-                    "FunctionNames.Submodel\$sm.g" "function(x :: Real) => Real" "function FunctionNames.Submodel\$sm.g\n  input Real x;\n  output Real y;\nalgorithm\n  y := 1.0 + x;\nend FunctionNames.Submodel\$sm.g;\n\n\n"
+                    "FunctionNames.f", "FunctionNames.f2", "FunctionNames.Submodel\$sm.f",
+                    "FunctionNames.Submodel\$sm.g", "FunctionNames.Submodel\$sm.f.inf",
+                    "FunctionNames.f.inf", "FunctionNames.f2.inf"
                 ]
-                @test expected == getfunctions(omc, "FunctionNames")
+                @test expected == funcs[:, 1]
             end
         end
         @testset "funclist" begin
@@ -348,13 +349,13 @@ DummyDocument() = DummyDocument(DummyInternal([]))
             expected = Markdown.parse("""Functions:
 
             ```modelica
-            function f
-              input Real x1;
-              input Real x2 = 0.0;
+            function inf
+              input Real x;
+              input Real a = 1.0;
               output Real y;
             algorithm
-              y := 2.0 * x1 + x2;
-            end f;
+              y := x + a;
+            end inf;
             ```
 
             ```modelica
@@ -364,6 +365,16 @@ DummyDocument() = DummyDocument(DummyInternal([]))
             algorithm
               y := 1.0 + x;
             end g;
+            ```
+
+            ```modelica
+            function sm.f
+              input Real x1;
+              input Real x2 = 1.0;
+              output Real y;
+            algorithm
+              y := 2.0 * x1 + inf(x2, 1.0);
+            end sm.f;
             ```
             """)
             @test expected == funclist
