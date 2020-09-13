@@ -229,8 +229,8 @@ function functionlist(funcs:: Array)
         fun = funcs[i, 1]
         rep = replacements[fun]
         code = funcs[i, 3]
-        cleaned = replace(code, fun => rep)
-        push!(res, "```\n$cleaned\n```")
+        cleaned = strip(replace(code, fun => rep))
+        push!(res, "```modelica\n$cleaned\n```")
     end
     return Markdown.parse(join(res, "\n\n"))
 end
