@@ -1,5 +1,7 @@
 # TODO list
 
+* combine all simplification steps into one function that simplifies both equations and functions
+* find a better way to determine the prototype from a set of equivalent functions
 * consistent ordering of equations (do not count groups)
 * handle when equations properly in documentation
 * use full group name in "Within group ..." text
