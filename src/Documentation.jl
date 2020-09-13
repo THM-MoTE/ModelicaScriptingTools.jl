@@ -173,7 +173,7 @@ function replacefuncnames(equation:: AbstractString, replacements:: Dict)
     for n in keys(replacements)
         res = replace(
             res,
-            Regex("<mi>\\s*$n\\s*</mi>")
+            Regex("<mi>\\s*\\Q$n\\E\\s*</mi>")
             => SubstitutionString("<mi>$(replacements[n])</mi>")
         )
     end
