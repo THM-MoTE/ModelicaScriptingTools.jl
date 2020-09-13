@@ -55,6 +55,28 @@ DummyDocument() = DummyDocument(DummyInternal([]))
         )
         @test expected == hier
     end
+    @testset "replacefuncnames" begin
+        input = """
+        <math xmlns="http://www.w3.org/1998/Math/MathML">
+        <mrow>
+            <mrow><mi> foo</mi></mrow>
+            <mo>&#8801;</mo>
+            <mrow>
+                <mrow><mi>bla.f</mi></mrow>
+                <mo>&#8289;</mo>
+                <mrow>
+                    <mo>(</mo>
+                    <mrow><mi> r</mi></mrow>
+                    <mo>,</mo>
+                    <mrow><mi> k</mi></mrow>
+                    <mo>)</mo>
+                </mrow>
+            </mrow>
+        </mrow>
+        </math>"""
+        replaced = replacefuncnames(input, Dict("bla.f" => "f"))
+        @test replace(input, "bla.f" => "f") == replaced
+    end
     withOMC("out", "res") do omc
         @testset "loadModel" begin
             mopath = sendExpression(omc, "getModelicaPath()")
@@ -238,8 +260,6 @@ DummyDocument() = DummyDocument(DummyInternal([]))
                 "DocExample.g" "function(x :: Real) => Real" "function DocExample.g\"Inline if necessary\"\n  input Real x;\n  output Real y;\nalgorithm\n  y := 2.0 * x;\nend DocExample.g;\n\n\n"
             ]
             @test expected == getfunctions(omc, "DocExample")
-        end
-        @testset "replacefuncnames" begin
         end
     end
     @testset "Documenter.jl extension" begin
