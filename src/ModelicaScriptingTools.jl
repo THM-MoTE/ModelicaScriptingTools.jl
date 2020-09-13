@@ -1,5 +1,3 @@
-__precompile__(false) # due to error in CSV precompile
-
 module ModelicaScriptingTools
 
 using Base.Filesystem: isfile
