@@ -62,7 +62,7 @@ DummyDocument() = DummyDocument(DummyInternal([]))
             <mrow><mi> foo</mi></mrow>
             <mo>&#8801;</mo>
             <mrow>
-                <mrow><mi>bla.f</mi></mrow>
+                <mrow><mi>bla\$blubb.f</mi></mrow>
                 <mo>&#8289;</mo>
                 <mrow>
                     <mo>(</mo>
@@ -74,8 +74,8 @@ DummyDocument() = DummyDocument(DummyInternal([]))
             </mrow>
         </mrow>
         </math>"""
-        replaced = replacefuncnames(input, Dict("bla.f" => "f"))
-        @test replace(input, "bla.f" => "f") == replaced
+        replaced = replacefuncnames(input, Dict("bla\$blubb.f" => "f"))
+        @test replace(input, "bla\$blubb.f" => "f") == replaced
     end
     @testset "Documenter.jl extension" begin
         x = Markdown.parse("""
