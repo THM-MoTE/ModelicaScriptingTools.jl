@@ -15,4 +15,5 @@
   * must be done with something like https://github.com/OpenModelica/OpenModelica/blob/master/OMCompiler/Examples/generate_icons.py
   * maybe using Luxor.jl?
   * reference for how OMEdit handles drawing: https://github.com/OpenModelica/OMEdit/tree/master/OMEdit/OMEditGUI/Annotations
+  * idea: use OMC to parse for components, equations, and parents of a class
 * add tooltip to variables and parameters in equation list
