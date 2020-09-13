@@ -261,6 +261,7 @@ function equationlist(equations:: Array{<: AbstractString}, vars:: Array{Dict{An
 end
 
 function functionlist(funcs:: Array)
+    (funcdict, funcs) = uniquefunctions(funcs)
     replacements = uniquehierarchy(funcs[1:end, 1])
     res = ["Functions:"]
     for i in 1:size(funcs)[1]

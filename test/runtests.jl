@@ -348,23 +348,13 @@ DummyDocument() = DummyDocument(DummyInternal([]))
             expected = Markdown.parse("""Functions:
 
             ```modelica
-            function FunctionNames.f
+            function f
               input Real x1;
               input Real x2 = 0.0;
               output Real y;
             algorithm
               y := 2.0 * x1 + x2;
-            end FunctionNames.f;
-            ```
-
-            ```modelica
-            function sm.f
-              input Real x1;
-              input Real x2 = 1.0;
-              output Real y;
-            algorithm
-              y := 2.0 * x1 + x2;
-            end sm.f;
+            end f;
             ```
 
             ```modelica
