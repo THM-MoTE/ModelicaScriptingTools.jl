@@ -175,6 +175,23 @@ function getSimulationSettings(omc:: OMCSession, name:: String; override=Dict())
             settings[x] = override[x]
         end
     end
+    # the overriding of one variable may require additional changes
+    timespan = settings["stopTime"] - settings["startTime"]
+    if haskey(override, "interval")
+        # an override of "interval" has to override "numberOfIntervals"
+        settings["numberOfIntervals"]  = trunc(Int, timespan / settings["interval"])
+    end
+    if haskey(override, "numberOfIntervals")
+        # and vice versa
+        settings["interval"] = timespan / settings["numberOfIntervals"]
+    end
+    if (haskey(override, "startTime") || haskey(override, "stopTime"))
+            && !haskey(override, "interval")
+            && !haskey(overrid, "numberOfIntervals")
+        # if we only change "startTime" or "stopTime", we expect that
+        # the number of intervals changes accordingly
+        settings["numberOfIntervals"] = trunc(Int, timespan / settings["interval"])
+    end
     return settings
 end
 
