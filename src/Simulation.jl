@@ -159,6 +159,9 @@ Returns a Dict with the keys `"startTime"`, `"stopTime"`, `"tolerance"`,
 If any of these settings are not defined in the model file, they will be
 filled with default values.
 
+In `override`, an additional key `"interval"` is allowed to recalculate the
+`"numberOfIntervals"` based on the step size given as value to this key.
+
 Throws a [`MoSTError`](@ref) if the model `name` was not loaded beforehand using
 [`loadModel(omc:: OMCSession, name:: String)`](@ref).
 """
@@ -169,28 +172,24 @@ function getSimulationSettings(omc:: OMCSession, name:: String; override=Dict())
         "tolerance"=>values[3], "numberOfIntervals"=>values[4],
         "outputFormat"=>"csv", "variableFilter"=>".*"
     )
+    interval = values[5]
     settings["variableFilter"] = getVariableFilter(omc, name)
     for x in keys(settings)
         if x in keys(override)
             settings[x] = override[x]
         end
     end
-    # the overriding of one variable may require additional changes
-    timespan = settings["stopTime"] - settings["startTime"]
-    if haskey(override, "interval")
-        # an override of "interval" has to override "numberOfIntervals"
-        settings["numberOfIntervals"]  = trunc(Int, timespan / settings["interval"])
-    end
-    if haskey(override, "numberOfIntervals")
-        # and vice versa
-        settings["interval"] = timespan / settings["numberOfIntervals"]
-    end
-    if ((haskey(override, "startTime") || haskey(override, "stopTime"))
-            && !haskey(override, "interval")
-            && !haskey(override, "numberOfIntervals"))
-        # if we only change "startTime" or "stopTime", we expect that
-        # the number of intervals changes accordingly
-        settings["numberOfIntervals"] = trunc(Int, timespan / settings["interval"])
+    # the overriding of simulation time or interval size may require additional
+    # changes to the numberOfIntervals setting
+    hasinterval = haskey(override, "interval")
+    onlytime = (haskey(override, "startTime") || haskey(override, "stopTime")
+        && !haskey(override, "interval")
+        && !haskey(override, "numberOfIntervals")
+    )
+    if hasinterval || onlytime
+        timespan = settings["stopTime"] - settings["startTime"]
+        interval = get(override, "interval", interval)
+        settings["numberOfIntervals"]  = trunc(Int, timespan / interval)
     end
     return settings
 end
