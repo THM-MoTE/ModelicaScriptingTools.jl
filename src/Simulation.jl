@@ -273,7 +273,7 @@ Creates an `OMCSession` and prepares it by preforming the following steps:
 * change the working directory of the OMC to `outdir`
 * add `modeldir` to the MODELICAPATH
 * enable unit checking with the OMC command line option
-    `--preOptModules+=unitChecking` (unless `checkunits` is false)
+    `--unitChecking` (unless `checkunits` is false)
 * load the modelica standard library (`loadModel(Modelica)`)
 
 If `quiet` is false, the resulting MODELICAPATH is printed to stdout.
@@ -300,7 +300,7 @@ function setupOMCSession(outdir, modeldir; quiet=false, checkunits=true, sleepti
     sendExpression(omc, "setModelicaPath(\"$mopath\")")
     # enable unit checking
     if checkunits
-        sendExpression(omc, "setCommandLineOptions(\"--preOptModules+=unitChecking\")")
+        sendExpression(omc, "setCommandLineOptions(\"--unitChecking\")")
     end
     # load Modelica standard library
     sendExpression(omc, "loadModel(Modelica)")
