@@ -51,7 +51,11 @@ stopped at the respective steps.
 function loadModel(omc:: OMCSession, name:: String; ismodel=true, check=true, instantiate=true)
     success = sendExpression(omc, "loadModel($name)")
     es = getErrorString(omc)
-    if !isnothing(success) && !success || length(es) > 0
+    if isnothing(success)
+        # i have seen this happen, but do not know why it does occur
+        throw(MoSTError("Unexpected error: loadModel($name) returned nothing", es))
+    end
+    if !success || length(es) > 0
         throw(MoSTError("Could not load $name", es))
     end
     if !ismodel
