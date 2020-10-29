@@ -51,7 +51,7 @@ stopped at the respective steps.
 function loadModel(omc:: OMCSession, name:: String; ismodel=true, check=true, instantiate=true)
     success = sendExpression(omc, "loadModel($name)")
     es = getErrorString(omc)
-    if !success || length(es) > 0
+    if !isnothing(success) && !success || length(es) > 0
         throw(MoSTError("Could not load $name", es))
     end
     if !ismodel
@@ -303,7 +303,7 @@ function setupOMCSession(outdir, modeldir; quiet=false, checkunits=true, sleepti
         sendExpression(omc, "setCommandLineOptions(\"--unitChecking\")")
     end
     # install and load Modelica standard library
-    sendExpression(omc, "installPackage(Modelica)")
+    # sendExpression(omc, "installPackage(Modelica)")
     sendExpression(omc, "loadModel(Modelica)")
     return omc
 end
