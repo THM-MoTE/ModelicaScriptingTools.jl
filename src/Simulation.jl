@@ -302,7 +302,8 @@ function setupOMCSession(outdir, modeldir; quiet=false, checkunits=true, sleepti
     if checkunits
         sendExpression(omc, "setCommandLineOptions(\"--unitChecking\")")
     end
-    # load Modelica standard library
+    # install and load Modelica standard library
+    sendExpression(omc, "installPackage(Modelica)")
     sendExpression(omc, "loadModel(Modelica)")
     return omc
 end
