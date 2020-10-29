@@ -15,6 +15,12 @@ This currently includes the following main features:
 * Support for unit tests and regression tests using Julia's `Test` package
 * Documentation generation for Modelica models using [Documenter.jl](https://github.com/JuliaDocs/Documenter.jl)
 
+## Warning
+
+WARNING: MoST is not yet compatible with OpenModelica 1.16.
+We do not expect the transition to take very long, but for the time being you have to use an older version.
+Continuous integration tests are currently run with OpenModelca 1.14.2, which is the latest stable release available for installation through `apt-get` on Ubuntu.
+
 ## Documentation
 
 The [documentation](https://thm-mote.github.io/ModelicaScriptingTools.jl/dev/) can be found on GitHub pages.
