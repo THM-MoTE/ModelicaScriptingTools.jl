@@ -10,7 +10,7 @@ jobs:
         - for deb in deb deb-src; do echo "$deb http://build.openmodelica.org/apt `lsb_release -cs` release"; done | sudo tee /etc/apt/sources.list.d/openmodelica.list
         - wget -q http://build.openmodelica.org/apt/openmodelica.asc -O- | sudo apt-key add -
         - sudo apt-get update
-        - sudo apt-get install openmodelica
+        - sudo apt-get install openmodelica=1.15
         - julia -e 'ENV["PYTHON"]=""; using Pkg; Pkg.add("PyCall"); Pkg.build("PyCall")'
       script:
         - julia -e "using Pkg; Pkg.instantiate(); Pkg.test(; coverage=true)"
