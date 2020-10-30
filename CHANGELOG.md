@@ -8,12 +8,30 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+[nothing]
+
+### Changed
+
+[nothing]
+
+### Fixed
+
+[nothing]
+
+## [1.1.0-alpha.2] - 30.10.2020
+
+### Added
+
 * test case for Documenter.jl extension
 
 ### Changed
 
 * list of equations in Documenter.jl extension is now grouped by common prefix
 * equations in Documenter.jl extension now use "dot operator" instead of "invisible times"
+* the `override` argument now behaves more intuitively
+  - adjusts the `numberOfIntervals` when only `startTime` and/or `stopTime` are changed
+  - allows additional key `interval` which also changes `numberOfIntervals`
+* Travis CI script now uses OpenModelica 1.14.2, because MoST.jl is not compatible with OpenModelica 1.16 yet
 
 ### Fixed
 
