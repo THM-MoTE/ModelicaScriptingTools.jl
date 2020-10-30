@@ -159,6 +159,13 @@ DummyDocument() = DummyDocument(DummyInternal([]))
         end
     end
     withOMC("out", "res") do omc
+        @testset "getVersion" begin
+            major, minor, patch = getVersion(omc)
+            # just test that version is sensible (and we have correct types)
+            @test major >= 0
+            @test minor >= 0
+            @test patch >= 0
+        end
         @testset "loadModel" begin
             mopath = sendExpression(omc, "getModelicaPath()")
             @testset "load existing correct model" begin

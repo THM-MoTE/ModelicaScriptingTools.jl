@@ -222,6 +222,20 @@ function getVariableFilter(omc:: OMCSession, name:: String)
 end
 
 """
+    getVersion(omc:: OMCSession)
+
+Returns the version of the OMCompiler as a triple (major, minor, patch).
+"""
+function getVersion(omc:: OMCSession)
+    versionstring = sendExpression(omc, "getVersion()")
+    # example: OMCompiler v1.17.0-dev.94+g4da66238ab
+    cap = match(r"^OMCompiler v(\d+)\.(\d+).(\d+)", versionstring).captures
+    cap = map(x -> parse(Int, x), cap)
+    major, minor, patch = cap
+    return Tuple([major, minor, patch])
+end
+
+"""
     simulate(omc:: OMCSession, name::String)
     simulate(omc:: OMCSession, name::String, settings:: Dict{String, Any})
 

@@ -16,7 +16,7 @@ export moescape, mounescape, MoSTError, loadModel, getSimulationSettings,
     getequations, getcode, getvariables, mdescape, variabletable, commonprefix,
     commonhierarchy, findvarnames, deprefix, aliasdict, findidentifiers,
     getfunctions, findfuncnames, functionlist, uniquehierarchy,
-    replacefuncnames, uniquefunctions
+    replacefuncnames, uniquefunctions, getVersion
 
 include("Simulation.jl")
 include("Testing.jl")
