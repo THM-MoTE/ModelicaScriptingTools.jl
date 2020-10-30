@@ -329,6 +329,10 @@ function setupOMCSession(outdir, modeldir; quiet=false, checkunits=true, sleepti
         end
         sendExpression(omc, "setCommandLineOptions(\"$flag\")")
     end
+    if !quiet
+        opts = sendExpression(omc, "getCommandLineOptions()")
+        println("Using command line options: $opts")
+    end
     # load Modelica standard library
     sendExpression(omc, "loadModel(Modelica)")
     return omc
