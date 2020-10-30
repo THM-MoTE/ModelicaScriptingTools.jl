@@ -230,7 +230,8 @@ Returns the version of the OMCompiler as a triple (major, minor, patch).
 function getVersion(omc:: OMCSession)
     versionstring = sendExpression(omc, "getVersion()")
     # example: OMCompiler v1.17.0-dev.94+g4da66238ab
-    vmatch = match(r"^OMCompiler v(\d+)\.(\d+).(\d+)", versionstring)
+    # example: OpenModelica 1.14.2
+    vmatch = match(r"^(?:OMCompiler v|OpenModelica )(\d+)\.(\d+).(\d+)", versionstring)
     if isnothing(vmatch)
         throw(MoSTError(omc, "Got unexpected version string: $versionstring"))
     end
