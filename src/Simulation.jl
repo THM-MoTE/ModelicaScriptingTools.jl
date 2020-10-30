@@ -43,7 +43,8 @@ ensure that as many errors in the model are caught and thrown as
 * We then check with `isModel(name)` if the model actually exists.
 * With `checkModel(name)` we find errors such as missing or mistyped variables.
 * Finally, we use `instantiateModel(name)` which can sometimes find additional
-    errors in the model structure.
+    errors in the model structure (e.g. since Modelica 1.16, unit consistency
+    checks are performed here).
 
 If `ismodel`, `check`, or `instantiate` are false, the loading process is
 stopped at the respective steps.
@@ -231,7 +232,7 @@ function getVersion(omc:: OMCSession)
     # example: OMCompiler v1.17.0-dev.94+g4da66238ab
     vmatch = match(r"^OMCompiler v(\d+)\.(\d+).(\d+)", versionstring)
     if isnothing(vmatch)
-        throw(MoSTError("Got unexpected version string: $versionstring"))
+        throw(MoSTError(omc, "Got unexpected version string: $versionstring"))
     end
     cap = map(x -> parse(Int, x), vmatch.captures)
     major, minor, patch = cap
