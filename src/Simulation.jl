@@ -290,6 +290,22 @@ function simulate(omc:: OMCSession, name::String, settings:: Dict{String, Any})
 end
 simulate(omc:: OMCSession, name::String) = simulate(omc, name, getSimulationSettings(omc, name))
 
+function avoidStartupFreeze(omc:: OMCSession, outdir)
+    # sleep(0.5)
+    testfile = joinpath(abspath(outdir), ".MoST_knock_knock")
+    # remove test file if it exists
+    if isfile(testfile)
+        rm(testfile)
+    end
+    # wait for OMC to create test file (=> command pipeline established)
+    while !isfile(testfile)
+        send(omc.socket, "writeFile($(moescape(testfile)), \"R u there?\")")
+        sleep(0.1)
+    end
+    # remove test file
+    rm(testfile)
+end
+
 
 """
     setupOMCSession(outdir, modeldir; quiet=false, checkunits=true)
@@ -307,7 +323,7 @@ If `quiet` is false, the resulting MODELICAPATH is printed to stdout.
 
 Returns the newly created OMCSession.
 """
-function setupOMCSession(outdir, modeldir; quiet=false, checkunits=true, sleeptime=0.5)
+function setupOMCSession(outdir, modeldir; quiet=false, checkunits=true)
     # create output directory
     if !isdir(outdir)
         mkpath(outdir)
@@ -315,7 +331,7 @@ function setupOMCSession(outdir, modeldir; quiet=false, checkunits=true, sleepti
     # create sessions
     omc = OMCSession()
     # sleep for a short while, because otherwise first ZMQ call may freeze
-    sleep(sleeptime)
+    avoidStartupFreeze(omc, outdir)
     # move to output directory
     sendExpression(omc, "cd(\"$(moescape(outdir))\")")
     # set modelica path
