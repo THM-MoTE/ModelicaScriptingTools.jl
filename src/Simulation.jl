@@ -143,7 +143,11 @@ mounescape(s::String) = sprint(mounescape, s; sizehint=lastindex(s))
 
 function getErrorString(omc:: OMCSession)
     es = sendExpressionRaw(omc, "getErrorString()")
-    return strip(strip(mounescape(es)),'"')
+    parsed = strip(strip(mounescape(es)),'"')
+    # FIXME this should be removed if there is a way to fix the model or if OpenModelica 1.16 is updated
+    # we ignore a specific cryptic error message from OpenModelica 1.16.0
+    ignore = "Warning: function Unit.unitString failed for \"MASTER()\".\n"
+    return parsed == ignore ? "" : parsed
 end
 
 function sendExpressionRaw(omc:: OMCSession, expr)
