@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
   - ignores strange new warning `Warning: function Unit.unitString failed for "MASTER()".`
   - adds `getVersion()` function to switch behavior based on OpenModelica version
   - small changes in expected test output due to unit checking changes
+  - calls `installPackage(Modelica)` if MSL is not already installed
 
 ### Changed
 
