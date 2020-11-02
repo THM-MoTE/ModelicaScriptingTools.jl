@@ -340,7 +340,7 @@ function setupOMCSession(outdir, modeldir; quiet=false, checkunits=true, sleepti
     end
     # load Modelica standard library
     sendExpression(omc, "loadModel(Modelica)")
-    es = getErrorString()
+    es = getErrorString(omc)
     if length(es) > 0 # can happen on OpenModelica 1.16 if MSL is not installed by default
         sendExpression(omc, "installPackage(Modelica)")
         sendExpression(omc, "loadModel(Modelica)")
