@@ -33,7 +33,7 @@ presentation MathML syntax.
 """
 function getequations(omc:: OMCSession, model::String)
     res = sendExpression(omc, "dumpXMLDAE($model, addMathMLCode=true)")
-    err = sendExpression(omc, "getErrorString()")
+    err = getErrorString(omc)
     if !isempty(err)
         throw(MoSTError("Could not save model as independent XML file", err))
     end
@@ -50,7 +50,7 @@ of the function in this order.
 """
 function getfunctions(omc:: OMCSession, model:: String)
     res = sendExpression(omc, "dumpXMLDAE($model, addMathMLCode=true)")
-    err = sendExpression(omc, "getErrorString()")
+    err = getErrorString(omc)
     if !isempty(err)
         throw(MoSTError("Could not save model as independent XML file", err))
     end
@@ -180,7 +180,7 @@ An empty string is used as value for keys which are not applicable for the given
 """
 function getvariables(omc:: OMCSession, model::String)
     res = sendExpression(omc, "dumpXMLDAE($model, addMathMLCode=true)")
-    err = sendExpression(omc, "getErrorString()")
+    err = getErrorString(omc)
     if !isempty(err)
         throw(MoSTError("Could not save model as independent XML file", err))
     end
