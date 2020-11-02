@@ -77,7 +77,6 @@ DummyDocument() = DummyDocument(DummyInternal([]))
         replaced = replacefuncnames(input, Dict("bla\$blubb.f" => "f"))
         @test replace(input, "bla\$blubb.f" => "f") == replaced
     end
-#=
     @testset "Documenter.jl extension" begin
         @testset "DocExample" begin
             x = Markdown.parse("""
@@ -159,7 +158,6 @@ DummyDocument() = DummyDocument(DummyInternal([]))
             result = page.mapping[x]
         end
     end
-=#
     withOMC("out", "res") do omc
         @testset "getVersion" begin
             major, minor, patch = getVersion(omc)
