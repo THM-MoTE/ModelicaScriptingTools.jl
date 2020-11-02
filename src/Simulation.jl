@@ -291,19 +291,25 @@ end
 simulate(omc:: OMCSession, name::String) = simulate(omc, name, getSimulationSettings(omc, name))
 
 function avoidStartupFreeze(omc:: OMCSession, outdir)
-    # sleep(0.5)
-    testfile = joinpath(abspath(outdir), ".MoST_knock_knock")
-    # remove test file if it exists
-    if isfile(testfile)
-        rm(testfile)
+    # TODO try this instead: https://github.com/JuliaInterop/ZMQ.jl/issues/198#issuecomment-576689600
+    sleep(0.5)
+    data = nothing
+    timeout = 0.1
+    while isnothing(data)
+        # send a simple command to OMC
+        println("getVersion()")
+        send(omc.socket, "getVersion()")
+        println("sent")
+        # use julia task to allow recv to run into a timeout
+        # idea from https://github.com/JuliaInterop/ZMQ.jl/issues/87#issuecomment-131153884
+        c = Channel()
+        @async put!((c, :received), recv(omc.socket))
+        @async sleep(timeout); put!(c, (nothing, :timedout))
+        println("foo")
+        data, status = take!(c)
+        println(data)
+        println(status)
     end
-    # wait for OMC to create test file (=> command pipeline established)
-    while !isfile(testfile)
-        send(omc.socket, "writeFile($(moescape(testfile)), \"R u there?\")")
-        sleep(0.1)
-    end
-    # remove test file
-    rm(testfile)
 end
 
 
