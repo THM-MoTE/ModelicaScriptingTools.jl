@@ -290,7 +290,7 @@ function simulate(omc:: OMCSession, name::String, settings:: Dict{String, Any})
 end
 simulate(omc:: OMCSession, name::String) = simulate(omc, name, getSimulationSettings(omc, name))
 
-function avoidStartupFreeze(omc:: OMCSession, outdir)
+function avoidStartupFreeze(omc:: OMCSession)
     # TODO if this does not work, we can try this instead:
     #      https://github.com/JuliaInterop/ZMQ.jl/issues/198#issuecomment-576689600
     # sleep(0.5)
@@ -336,7 +336,7 @@ function setupOMCSession(outdir, modeldir; quiet=false, checkunits=true)
     # create sessions
     omc = OMCSession()
     # sleep for a short while, because otherwise first ZMQ call may freeze
-    avoidStartupFreeze(omc, outdir)
+    avoidStartupFreeze(omc)
     # move to output directory
     sendExpression(omc, "cd(\"$(moescape(outdir))\")")
     # set modelica path
