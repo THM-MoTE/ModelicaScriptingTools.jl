@@ -320,6 +320,7 @@ Creates an `OMCSession` and prepares it by preforming the following steps:
 * create the directory `outdir` if it does not already exist
 * change the working directory of the OMC to `outdir`
 * add `modeldir` to the MODELICAPATH
+* enable the new frontent with `-d=newInst,nfAPI`
 * enable unit checking with the OMC command line option
     `--unitChecking` (unless `checkunits` is false)
 * load the modelica standard library (`loadModel(Modelica)`)
@@ -346,6 +347,8 @@ function setupOMCSession(outdir, modeldir; quiet=false, checkunits=true)
         println("Setting MODELICAPATH to ", mopath)
     end
     sendExpression(omc, "setModelicaPath(\"$mopath\")")
+    # enable new frontent
+    sendExpression(omc, "setCommandLineOptions(\"-d=newInst,nfAPI\")")
     # enable unit checking
     if checkunits
         flag = if getVersion(omc) >= Tuple([1, 16, 0])
