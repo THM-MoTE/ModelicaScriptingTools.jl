@@ -1,13 +1,13 @@
 language: julia
 dist: xenial
 os: linux
+julia: 1.4
 
 jobs:
   include:
     - stage: "Testing"
-      julia: 1.4
+      name: "OpenModelica: latest stable"
       install:
-        #- echo "deb https://build.openmodelica.org/omc/builds/linux/releases/1.14.2 `lsb_release -cs` release" | sudo tee /etc/apt/sources.list.d/openmodelica.list
         - for deb in deb deb-src; do echo "$deb http://build.openmodelica.org/apt `lsb_release -cs` release"; done | sudo tee /etc/apt/sources.list.d/openmodelica.list
         - wget -q http://build.openmodelica.org/apt/openmodelica.asc -O- | sudo apt-key add -
         - sudo apt-get update
@@ -16,18 +16,19 @@ jobs:
       script:
         - julia -e "using Pkg; Pkg.instantiate(); Pkg.test(; coverage=true)"
         - test/testFailing.sh
-      after_success:
-        - julia -e 'using Pkg; Pkg.add("Coverage"); using Coverage; Codecov.submit(process_folder())'
-    - stage: "Documentation"
-      julia: 1.4
-      install:
-          #- echo "deb https://build.openmodelica.org/omc/builds/linux/releases/1.14.2 `lsb_release -cs` release" | sudo tee /etc/apt/sources.list.d/openmodelica.list
-          - for deb in deb deb-src; do echo "$deb http://build.openmodelica.org/apt `lsb_release -cs` release"; done | sudo tee /etc/apt/sources.list.d/openmodelica.list
-          - wget -q http://build.openmodelica.org/apt/openmodelica.asc -O- | sudo apt-key add -
-          - sudo apt update
-          - sudo apt install openmodelica
-      script:
         - julia --project=docs/ -e 'ENV["PYTHON"]=""; using Pkg; Pkg.develop(PackageSpec(path=pwd()));
                                                Pkg.instantiate()'
         - julia --project=docs/ docs/make.jl
-      after_success: skip
+      after_success:
+        - julia -e 'using Pkg; Pkg.add("Coverage"); using Coverage; Codecov.submit(process_folder())'
+    - stage: "Testing"
+      name: "OpenModelica: 1.14.2"
+      install:
+        - echo "deb https://build.openmodelica.org/omc/builds/linux/releases/1.14.2 `lsb_release -cs` release" | sudo tee /etc/apt/sources.list.d/openmodelica.list
+        - for deb in deb deb-src; do echo "$deb http://build.openmodelica.org/apt `lsb_release -cs` release"; done | sudo tee /etc/apt/sources.list.d/openmodelica.list
+        - wget -q http://build.openmodelica.org/apt/openmodelica.asc -O- | sudo apt-key add -
+        - sudo apt update
+        - sudo apt install openmodelica
+      script:
+        - julia -e "using Pkg; Pkg.instantiate(); Pkg.test(; coverage=false)"
+        - test/testFailing.sh
