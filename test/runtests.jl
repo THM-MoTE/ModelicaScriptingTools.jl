@@ -192,8 +192,7 @@ DummyDocument() = DummyDocument(DummyInternal([]))
                 modelfile = joinpath(pwd(), "res/UndefinedVariable.mo")
                 expected = MoSTError(
                     "Model check of UndefinedVariable failed",
-                    string("\n[$modelfile:3:3-3:13:writable] Error: Variable r not found in scope UndefinedVariable.\n",
-                    "Error: Error occurred while flattening model UndefinedVariable\n")
+                    "\n[$modelfile:3:3-3:13:writable] Error: Variable r not found in scope UndefinedVariable.\n"
                 )
                 @test_throws expected loadModel(omc, "UndefinedVariable")
             end
@@ -255,7 +254,7 @@ DummyDocument() = DummyDocument(DummyInternal([]))
                 expected = if getVersion(omc) >= Tuple([1, 16, 0])
                     MoSTError(
                         "Model InconsistentUnits could not be instantiated",
-                        string("Warning: The following equation is INCONSISTENT due to specified unit information:  sub.alias = r;",
+                        string("Warning: The following equation is INCONSISTENT due to specified unit information: sub.alias = r",
                         "\nWarning: The units of following sub-expressions need to be equal:",
                         "\n- sub-expression \"r\" has unit \"A\"",
                         "\n- sub-expression \"sub.alias\" has unit \"V\"\n")
