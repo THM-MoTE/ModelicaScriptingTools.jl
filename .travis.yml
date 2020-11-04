@@ -29,6 +29,7 @@ jobs:
         - wget -q http://build.openmodelica.org/apt/openmodelica.asc -O- | sudo apt-key add -
         - sudo apt update
         - sudo apt install openmodelica
+        - julia -e 'ENV["PYTHON"]=""; using Pkg; Pkg.add("PyCall"); Pkg.build("PyCall")'
       script:
         - julia -e "using Pkg; Pkg.instantiate(); Pkg.test(; coverage=false)"
         - test/testFailing.sh
