@@ -8,10 +8,49 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+* Support for OpenModelica 1.16.0
+  - uses `--unitChecking` instead of `--preOptModules+=unitChecking`
+  - ignores strange new warning `Warning: function Unit.unitString failed for "MASTER()".`
+  - adds `getVersion()` function to switch behavior based on OpenModelica version
+  - small changes in expected test output due to unit checking changes
+  - calls `installPackage(Modelica)` if MSL is not already installed
+
+### Changed
+
+[nothing]
+
+### Fixed
+
+[nothing]
+
+## [1.1.0-alpha.2] - 30.10.2020
+
+### Added
+
+* test case for Documenter.jl extension
+
+### Changed
+
+* list of equations in Documenter.jl extension is now grouped by common prefix
+* equations in Documenter.jl extension now use "dot operator" instead of "invisible times"
+* the `override` argument now behaves more intuitively
+  - adjusts the `numberOfIntervals` when only `startTime` and/or `stopTime` are changed
+  - allows additional key `interval` which also changes `numberOfIntervals`
+* Travis CI script now uses OpenModelica 1.14.2, because MoST.jl is not compatible with OpenModelica 1.16 yet
+
+### Fixed
+
+[nothing]
+
+## [1.1.0-alpha.1]
+
+### Added
+
 * Experimental support for documenting Modelica models using [Documenter.jl](https://github.com/JuliaDocs/Documenter.jl).
 * New dependencies:
   * PyCall (for XML handling using lxml)
   * Documenter
+  * Markdown
 
 ### Changed
 

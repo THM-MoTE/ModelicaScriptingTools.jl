@@ -158,37 +158,43 @@ Or the Apache 2, MIT or MPL 1.1 or MPL 2.0 licences.
  <m:mrow>
    <xsl:choose>
      <xsl:when test="*[1]/*/*">
-       <m:mfenced separators="">
+       <m:mrow><m:mo>(</m:mo>
          <xsl:apply-templates mode="c2p" select="*[1]">
            <xsl:with-param name="p" select="10"/>
          </xsl:apply-templates>
-       </m:mfenced>
+       <m:mo>)</m:mo></m:mrow>
      </xsl:when>
-     <xsl:otherwise>       
+     <xsl:otherwise>
        <xsl:apply-templates mode="c2p" select="*[1]">
          <xsl:with-param name="p" select="10"/>
        </xsl:apply-templates>
      </xsl:otherwise>
    </xsl:choose>
  <m:mo>&#8289;<!--function application--></m:mo>
- <m:mfenced open="(" close=")" separators=",">
- <xsl:apply-templates mode="c2p" select="*[position()>1]"/>
- </m:mfenced>
+ <m:mrow><m:mo>(</m:mo>
+ <xsl:apply-templates mode="sepcomma" select="*[position()>1]"/>
+ <m:mo>)</m:mo></m:mrow>
  </m:mrow>
 </xsl:template>
 
+<xsl:template mode="sepcomma" match="*">
+  <xsl:apply-templates mode="c2p" select="."/>
+  <xsl:if test="position() != last()">
+    <m:mo>,</m:mo>
+  </xsl:if>
+</xsl:template>
 
 <xsl:template mode="c2p" match="m:bind">
  <m:mrow>
    <xsl:choose>
      <xsl:when test="*[1]/*/*">
-       <m:mfenced separators="">
+       <m:mrow><m:mo>(</m:mo>
          <xsl:apply-templates mode="c2p" select="*[1]">
            <xsl:with-param name="p" select="10"/>
          </xsl:apply-templates>
-       </m:mfenced>
+       <m:mo>)</m:mo></m:mrow>
      </xsl:when>
-     <xsl:otherwise>       
+     <xsl:otherwise>
        <xsl:apply-templates mode="c2p" select="*[1]">
          <xsl:with-param name="p" select="10"/>
        </xsl:apply-templates>
@@ -207,36 +213,36 @@ Or the Apache 2, MIT or MPL 1.1 or MPL 2.0 licences.
 
 <!-- 4.4.2.4 interval -->
 <xsl:template mode="c2p" match="m:interval[*[2]]">
- <m:mfenced open="[" close="]"><xsl:apply-templates mode="c2p"/></m:mfenced>
+ <m:mrow><m:mo>[</m:mo><xsl:apply-templates mode="sepcomma"/><m:mo>]</m:mo></m:mrow>
 </xsl:template>
 <xsl:template mode="c2p" match="m:interval[*[2]][@closure='open']" priority="2">
- <m:mfenced open="(" close=")"><xsl:apply-templates mode="c2p"/></m:mfenced>
+ <m:mrow><m:mo>(</m:mo><xsl:apply-templates mode="sepcomma"/><m:mo>)</m:mo></m:mrow>
 </xsl:template>
 <xsl:template mode="c2p" match="m:interval[*[2]][@closure='open-closed']" priority="2">
- <m:mfenced open="(" close="]"><xsl:apply-templates mode="c2p"/></m:mfenced>
+ <m:mrow><m:mo>(</m:mo><xsl:apply-templates mode="sepcomma"/><m:mo>]</m:mo></m:mrow>
 </xsl:template>
 <xsl:template mode="c2p" match="m:interval[*[2]][@closure='closed-open']" priority="2">
- <m:mfenced open="[" close=")"><xsl:apply-templates mode="c2p"/></m:mfenced>
+ <m:mrow><m:mo>[</m:mo><xsl:apply-templates mode="sepcomma"/><m:mo>)</m:mo></m:mrow>
 </xsl:template>
 
 <xsl:template mode="c2p" match="m:interval">
- <m:mfenced open="{{" close="}}"><xsl:apply-templates mode="c2p"/></m:mfenced>
+ <m:mrow><m:mo>{{</m:mo><xsl:apply-templates mode="sepcomma"/><m:mo>}}</m:mo></m:mrow>
 </xsl:template>
 
 <xsl:template mode="c2p" match="m:apply[*[1][self::m:csymbol='integer_interval']]">
- <m:mfenced open="[" close="]"><xsl:apply-templates mode="c2p" select="*[position()!=1]"/></m:mfenced>
+ <m:mrow><m:mo>[</m:mo><xsl:apply-templates mode="sepcomma" select="*[position()!=1]"/><m:mo>]</m:mo></m:mrow>
 </xsl:template>
 <xsl:template mode="c2p" match="m:apply[*[1][self::m:csymbol='interval']]">
- <m:mfenced open="[" close="]"><xsl:apply-templates mode="c2p" select="*[position()!=1]"/></m:mfenced>
+ <m:mrow><m:mo>[</m:mo><xsl:apply-templates mode="sepcomma" select="*[position()!=1]"/><m:mo>]</m:mo></m:mrow>
 </xsl:template>
 <xsl:template mode="c2p" match="m:apply[*[1][self::m:csymbol='interval-cc']]">
- <m:mfenced open="[" close="]"><xsl:apply-templates mode="c2p" select="*[position()!=1]"/></m:mfenced>
+ <m:mrow><m:mo>[</m:mo><xsl:apply-templates mode="sepcomma" select="*[position()!=1]"/><m:mo>]</m:mo></m:mrow>
 </xsl:template>
 <xsl:template mode="c2p" match="m:apply[*[1][self::m:csymbol='interval-oo']]">
- <m:mfenced open="(" close=")"><xsl:apply-templates mode="c2p" select="*[position()!=1]"/></m:mfenced>
+ <m:mrow><m:mo>(</m:mo><xsl:apply-templates mode="sepcomma" select="*[position()!=1]"/><m:mo>)</m:mo></m:mrow>
 </xsl:template>
 <xsl:template mode="c2p" match="m:apply[*[1][self::m:csymbol='oriented_interval']]">
- <m:mfenced open="(" close=")"><xsl:apply-templates mode="c2p" select="*[position()!=1]"/></m:mfenced>
+ <m:mrow><m:mo>(</m:mo><xsl:apply-templates mode="sepcomma" select="*[position()!=1]"/><m:mo>)</m:mo></m:mrow>
 </xsl:template>
 
 <!-- 4.4.2.5 inverse -->
@@ -280,9 +286,9 @@ Or the Apache 2, MIT or MPL 1.1 or MPL 2.0 licences.
    </xsl:if>
   </m:mrow>
   <m:mo>.</m:mo>
-  <m:mfenced>
+  <m:mrow><m:mo>(</m:mo>
    <xsl:apply-templates mode="c2p" select="*[last()]"/>
-  </m:mfenced>
+  <m:mo>)</m:mo></m:mrow>
  </m:mrow>
 </xsl:template>
 
@@ -346,23 +352,23 @@ Or the Apache 2, MIT or MPL 1.1 or MPL 2.0 licences.
     <xsl:apply-templates mode="c2p" select="m:domainofapplication/*"/>
    </m:mrow>
   </m:munder>
-  <m:mfenced>
-   <xsl:apply-templates mode="c2p" select="m:domainofapplication/following-sibling::*"/>
-  </m:mfenced>
+  <m:mrow><m:mo>(</m:mo>
+   <xsl:apply-templates mode="sepcomma" select="m:domainofapplication/following-sibling::*"/>
+  <m:mo>)</m:mo></m:mrow>
  </m:mrow>
 </xsl:template>
 
 <xsl:template mode="c2p" match="m:apply[m:domainofapplication]" priority="0.3">
  <m:mrow>
   <m:mrow><m:mi>restriction</m:mi>
-  <m:mfenced>
-   <xsl:apply-templates mode="c2p" select="*[1]"/>
-   <xsl:apply-templates mode="c2p" select="m:domainofapplication/*"/>
-  </m:mfenced>
+  <m:mrow><m:mo>(</m:mo>
+   <xsl:apply-templates mode="sepcomma" select="*[1]"/>
+   <xsl:apply-templates mode="sepcomma" select="m:domainofapplication/*"/>
+  <m:mo>)</m:mo></m:mrow>
   </m:mrow>
-  <m:mfenced>
-   <xsl:apply-templates mode="c2p" select="m:domainofapplication/following-sibling::*"/>
-  </m:mfenced>
+  <m:mrow><m:mo>(</m:mo>
+   <xsl:apply-templates mode="sepcomma" select="m:domainofapplication/following-sibling::*"/>
+  <m:mo>)</m:mo></m:mrow>
  </m:mrow>
 </xsl:template>
 
@@ -474,7 +480,7 @@ Or the Apache 2, MIT or MPL 1.1 or MPL 2.0 licences.
   <xsl:if test="$p &gt; 2"><m:mo>(</m:mo></xsl:if>
   <xsl:for-each select="*[position()&gt;1]">
    <xsl:choose>
-    <xsl:when test="self::m:apply[*[1][self::m:times] and *[2][self::m:apply/*[1][self::m:minus] or 
+    <xsl:when test="self::m:apply[*[1][self::m:times] and *[2][self::m:apply/*[1][self::m:minus] or
 		                  self::m:cn[not(m:sep) and (number(.) &lt; 0)]]] or
 	            self::m:apply[count(*)=2 and *[1][self::m:minus]] or
 		    self::m:cn[not(m:sep) and (number(.) &lt; 0)]">
@@ -586,7 +592,7 @@ Or the Apache 2, MIT or MPL 1.1 or MPL 2.0 licences.
       <xsl:otherwise>&#8290;<!--invisible times--></xsl:otherwise>
     </xsl:choose>
     </m:mo>
-   </xsl:if> 
+   </xsl:if>
    <xsl:if test="position()&gt;= $first">
    <xsl:apply-templates mode="c2p" select=".">
      <xsl:with-param name="p" select="3"/>
@@ -696,9 +702,9 @@ Or the Apache 2, MIT or MPL 1.1 or MPL 2.0 licences.
   <m:mo>&#8704;<!--forall--></m:mo>
  <m:mrow><xsl:apply-templates mode="c2p" select="m:bvar[not(current()/m:condition)]/*|m:condition/*"/></m:mrow>
  <m:mo>.</m:mo>
- <m:mfenced>
+ <m:mrow><m:mo>(</m:mo>
   <xsl:apply-templates mode="c2p" select="*[last()]"/>
- </m:mfenced>
+ <m:mo>)</m:mo></m:mrow>
 </m:mrow>
 </xsl:template>
 
@@ -713,7 +719,7 @@ Or the Apache 2, MIT or MPL 1.1 or MPL 2.0 licences.
   <m:mo>&#8707;<!--exists--></m:mo>
  <m:mrow><xsl:apply-templates mode="c2p" select="m:bvar[not(current()/m:condition)]/*|m:condition/*"/></m:mrow>
  <m:mo>.</m:mo>
- <m:mfenced separators="">
+ <m:mrow><m:mo>(</m:mo>
    <xsl:choose>
      <xsl:when test="m:condition">
        <xsl:apply-templates mode="c2p" select="m:condition/*"/>
@@ -736,7 +742,7 @@ Or the Apache 2, MIT or MPL 1.1 or MPL 2.0 licences.
      </xsl:when>
    </xsl:choose>
   <xsl:apply-templates mode="c2p" select="*[last()]"/>
- </m:mfenced>
+ <m:mo>)</m:mo></m:mrow>
 </m:mrow>
 </xsl:template>
 
@@ -1012,7 +1018,7 @@ Or the Apache 2, MIT or MPL 1.1 or MPL 2.0 licences.
   <xsl:param name="b" select="m:lambda/m:bvar"/>
   <xsl:param name="l" select="m:list/*"/>
   <xsl:choose>
-    <xsl:when 
+    <xsl:when
        test="number($l[1])=number($l[2])">
      <xsl:call-template name="pddx">
      <xsl:with-param name="n" select="$n+1"/>
@@ -1098,9 +1104,9 @@ Or the Apache 2, MIT or MPL 1.1 or MPL 2.0 licences.
      <xsl:apply-templates mode="c2p" select="*[2]"/>
     </m:mrow>
    </m:msub>
-   <m:mfenced>
+   <m:mrow><m:mo>(</m:mo>
      <xsl:apply-templates mode="c2p" select="*[4]"/>
-   </m:mfenced>
+   <m:mo>)</m:mo></m:mrow>
   </m:mrow>
 </xsl:template>
 
@@ -1156,9 +1162,9 @@ Or the Apache 2, MIT or MPL 1.1 or MPL 2.0 licences.
 <m:mo>&#8289;<!--function application--></m:mo>
 <m:mrow>
 <m:mo>(</m:mo>
-<m:mfenced>
-<xsl:apply-templates mode="c2p" select="m:bvar/*"/>
-</m:mfenced>
+<m:mrow><m:mo>(</m:mo>
+<xsl:apply-templates mode="sepcomma" select="m:bvar/*"/>
+<m:mo>)</m:mo></m:mrow>
 <m:mo>&#x21a6;<!-- map--></m:mo>
 <xsl:apply-templates mode="c2p" select="*[position()!=1][not(self::m:bvar)]"/>
 <m:mo>)</m:mo>
@@ -1183,9 +1189,9 @@ Or the Apache 2, MIT or MPL 1.1 or MPL 2.0 licences.
 <m:mo>&#8289;<!--function application--></m:mo>
 <m:mrow>
 <m:mo>(</m:mo>
-<m:mfenced>
-<xsl:apply-templates mode="c2p" select="m:bvar/*"/>
-</m:mfenced>
+<m:mrow><m:mo>(</m:mo>
+<xsl:apply-templates mode="sepcomma" select="m:bvar/*"/>
+<m:mo>)</m:mo></m:mrow>
 <m:mo>&#x21a6;<!-- map--></m:mo>
 <xsl:apply-templates mode="c2p" select="*[position()!=1][not(self::m:bvar)]"/>
 <m:mo>)</m:mo>
@@ -1200,9 +1206,9 @@ Or the Apache 2, MIT or MPL 1.1 or MPL 2.0 licences.
 </xsl:template>
 
 <xsl:template mode="c2p"  match="m:apply[*[1][self::m:csymbol='set']]">
-<m:mfenced open="{{" close="}}" separators=",">
-  <xsl:apply-templates mode="c2p" select="*[position()!=1]"/>
-</m:mfenced>
+<m:mrow><m:mo>{{</m:mo>
+  <xsl:apply-templates mode="sepcomma" select="*[position()!=1]"/>
+<m:mo>}}</m:mo></m:mrow>
 </xsl:template>
 
 <!-- 4.4.6.2 list -->
@@ -1216,9 +1222,9 @@ Or the Apache 2, MIT or MPL 1.1 or MPL 2.0 licences.
 
 
 <xsl:template mode="c2p" match="m:apply[*[1][self::m:csymbol='list']]">
-<m:mfenced open="(" close=")" separators=",">
-  <xsl:apply-templates mode="c2p" select="*[position()!=1]"/>
-</m:mfenced>
+<m:mrow><m:mo>(</m:mo>
+  <xsl:apply-templates mode="sepcomma" select="*[position()!=1]"/>
+<m:mo>)</m:mo></m:mrow>
 </xsl:template>
 
 <!-- 4.4.6.3 union -->
@@ -1447,7 +1453,7 @@ priority="2">
         <xsl:otherwise>&#8594;<!--rightarrow--></xsl:otherwise>
       </xsl:choose>
     </m:mo>
- <xsl:apply-templates mode="c2p" select="*[2]"/>    
+ <xsl:apply-templates mode="c2p" select="*[2]"/>
 </m:mrow>
  </m:munder>
  <xsl:apply-templates mode="c2p" select="m:bind/*[last()]"/>
@@ -1604,9 +1610,9 @@ priority="2">
 <m:mrow>
 <m:mo>&#963;<!--sigma--></m:mo>
  <m:mo>&#8289;<!--function application--></m:mo>
-<m:mfenced>
-<xsl:apply-templates mode="c2p" select="*[position()!=1]"/>
-</m:mfenced>
+<m:mrow><m:mo>(</m:mo>
+<xsl:apply-templates mode="sepcomma" select="*[position()!=1]"/>
+<m:mo>)</m:mo></m:mrow>
 </m:mrow>
 <m:mn>2</m:mn>
 </m:msup>
@@ -1629,14 +1635,14 @@ priority="2">
   <m:mrow>
     <m:mo>&#9001;<!--langle--></m:mo>
     <m:msup>
-      <xsl:variable name="data" 
+      <xsl:variable name="data"
                     select="*[not(position()=1)]
                             [not(self::m:degree or self::m:momentabout)]"/>
       <xsl:choose>
         <xsl:when test="$data[2]">
-          <m:mfenced>
-            <xsl:apply-templates mode="c2p" select="$data"/>
-          </m:mfenced>
+          <m:mrow><m:mo>(</m:mo>
+            <xsl:apply-templates mode="sepcomma" select="$data"/>
+          <m:mo>)</m:mo></m:mrow>
         </xsl:when>
         <xsl:otherwise>
           <xsl:apply-templates mode="c2p" select="$data"/>
@@ -1658,7 +1664,7 @@ priority="2">
     </m:msup>
     <m:mo>&#9002;<!--rangle--></m:mo>
   </m:mrow>
-  <xsl:apply-templates mode="c2p" select="*[3]"/>         
+  <xsl:apply-templates mode="c2p" select="*[3]"/>
 </m:msub>
 </xsl:template>
 
@@ -1670,14 +1676,14 @@ priority="2">
     <m:mrow>
       <m:mo>&#9001;<!--langle--></m:mo>
       <m:msup>
-        <xsl:variable name="data" 
+        <xsl:variable name="data"
                       select="*[not(position()=1)]
                               [not(self::m:degree or self::m:momentabout)]"/>
         <xsl:choose>
           <xsl:when test="$data[2]">
-            <m:mfenced>
-              <xsl:apply-templates mode="c2p" select="$data"/>
-            </m:mfenced>
+            <m:mrow><m:mo>(</m:mo>
+              <xsl:apply-templates mode="sepcomma" select="$data"/>
+            <m:mo>)</m:mo></m:mrow>
           </xsl:when>
           <xsl:otherwise>
             <xsl:apply-templates mode="c2p" select="$data"/>
@@ -2011,7 +2017,7 @@ match="m:apply[*[1][self::m:determinant]][*[2][self::m:matrix]]" priority="2">
   <xsl:for-each select="*[not(self::m:domainofapplication)][position()&gt;1]">
    <xsl:if test="position() &gt; 1">
     <xsl:copy-of select="$dmo"/>
-   </xsl:if>   
+   </xsl:if>
    <xsl:apply-templates mode="c2p" select=".">
      <xsl:with-param name="p" select="$this-p"/>
    </xsl:apply-templates>
@@ -2088,10 +2094,9 @@ match="m:apply[*[1][self::m:determinant]][*[2][self::m:matrix]]" priority="2">
    <xsl:apply-templates mode="c2p"/>
  </m:merror>
 </xsl:template>
- 
+
 <xsl:template mode="c2p" match="m:share" priority="4">
  <m:mi href="{@href}">share<xsl:value-of select="substring-after(@href,'#')"/></m:mi>
 </xsl:template>
 
 </xsl:stylesheet>
-

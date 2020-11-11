@@ -7,12 +7,16 @@ using OMJulia: OMCSession, sendExpression, Parser
 using ZMQ: send, recv # only needed for sendExpressionRaw which is a workaround for OMJulia bugs
 using DataFrames: DataFrame
 using PyCall: PyNULL, pyimport_conda, pyimport, @py_str
+using Markdown: Markdown
 import Documenter
 
 export moescape, mounescape, MoSTError, loadModel, getSimulationSettings,
     getVariableFilter, simulate, regressionTest, testmodel,
     setupOMCSession, closeOMCSession, withOMC, ModelicaBlocks, getDocAnnotation,
-    getequations, getcode
+    getequations, getcode, getvariables, mdescape, variabletable, commonprefix,
+    commonhierarchy, findvarnames, deprefix, aliasdict, findidentifiers,
+    getfunctions, findfuncnames, functionlist, uniquehierarchy,
+    replacefuncnames, uniquefunctions, getVersion
 
 include("Simulation.jl")
 include("Testing.jl")
