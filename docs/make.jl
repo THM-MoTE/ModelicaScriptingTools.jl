@@ -13,5 +13,6 @@ makedocs(
 )
 deploydocs(
     repo = "github.com/THM-MoTE/ModelicaScriptingTools.jl.git",
+    devbranch = "main",
     versions = ["v^", "v#.#", "stable" => "v^"]
 )
