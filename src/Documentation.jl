@@ -317,7 +317,8 @@ function Documenter.Selectors.runner(::Type{ModelicaBlocks}, x, page, doc)
             "outdir" => unary("outdir"),
             "nocode" => nullary("nocode"),
             "noequations" => nullary("noequations"),
-            "noinfo" => nullary("noinfo")
+            "noinfo" => nullary("noinfo"),
+            "omcargs" => unary("omcargs")
         )
         magicvalues = Dict()
         # get list of models and magic values
@@ -353,6 +354,8 @@ function Documenter.Selectors.runner(::Type{ModelicaBlocks}, x, page, doc)
             modeldir = get(magicvalues, "modeldir", "../..")
             outdir = get(magicvalues, "outdir", joinpath(modeldir, "../out"))
             withOMC(outdir, modeldir) do omc
+                omcargs = get(magicvalues, "omcargs", "")
+                sendExpression(omc, "setCommandLineOptions(\"$(moescape(omcargs))\")")
                 for (model) in modelnames
                     # TODO automatically decide what to do based on class type
                     # load model without all extra checks
