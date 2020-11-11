@@ -363,11 +363,13 @@ function setupOMCSession(outdir, modeldir; quiet=false, checkunits=true)
     sendExpression(omc, "loadModel(Modelica)")
     es = getErrorString(omc)
     if length(es) > 0 # can happen on OpenModelica 1.16 if MSL is not installed by default
+        @warn("loadModel(Modelica) failed, attempting to install Modelica standard library")
         sendExpression(omc, "installPackage(Modelica)")
         sendExpression(omc, "loadModel(Modelica)")
         # need to "consume" error string so that it will not turn up in subsequenct calls
         # expected content: "Notification: Package installed successfully" for Modelica, ModelicaServices and Complex
-        getErrorString(omc)
+        es = getErrorString(omc)
+        @warn("Error string after install:\nes")
     end
     return omc
 end
