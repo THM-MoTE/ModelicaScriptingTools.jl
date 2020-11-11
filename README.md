@@ -69,7 +69,7 @@ using Test
 
 withOMC("test/out", "test/res") do omc
     @testset "Example" begin
-        testmodel(omc, "Example"; refDir="test/regRefData")
+        testmodel(omc, "Example"; refdir="test/regRefData")
     end
 end
 ```

@@ -1,4 +1,4 @@
 [deps]
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
-LightXML = "9c8b4983-aa76-5018-a973-4c85ecc9e179"
+ModelicaScriptingTools = "9bd7ba1c-b518-491f-8f72-7efe190322aa"
 OMJulia = "0f4fe800-344e-11e9-2949-fb537ad918e1"

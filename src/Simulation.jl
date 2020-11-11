@@ -43,7 +43,8 @@ ensure that as many errors in the model are caught and thrown as
 * We then check with `isModel(name)` if the model actually exists.
 * With `checkModel(name)` we find errors such as missing or mistyped variables.
 * Finally, we use `instantiateModel(name)` which can sometimes find additional
-    errors in the model structure.
+    errors in the model structure (e.g. since Modelica 1.16, unit consistency
+    checks are performed here).
 
 If `ismodel`, `check`, or `instantiate` are false, the loading process is
 stopped at the respective steps.
@@ -51,6 +52,10 @@ stopped at the respective steps.
 function loadModel(omc:: OMCSession, name:: String; ismodel=true, check=true, instantiate=true)
     success = sendExpression(omc, "loadModel($name)")
     es = getErrorString(omc)
+    if isnothing(success)
+        # i have seen this happen, but do not know why it does occur
+        throw(MoSTError("Unexpected error: loadModel($name) returned nothing", es))
+    end
     if !success || length(es) > 0
         throw(MoSTError("Could not load $name", es))
     end
@@ -138,7 +143,11 @@ mounescape(s::String) = sprint(mounescape, s; sizehint=lastindex(s))
 
 function getErrorString(omc:: OMCSession)
     es = sendExpressionRaw(omc, "getErrorString()")
-    return strip(strip(mounescape(es)),'"')
+    parsed = strip(strip(mounescape(es)),'"')
+    # FIXME this should be removed if there is a way to fix the model or if OpenModelica 1.16 is updated
+    # we ignore a specific cryptic error message from OpenModelica 1.16.0
+    ignore = "Warning: function Unit.unitString failed for \"MASTER()\".\n"
+    return parsed == ignore ? "" : parsed
 end
 
 function sendExpressionRaw(omc:: OMCSession, expr)
@@ -159,6 +168,9 @@ Returns a Dict with the keys `"startTime"`, `"stopTime"`, `"tolerance"`,
 If any of these settings are not defined in the model file, they will be
 filled with default values.
 
+In `override`, an additional key `"interval"` is allowed to recalculate the
+`"numberOfIntervals"` based on the step size given as value to this key.
+
 Throws a [`MoSTError`](@ref) if the model `name` was not loaded beforehand using
 [`loadModel(omc:: OMCSession, name:: String)`](@ref).
 """
@@ -169,11 +181,24 @@ function getSimulationSettings(omc:: OMCSession, name:: String; override=Dict())
         "tolerance"=>values[3], "numberOfIntervals"=>values[4],
         "outputFormat"=>"csv", "variableFilter"=>".*"
     )
+    interval = values[5]
     settings["variableFilter"] = getVariableFilter(omc, name)
     for x in keys(settings)
         if x in keys(override)
             settings[x] = override[x]
         end
+    end
+    # the overriding of simulation time or interval size may require additional
+    # changes to the numberOfIntervals setting
+    hasinterval = haskey(override, "interval")
+    onlytime = (haskey(override, "startTime") || haskey(override, "stopTime")
+        && !haskey(override, "interval")
+        && !haskey(override, "numberOfIntervals")
+    )
+    if hasinterval || onlytime
+        timespan = settings["stopTime"] - settings["startTime"]
+        interval = get(override, "interval", interval)
+        settings["numberOfIntervals"]  = trunc(Int, timespan / interval)
     end
     return settings
 end
@@ -199,6 +224,24 @@ function getVariableFilter(omc:: OMCSession, name:: String)
         varfilter = sendExpression(omc, "getAnnotationModifierValue($name, \"__MoST_experiment\", \"variableFilter\")")
     end
     return varfilter
+end
+
+"""
+    getVersion(omc:: OMCSession)
+
+Returns the version of the OMCompiler as a triple (major, minor, patch).
+"""
+function getVersion(omc:: OMCSession)
+    versionstring = sendExpression(omc, "getVersion()")
+    # example: OMCompiler v1.17.0-dev.94+g4da66238ab
+    # example: OpenModelica 1.14.2
+    vmatch = match(r"^(?:OMCompiler v|OpenModelica )(\d+)\.(\d+).(\d+)", versionstring)
+    if isnothing(vmatch)
+        throw(MoSTError(omc, "Got unexpected version string: $versionstring"))
+    end
+    cap = map(x -> parse(Int, x), vmatch.captures)
+    major, minor, patch = cap
+    return Tuple([major, minor, patch])
 end
 
 """
@@ -247,6 +290,27 @@ function simulate(omc:: OMCSession, name::String, settings:: Dict{String, Any})
 end
 simulate(omc:: OMCSession, name::String) = simulate(omc, name, getSimulationSettings(omc, name))
 
+function avoidStartupFreeze(omc:: OMCSession)
+    # TODO if this does not work, we can try this instead:
+    #      https://github.com/JuliaInterop/ZMQ.jl/issues/198#issuecomment-576689600
+    # sleep(0.5)
+    status = :started
+    timeout = 0.1
+    while status != :received
+        # send a simple command to OMC
+        send(omc.socket, "getVersion()")
+        # use julia task to allow recv to run into a timeout
+        # idea from https://github.com/JuliaInterop/ZMQ.jl/issues/87#issuecomment-131153884
+        c = Channel()
+        @async put!(c, (recv(omc.socket), :received));
+        @async (sleep(timeout); put!(c, (nothing, :timedout));)
+        data, status = take!(c)
+        if status == :timedout
+            @warn("getVersion() timed out in avoidStartupFreeze")
+        end
+    end
+end
+
 
 """
     setupOMCSession(outdir, modeldir; quiet=false, checkunits=true)
@@ -257,7 +321,7 @@ Creates an `OMCSession` and prepares it by preforming the following steps:
 * change the working directory of the OMC to `outdir`
 * add `modeldir` to the MODELICAPATH
 * enable unit checking with the OMC command line option
-    `--preOptModules+=unitChecking` (unless `checkunits` is false)
+    `--unitChecking` (unless `checkunits` is false)
 * load the modelica standard library (`loadModel(Modelica)`)
 
 If `quiet` is false, the resulting MODELICAPATH is printed to stdout.
@@ -271,6 +335,8 @@ function setupOMCSession(outdir, modeldir; quiet=false, checkunits=true)
     end
     # create sessions
     omc = OMCSession()
+    # sleep for a short while, because otherwise first ZMQ call may freeze
+    avoidStartupFreeze(omc)
     # move to output directory
     sendExpression(omc, "cd(\"$(moescape(outdir))\")")
     # set modelica path
@@ -282,10 +348,27 @@ function setupOMCSession(outdir, modeldir; quiet=false, checkunits=true)
     sendExpression(omc, "setModelicaPath(\"$mopath\")")
     # enable unit checking
     if checkunits
-        sendExpression(omc, "setCommandLineOptions(\"--preOptModules+=unitChecking\")")
+        flag = if getVersion(omc) >= Tuple([1, 16, 0])
+            "--unitChecking"
+        else
+            "--preOptModules+=unitChecking"
+        end
+        sendExpression(omc, "setCommandLineOptions(\"$flag\")")
+    end
+    if !quiet
+        opts = sendExpression(omc, "getCommandLineOptions()")
+        println("Using command line options: $opts")
     end
     # load Modelica standard library
     sendExpression(omc, "loadModel(Modelica)")
+    es = getErrorString(omc)
+    if length(es) > 0 # can happen on OpenModelica 1.16 if MSL is not installed by default
+        sendExpression(omc, "installPackage(Modelica)")
+        sendExpression(omc, "loadModel(Modelica)")
+        # need to "consume" error string so that it will not turn up in subsequenct calls
+        # expected content: "Notification: Package installed successfully" for Modelica, ModelicaServices and Complex
+        getErrorString(omc)
+    end
     return omc
 end
 
