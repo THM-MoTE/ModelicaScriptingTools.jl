@@ -294,6 +294,22 @@ function avoidStartupFreeze(omc:: OMCSession)
     # TODO if this does not work, we can try this instead:
     #      https://github.com/JuliaInterop/ZMQ.jl/issues/198#issuecomment-576689600
     # sleep(0.5)
+    function reconnect(omc:: OMCSession)
+        @warn(string(
+            "Discarding frozen connection to OMC with file descriptor $(omc.socket.fd)",
+            " and starting new OMC instance. This may leave the old OMC",
+            "instance still running on your machine."
+        ))
+        try
+            closeOMCSession(omc)
+        catch e
+            @warn(string(
+                "Closing old OMC instance failed with the following error:\n",
+                e
+            ))
+        end
+        return OMCSession()
+    end
     status = :started
     timeout = 0.1
     while status != :received
@@ -306,9 +322,10 @@ function avoidStartupFreeze(omc:: OMCSession)
         @async (sleep(timeout); put!(c, (nothing, :timedout));)
         data, status = take!(c)
         if status == :timedout
-            @warn("getVersion() timed out in avoidStartupFreeze")
+            omc = reconnect(omc)
         end
     end
+    return omc
 end
 
 
@@ -336,7 +353,7 @@ function setupOMCSession(outdir, modeldir; quiet=false, checkunits=true)
     # create sessions
     omc = OMCSession()
     # sleep for a short while, because otherwise first ZMQ call may freeze
-    avoidStartupFreeze(omc)
+    omc = avoidStartupFreeze(omc)
     # move to output directory
     sendExpression(omc, "cd(\"$(moescape(outdir))\")")
     # set modelica path
