@@ -420,6 +420,7 @@ function closeOMCSession(omc:: OMCSession; quiet=false)
     end
     # only send, do not wait for response since this may lead to freeze
     send(omc.socket, "quit()")
+    close(omc.socket) # also close ZMQ socket
     if !quiet
         println("Done")
     end
