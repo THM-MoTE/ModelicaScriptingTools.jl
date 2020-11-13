@@ -419,7 +419,6 @@ function closeOMCSession(omc:: OMCSession; quiet=false)
         println("Closing OMC session")
     end
     # only send, do not wait for response since this may lead to freeze
-    # TODO: test whether this really solves the freezing issues
     send(omc.socket, "quit()")
     if !quiet
         println("Done")
