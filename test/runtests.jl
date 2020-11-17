@@ -286,6 +286,17 @@ DummyDocument() = DummyDocument(DummyInternal([]))
             end
         end
         @testset "regressionTest" begin
+            @testset "helper function resamplequi" begin
+                testdata = DataFrame(
+                    "time" => range(0, 1; length=10),
+                    "x" => range(4, 10; length=10)
+                )
+                expected = DataFrame(
+                    "time" => [0, 0.5, 1],
+                    "x" => [testdata[1, "x"], testdata[6, "x"], testdata[10, "x"]]
+                )
+                @test expected == ModelicaScriptingTools.resamplequi(testdata, 3)
+            end
             # we can only test correct regression test here
             @testset "regression tests of correct model" begin
                 # setup simulation and reference data

@@ -4,7 +4,8 @@
 """
     regressionTest(
         omc:: OMCSession, name:: String, refdir:: String;
-        relTol:: Real = 1e-6, variableFilter:: String = "", outputFormat="csv"
+        relTol:: Real = 1e-6, variableFilter:: String = "", outputFormat="csv",
+        resample=true
     )
 
 Performs a regression test that ensures that variable values in the simulation
@@ -29,6 +30,8 @@ The test consists of the following checks performed with `@test`:
 * Is the intersection of common variables in both files nonempty?
 * Is the length of the simulation output equal to the length of the reference
     file?
+* If the length is not equal and `resample` is `true`, resample the data to
+    equal length.
 * Are there any variables in the simulation file that do not satisfy
     `isapprox(act, ref, rtol=relTol)` for all values?
 
@@ -36,7 +39,10 @@ NOTE: There is a OM scripting function `compareSimulationResults()` that could
 be used for this task, but it is not documented and does not react to changes
 of its `relTol` parameter in a predictable way.
 """
-function regressionTest(omc:: OMCSession, name:: String, refdir:: String; relTol:: Real = 1e-6, variableFilter:: String = "", outputFormat="csv")
+function regressionTest(
+        omc:: OMCSession, name:: String, refdir:: String; relTol:: Real = 1e-6,
+        variableFilter:: String = "", outputFormat="csv", resample=true
+    )
     actname = "$(name)_res.$outputFormat"
     # make refdir relative to CWD of OMC
     omcrefdir = relpath(refdir, sendExpression(omc, "cd()"))
@@ -79,9 +85,49 @@ function regressionTest(omc:: OMCSession, name:: String, refdir:: String; relTol
     # check if length is equal
     @test size(actdata, 1) == size(refdata, 1)
     n = min(size(actdata, 1), size(refdata, 1))
+    equalsize = size(actdata, 1) == size(refdata, 1)
+    # check if start and end time is equal
+    @test actdata[1, "time"] == refdata[1, "time"]
+    @test actdata[end, "time"] == refdata[end, "time"]
+    equalstart = actdata[1, "time"] == refdata[1, "time"]
+    equalend = actdata[end, "time"] == refdata[end, "time"]
+    # resample if required
+    if equalstart && equalend && !equalsize && resample
+        actdata = resamplequi(actdata, n)
+        refdata = resamplequi(refdata, n)
+    end
     # find unequal variables
     unequalVars = filter(x -> !isapprox(actdata[1:n,Symbol(x)], refdata[1:n,Symbol(x)]; rtol=relTol), vars)
     @test isempty(unequalVars)
+end
+
+"""
+    resamplequi!(data, n)
+
+Performs equidistant resampling to `n` data points according to the `time`
+column in `data`.
+
+For each point on the resampled time axis, the first value from the original
+data is selected whose time stamp is greater or equal to that point in time.
+"""
+function resamplequi(data, n)
+    # equidistant resampling according to time axis info
+    time = data[!, "time"]
+    newtime = range(time[1], time[end], length=n)
+    # compute permutation array
+    perm = fill(1, n)
+    idx = 1
+    for i in 1:n
+        # advance index in old time array until we reach the next index
+        # whose time stamp lies in the present or future
+        while time[idx] < newtime[i]
+            idx += 1
+        end
+        perm[i] = idx
+    end
+    # apply permutation to rows
+    res = DataFrame([v => (v == "time" ? newtime : data[!, Symbol(v)][perm]) for v in names(data)])
+    return res
 end
 
 """
