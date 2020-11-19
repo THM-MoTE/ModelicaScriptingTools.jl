@@ -391,7 +391,7 @@ function installAndLoad(omc:: OMCSession, lib:: AbstractString; version="latest"
     sendExpression(omc, "loadModel($lib, {\"$lmver\"})")
     es = getErrorString(omc)
     if length(es) > 0 # can happen on OpenModelica 1.16 if MSL is not installed by default
-        sendExpression(omc, "installPackage($lib, $instver)")
+        sendExpression(omc, "installPackage($lib, \"$instver\")")
         sendExpression(omc, "loadModel($lib, {\"$lmver\"})")
         # need to "consume" error string so that it will not turn up in subsequenct calls
         # expected content: "Notification: Package installed successfully" for Modelica, ModelicaServices and Complex
