@@ -386,13 +386,16 @@ function Documenter.Selectors.runner(::Type{ModelicaBlocks}, x, page, doc)
                 end
             end
         catch err
-            push!(doc.internal.errors, :eval_block)
-            @warn("""
-                failed to evaluate `@modelica` block in $(Documenter.Utilities.locrepr(page.source))
-                ```$(x.language)
-                $(x.code)
-                ```
-                """, exception = err)
+            if err isa MoSTError
+                push!(doc.internal.errors, :eval_block)
+                @warn("""
+                    failed to evaluate `@modelica` block in $(Documenter.Utilities.locrepr(page.source))
+                    ```$(x.language)
+                    $(x.code)
+                    ```
+                    """, exception = err)
+            end
+            rethrow(err)
         end
         page.mapping[x] = Documenter.Documents.MultiOutput(result)
     end
