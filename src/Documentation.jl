@@ -440,7 +440,7 @@ function commonprefix(aliasgroups:: Array{<:Set{<:AbstractString},1}, ref:: Abst
         end
         i += 1
     end
-    return ref[1:i-2]
+    return ref[1:i-1]
 end
 
 function commonhierarchy(str:: Union{AbstractString, Set{<:AbstractString}}...)
