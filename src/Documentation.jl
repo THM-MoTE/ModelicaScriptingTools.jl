@@ -22,6 +22,10 @@ function getcode(omc:: OMCSession, model:: String)
     cwd = sendExpression(omc, "cd()")
     tmpfile = joinpath(cwd, "export_$model.mo")
     sendExpression(omc, "saveModel(\"$(moescape(tmpfile))\", $model)")
+    error = getErrorString(omc)
+    if !isempty(err)
+        throw(MoSTError("Could not export model code", err))
+    end
     return read(tmpfile, String)
 end
 
