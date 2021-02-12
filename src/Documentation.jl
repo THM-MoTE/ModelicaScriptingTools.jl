@@ -430,9 +430,7 @@ end
 
 function commonprefix(aliasgroups:: Array{<:Set{<:AbstractString},1}, ref:: AbstractString)
     if isempty(aliasgroups) return "" end
-    # deepcopy() may fail for python strings (I guess that's what's going on?)
-    # => we need to copy manually (2 layers deep)
-    aliasgroups = collect(map(x -> Set(x), aliasgroups))
+    aliasgroups = deepcopy(aliasgroups)
     i = 1
     while all(length(g) > 0 for g in aliasgroups) && length(ref) ≥ i
         for g in aliasgroups
