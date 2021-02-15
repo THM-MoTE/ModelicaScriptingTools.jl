@@ -210,7 +210,7 @@ by [`getvariables(omc:: OMCSession, model::String)`](@ref).
 """
 function variabletable(vars:: Array{Dict{Any, Any},1})
     header = """
-    |name|unit|value|label|
+    |name|unit|label|value|
     |----|----|-----|-----|
     """
     lines = []
@@ -223,7 +223,7 @@ function variabletable(vars:: Array{Dict{Any, Any},1})
         else
             v["initial"]
         end
-        vals = [v["name"], v["unit"], value, v["label"]]
+        vals = [v["name"], v["unit"], v["label"], value]
         vals = [mdescape(x) for x in vals]
         push!(lines, "|$(join(vals, "|"))|")
     end
