@@ -148,9 +148,7 @@ uuid = "a63ad114-7e13-5084-954f-fe012c677804"
 
 [[ModelicaScriptingTools]]
 deps = ["CSV", "DataFrames", "Documenter", "Markdown", "OMJulia", "PyCall", "Test", "ZMQ"]
-git-tree-sha1 = "ff91977a10bc8e98ab8bc64b4b0504e1f3aa1ce1"
-repo-rev = "main"
-repo-url = ".."
+path = ".."
 uuid = "9bd7ba1c-b518-491f-8f72-7efe190322aa"
 version = "1.1.0"
 
