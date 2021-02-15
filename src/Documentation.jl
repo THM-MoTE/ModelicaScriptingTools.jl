@@ -322,7 +322,8 @@ function Documenter.Selectors.runner(::Type{ModelicaBlocks}, x, page, doc)
             "nocode" => nullary("nocode"),
             "noequations" => nullary("noequations"),
             "noinfo" => nullary("noinfo"),
-            "omcargs" => unary("omcargs")
+            "omcargs" => unary("omcargs"),
+            "headlevel" => unary("headlevel")
         )
         magicvalues = Dict()
         # get list of models and magic values
@@ -364,6 +365,9 @@ function Documenter.Selectors.runner(::Type{ModelicaBlocks}, x, page, doc)
                     # TODO automatically decide what to do based on class type
                     # load model without all extra checks
                     loadModel(omc, model; ismodel=false)
+                    # add header to result
+                    hn = get(magicvalues, "headlevel", 3)
+                    push!(result, Documenter.Documents.RawHTML("<h$hn>$model</h$hn>"))
                     # get documentation as HTML string
                     if !get(magicvalues, "noinfo", false)
                         htmldoc = getDocAnnotation(omc, model)
