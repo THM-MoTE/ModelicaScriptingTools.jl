@@ -367,7 +367,8 @@ function Documenter.Selectors.runner(::Type{ModelicaBlocks}, x, page, doc)
                     loadModel(omc, model; ismodel=false)
                     # add header to result
                     hn = get(magicvalues, "headlevel", 3)
-                    push!(result, Documenter.Documents.RawHTML("<h$hn>$model</h$hn>"))
+                    header = Documenter.Utilities.mdparse("$("#"^hn) $model")
+                    push!(result, header)
                     # get documentation as HTML string
                     if !get(magicvalues, "noinfo", false)
                         htmldoc = getDocAnnotation(omc, model)
