@@ -11,8 +11,12 @@ jobs:
   build:
     strategy:
       matrix:
-        om-version: [1.16.2, 1.14.2]
-    runs-on: ubuntu-latest
+        include:
+          - om-version: 1.16.2
+            os: ubuntu-latest
+          - om-version: 1.15.2
+            os: ubuntu-18.04
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
       - name: Install Julia
