@@ -92,13 +92,15 @@ DummyDocument() = DummyDocument(DummyInternal([]))
             )
             result = page.mapping[x]
             @test result isa Documenter.Documents.MultiOutput
-            @test length(result.content) == 5
-            @test result.content[1] isa Documenter.Documents.RawHTML
-            @test strip(result.content[1].code) == """
+            @test length(result.content) == 6
+            @test result.content[1] isa Markdown.Header{2}
+            @test strip(result.content[1].text) == "DocExample"
+            @test result.content[2] isa Documenter.Documents.RawHTML
+            @test strip(result.content[2].code) == """
             <p>This is an example documentation for the DocExample class.</p>"""
-            @test result.content[2] isa Markdown.Code
-            @test replace(result.content[2].code, r"\s+" => "") == replace(read("res/DocExample.mo", String), r"\s+" => "")
-            @test result.content[3] isa Documenter.Documents.RawHTML
+            @test result.content[3] isa Markdown.Code
+            @test replace(result.content[3].code, r"\s+" => "") == replace(read("res/DocExample.mo", String), r"\s+" => "")
+            @test result.content[4] isa Documenter.Documents.RawHTML
             expected = """
             <ol><li><math xmlns="http://www.w3.org/1998/Math/MathML">
             <mrow><msup><mrow><mrow><mi> r
@@ -111,9 +113,9 @@ DummyDocument() = DummyDocument(DummyInternal([]))
             </mi></mrow><mo>,</mo><mrow><mi> k
             </mi></mrow><mo>)</mo></mrow></mrow></mrow>
             </math></ol>"""
-            @test replace(result.content[3].code, r"\s+" => "") == replace(expected, r"\s+" => "")
-            @test result.content[4] isa Markdown.MD
-            @test result.content[4] == Markdown.parse("""Functions:
+            @test replace(result.content[4].code, r"\s+" => "") == replace(expected, r"\s+" => "")
+            @test result.content[5] isa Markdown.MD
+            @test result.content[5] == Markdown.parse("""Functions:
 
             ```modelica
             function f
@@ -147,8 +149,8 @@ DummyDocument() = DummyDocument(DummyInternal([]))
             |    r |  "V" |   0.0 |         some potential |
             |    k |      |   2.0 |         some parameter |
             """)
-            @test result.content[5] isa Markdown.MD
-            @test result.content[5] in [variables14, variables16]
+            @test result.content[6] isa Markdown.MD
+            @test result.content[6] in [variables14, variables16]
         end
         @testset "Example (model without functions)" begin
             # only checks if models without functions pose errors
