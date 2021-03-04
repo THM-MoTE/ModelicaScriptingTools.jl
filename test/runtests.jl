@@ -136,18 +136,18 @@ DummyDocument() = DummyDocument(DummyInternal([]))
             end g;
             ```""")
             variables14 = Markdown.parse("""
-            | name | unit | value |                  label |
-            | ----:| ----:| -----:| ----------------------:|
-            |    r |  "V" |   0.0 |         some potential |
-            |  foo |      |       | second sample variable |
-            |    k |      |   2.0 |         some parameter |
+            | name | unit |                  label | value |
+            | ----:| ----:| ----------------------:| -----:|
+            |    r |  "V" |         some potential |   0.0 |
+            |  foo |      | second sample variable |       |
+            |    k |      |         some parameter |   2.0 |
             """)
             variables16 = Markdown.parse("""
-            | name | unit | value |                  label |
-            | ----:| ----:| -----:| ----------------------:|
-            |  foo |      |       | second sample variable |
-            |    r |  "V" |   0.0 |         some potential |
-            |    k |      |   2.0 |         some parameter |
+            | name | unit |                  label | value |
+            | ----:| ----:| ----------------------:| -----:|
+            |  foo |      | second sample variable |       |
+            |    r |  "V" |         some potential |   0.0 |
+            |    k |      |         some parameter |   2.0 |
             """)
             @test result.content[6] isa Markdown.MD
             @test result.content[6] in [variables14, variables16]
