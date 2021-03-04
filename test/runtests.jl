@@ -435,13 +435,13 @@ DummyDocument() = DummyDocument(DummyInternal([]))
             ```
 
             ```modelica
-            function sm.f
+            function f
               input Real x1;
               input Real x2 = 1.0;
               output Real y;
             algorithm
               y := 2.0 * x1 + inf(x2, 1.0);
-            end sm.f;
+            end f;
             ```
             """)
             @test expected == funclist
