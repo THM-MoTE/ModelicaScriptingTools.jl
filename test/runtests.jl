@@ -193,21 +193,25 @@ DummyDocument() = DummyDocument(DummyInternal([]))
             end
             @testset "load existing model with syntax error" begin
                 modelfile = joinpath(pwd(), "res/SyntaxError.mo")
-                expected = MoSTError(
-                    "Could not load SyntaxError",
-                    string("[$modelfile:6:3-6:3:writable] Error: Missing token: SEMICOLON\n",
-                    "Error: Failed to load package SyntaxError (default) using MODELICAPATH $mopath.\n")
-                )
-                @test_throws expected loadModel(omc, "SyntaxError")
+                try
+                    loadModel(omc, "SyntaxError")
+                catch actual
+                    @test isa(actual, MoSTError)
+                    @test actual.msg == "Could not load SyntaxError"
+                    @test occursin("Missing token: SEMICOLON", actual.omc)
+                    @test occursin("$modelfile:6:3-6:3", actual.omc)
+                end
             end
             @testset "load existing model with instantiation error" begin
                 modelfile = joinpath(pwd(), "res/UndefinedVariable.mo")
-                expected = MoSTError(
-                    "Model check of UndefinedVariable failed",
-                    string("\n[$modelfile:3:3-3:13:writable] Error: Variable r not found in scope UndefinedVariable.\n",
-                    "Error: Error occurred while flattening model UndefinedVariable\n")
-                )
-                @test_throws expected loadModel(omc, "UndefinedVariable")
+                try
+                    loadModel(omc, "UndefinedVariable")
+                catch actual
+                    @test isa(actual, MoSTError)
+                    @test actual.msg == "Model check of UndefinedVariable failed"
+                    @test occursin("Error: Variable r not found in scope UndefinedVariable", actual.omc)
+                    @test occursin("$modelfile:3:3-3:13", actual.omc)
+                end
             end
             @testset "load non-existent model" begin
                 expected = MoSTError(
