@@ -43,4 +43,4 @@ jobs:
       - name: Upload coverage report
         # only upload coverage report from latest OpenModelica version
         if: ${{ matrix.om-version == '1.16.2' }}
-        run: julia -e 'using Pkg; Pkg.add("Coverage"); using Coverage; Codecov.submit(process_folder())'
+        uses: codecov/codecov-action@v1
