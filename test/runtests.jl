@@ -246,45 +246,26 @@ DummyDocument() = DummyDocument(DummyInternal([]))
             end
             @testset "simulate model with arithmetic error" begin
                 loadModel(omc, "ArithmeticError")
-                expected = MoSTError(
-                    "Simulation of ArithmeticError failed",
-                    string("Simulation execution failed for model: ArithmeticError\n",
-                    "LOG_SUCCESS       | info    | The initialization finished successfully without homotopy method.\n",
-                    "assert            | debug   | division by zero at time 1.000000000200016, (a=1) / (b=0), ",
-                    "where divisor b expression is: x\n")
-                )
-                @test_throws expected simulate(omc, "ArithmeticError")
+                try
+                    simulate(omc, "ArithmeticError")
+                catch actual
+                    @test isa(actual, MoSTError)
+                    @test actual.msg == "Simulation of ArithmeticError failed"
+                    @test occursin("Simulation execution failed for model: ArithmeticError", actual.omc)
+                    @test occursin("division by zero at time 1.0", actual.omc)
+                end
             end
             @testset "simulate model with initialization warning" begin
                 loadModel(omc, "MissingInitialValue")
-                expected = MoSTError(
-                    "Simulation of MissingInitialValue failed",
-                    string("Warning: The initial conditions are not fully specified. ",
-                    "For more information set -d=initialization. ",
-                    "In OMEdit Tools->Options->Simulation->OMCFlags, ",
-                    "in OMNotebook call setCommandLineOptions(\"-d=initialization\").\n"
-                    )
-                )
-                @test_throws expected simulate(omc, "MissingInitialValue")
+                try
+                    simulate(omc, "MissingInitialValue")
+                catch actual
+                    @test isa(actual, MoSTError)
+                    @test actual.msg == "Simulation of MissingInitialValue failed"
+                    @test occursin("Warning: The initial conditions are not fully specified.", actual.omc)
+                end
             end
             @testset "simulate model with inconsistent units" begin
-                expected = if getVersion(omc) >= Tuple([1, 16, 0])
-                    MoSTError(
-                        "Model InconsistentUnits could not be instantiated",
-                        string("Warning: The following equation is INCONSISTENT due to specified unit information:  sub.alias = r;",
-                        "\nWarning: The units of following sub-expressions need to be equal:",
-                        "\n- sub-expression \"r\" has unit \"A\"",
-                        "\n- sub-expression \"sub.alias\" has unit \"V\"\n")
-                    )
-                else
-                    MoSTError(
-                        "Simulation of InconsistentUnits failed",
-                        string("Warning: The following equation is INCONSISTENT due to specified unit information: sub.alias = r",
-                        "\nThe units of following sub-expressions need to be equal:",
-                        "\n- sub-expression \"r\" has unit \"A\"",
-                        "\n- sub-expression \"sub.alias\" has unit \"V\"\n")
-                    )
-                end
                 try
                     # OpenModelica 1.16 error occurs here
                     loadModel(omc, "InconsistentUnits")
@@ -292,12 +273,14 @@ DummyDocument() = DummyDocument(DummyInternal([]))
                     simulate(omc, "InconsistentUnits")
                 catch actual
                     @test isa(actual, MoSTError)
-                    @test actual.msg == expected.msg
-                    # replace start of line that contains error location
-                    actomc = replace(actual.omc, r"^\[.*\]\s+" => "")
-                    for (a, e) in zip(split(actomc, "\n"), split(expected.omc, "\n"))
-                        @test a == e
-                    end
+                    @test actual.msg in [
+                        "Simulation of InconsistentUnits failed",
+                        "Model InconsistentUnits could not be instantiated"
+                    ]
+                    @test occursin("Warning: The following equation is INCONSISTENT", actual.omc)
+                    @test occursin("sub.alias = r", actual.omc)
+                    @test occursin("sub-expression \"r\" has unit \"A\"", actual.omc)
+                    @test occursin("sub-expression \"sub.alias\" has unit \"V\"", actual.omc)
                 end
             end
         end
