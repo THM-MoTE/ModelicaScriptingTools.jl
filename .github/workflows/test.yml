@@ -31,7 +31,7 @@ jobs:
       - name: Install Julia requirements
         run: julia -e 'ENV["PYTHON"]=""; using Pkg; Pkg.instantiate()'
       - name: Run Julia test script
-        run: julia -e "using Pkg; Pkg.test(; coverage=true)"
+        run: julia --project=. -e "using Pkg; Pkg.test(; coverage=true)"
       - name: Run testsFailing
         run: test/testFailing.sh
       - name: Make docs
