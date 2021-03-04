@@ -93,7 +93,7 @@ DummyDocument() = DummyDocument(DummyInternal([]))
             result = page.mapping[x]
             @test result isa Documenter.Documents.MultiOutput
             @test length(result.content) == 6
-            @test result.content[1] isa Markdown.Header{2}
+            @test result.content[1] isa Markdown.Header{3}
             @test strip(result.content[1].text) == "DocExample"
             @test result.content[2] isa Documenter.Documents.RawHTML
             @test strip(result.content[2].code) == """
