@@ -16,6 +16,7 @@ jobs:
             os: ubuntu-latest
           - om-version: 1.14.2
             os: ubuntu-18.04
+      fail-fast: false # continue build with other versions when one version fails
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
