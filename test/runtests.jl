@@ -407,6 +407,16 @@ DummyDocument() = DummyDocument(DummyInternal([]))
                     "FunctionNames.Submodel\$sm.g", "FunctionNames.Submodel\$sm.f.inf",
                     "FunctionNames.f.inf", "FunctionNames.f2.inf"
                 ]
+                # OpenModelica > 1.17.0 seems to drop the subclass names from
+                # function names
+                # Also it does no longer treat FunctionNames.sm.f.inf as
+                # separate function.
+                if getVersion(omc) >= Tuple([1, 17, 0])
+                    expected = [
+                        "FunctionNames.f", "FunctionNames.f2", "FunctionNames.f.inf",
+                        "FunctionNames.f2.inf", "FunctionNames.sm.f", "FunctionNames.sm.g"
+                    ]
+                end
                 @test expected == funcs[:, 1]
             end
         end
