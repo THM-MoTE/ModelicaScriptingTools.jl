@@ -154,8 +154,12 @@ function uniquehierarchy(names:: Array{<: AbstractString})
     remaining = Set(keys(restoredollar))
     i = 1
     while !isempty(remaining)
+        # count names ending with .postfix
+        # == 0: Postfix is full name of one of the elements => must be unique
+        # == 1: Postfix is unique
+        #  > 1: Postfix is not unique => continue
         namesdone = filter(
-            x -> count(a -> endswith(a, postfix(x, i)), remaining) == 1,
+            x -> count(a -> endswith(a, '.' * postfix(x, i)), remaining) <= 1,
             remaining
         )
         for n in namesdone
