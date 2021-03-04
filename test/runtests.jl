@@ -351,8 +351,8 @@ DummyDocument() = DummyDocument(DummyInternal([]))
                 eqs = [replacefuncnames(e, funcdict) for e in eqs]
                 prefixes = [commonhierarchy(e, adict) for e in eqs]
                 de = [deprefix(e, p) for (e, p) in zip(eqs, prefixes)]
-                @test ["x", "_f", "_b", "_f", "_b"] == findidentifiers(de[1])
-                @test ["_b", "_f", "x", "g", "x"] == findidentifiers(de[2])
+                @test ["x", "f", "_b", "f", "_b"] == findidentifiers(de[1])
+                @test ["_b", "f", "x", "g", "x"] == findidentifiers(de[2])
             end
         end
         @testset "getvariables" begin
