@@ -62,7 +62,7 @@ function getfunctions(omc:: OMCSession, model:: String)
     for i in 1:size(funcs)[1]
         # removes function name from end of header (i.e. from return type)
         if endswith(funcs[i,2], funcs[i,1])
-            funcs[i,2] = funcs[i,2][1:end-length(funcs[i,1])-1]
+            funcs[i,2] = funcs[i,2][1:end-length(funcs[i,1])]
         end
         funcs[i, 3] = replace(funcs[i, 3], "\"Inline if necessary\"" => "")
     end
