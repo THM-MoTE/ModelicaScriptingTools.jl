@@ -40,20 +40,37 @@ DummyDocument() = DummyDocument(DummyInternal([]))
         @test "\"test\t\\data?\"" == mounescape(raw"\\\"test\t\\data\?\\\"")
     end
     @testset "uniquehierarchy" begin
-        funcnames = [
-            "a.b.c",
-            "x.y.c",
-            "ab.cd.ec",
-            "ab.cd\$c"
-        ]
-        hier = uniquehierarchy(funcnames)
-        expected = Dict(
-            "a.b.c" => "b.c",
-            "x.y.c" => "y.c",
-            "ab.cd.ec" => "ec",
-            "ab.cd\$c" => "cd.c"
-        )
-        @test expected == hier
+        @testset "simple" begin
+            funcnames = [
+                "a.b.c",
+                "x.y.c",
+                "ab.cd.ec",
+                "ab.cd\$c"
+            ]
+            hier = uniquehierarchy(funcnames)
+            expected = Dict(
+                "a.b.c" => "b.c",
+                "x.y.c" => "y.c",
+                "ab.cd.ec" => "ec",
+                "ab.cd\$c" => "cd.c"
+            )
+            @test expected == hier
+        end
+        @testset "string postfix != hierarchy postfix" begin
+            funcnames = [
+                "a.b.cd",
+                "x.y.d"
+            ]
+            # these two names share a postfix (d) on the string level,
+            # but they do not (cd vs d) on the hierarchical level
+            # => last part of the hierarchy is sufficient for uniqueness
+            hier = uniquehierarchy(funcnames)
+            expected = Dict(
+                "a.b.cd" => "cd",
+                "x.y.d" => "d",
+            )
+            @test expected == hier
+        end
     end
     @testset "replacefuncnames" begin
         input = """
