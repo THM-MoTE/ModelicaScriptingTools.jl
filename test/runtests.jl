@@ -393,6 +393,10 @@ DummyDocument() = DummyDocument(DummyInternal([]))
                     "DocExample.f" "function(x :: Real * y :: Real) => Real" "function DocExample.f\n  input Real x;\n  input Real y;\n  output Real res;\nalgorithm\n  res := x ^ y + y;\nend DocExample.f;\n\n\n";
                     "DocExample.g" "function(x :: Real) => Real" "function DocExample.g\n  input Real x;\n  output Real y;\nalgorithm\n  y := 2.0 * x;\nend DocExample.g;\n\n\n"
                 ]
+                # seems like OpenModelica < 1.17.0 changes order of terms in equations
+                if getVersion(omc) >= Tuple([1, 17, 0])
+                    expected[2, 3] = replace(expected[2, 3], "y := 2.0 * x" => "y := x * 2.0")
+                end
                 @test expected == getfunctions(omc, "DocExample")
             end
             @testset "FunctionNames" begin
