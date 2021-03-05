@@ -106,7 +106,7 @@ function isloaded(omc:: OMCSession, name:: String)
     # because it gives an empty string for nonexistent models and "model",
     # "class", "connector", ... for other class types
     classrest = sendExpression(omc, "getClassRestriction($name)")
-    return !isempty(classres)
+    return !isempty(classrest)
 end
 
 """
