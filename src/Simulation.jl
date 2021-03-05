@@ -290,6 +290,16 @@ function simulate(omc:: OMCSession, name::String, settings:: Dict{String, Any})
 end
 simulate(omc:: OMCSession, name::String) = simulate(omc, name, getSimulationSettings(omc, name))
 
+"""
+    avoidStartupFreeze(omc:: OMCSession)
+
+Helper function to avoid freezes that can occur when the first message is sent
+to a newly created OMCSession.
+
+The current strategy for this is to detect the freeze, discard the frozen
+session and create a new session, repeating this process until a non-frozen
+connection is obtained.
+"""
 function avoidStartupFreeze(omc:: OMCSession)
     # TODO if this does not work, we can try this instead:
     #      https://github.com/JuliaInterop/ZMQ.jl/issues/198#issuecomment-576689600
@@ -328,6 +338,14 @@ function avoidStartupFreeze(omc:: OMCSession)
     return omc
 end
 
+"""
+    safeOMCSession()
+
+Helper function to avoid ZMQ.StateError that can occur when calling
+`OMCSession()`.
+
+The current strategy is to simply retry the connector call up to 10 times.
+"""
 function safeOMCSession()
     created = false
     tries = 0
@@ -406,6 +424,12 @@ function setupOMCSession(outdir, modeldir; quiet=false, checkunits=true)
     return omc
 end
 
+"""
+    installAndLoad(omc:: OMCSession, lib:: AbstractString; version="latest")
+
+Loads the Modelica library `lib` in version `version` and also installs it
+if necessary.
+"""
 function installAndLoad(omc:: OMCSession, lib:: AbstractString; version="latest")
     lmver = version
     instver = version
