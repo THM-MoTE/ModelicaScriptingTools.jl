@@ -372,7 +372,7 @@ function Documenter.Selectors.runner(::Type{ModelicaBlocks}, x, page, doc)
                 for (model) in modelnames
                     # TODO automatically decide what to do based on class type
                     # load model without all extra checks
-                    loadModel(omc, model; ismodel=false)
+                    loadModel(omc, model; check=false)
                     # add header to result
                     hn = get(magicvalues, "headlevel", 3)
                     header = Documenter.Utilities.mdparse("$("#"^hn) $model")
