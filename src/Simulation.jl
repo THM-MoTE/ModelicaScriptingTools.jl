@@ -73,7 +73,8 @@ function loadModel(omc:: OMCSession, name:: String; ismodel=true, check=true, in
             "The keyword parameter ismodel is deprecated since the existance",
             " of a model/class is now checked with new isloaded() function",
             " which does not fail like isModel() did.",
-            " You can simply drop this argument as it is no longer required."
+            " You can simply replace `ismodel=false` with `check=false`,",
+            " which will now have the same effect."
         ))
         return
     end
