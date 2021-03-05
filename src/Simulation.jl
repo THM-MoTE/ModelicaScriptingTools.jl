@@ -298,7 +298,7 @@ function avoidStartupFreeze(omc:: OMCSession)
         @warn(string(
             "Discarding frozen connection to OMC with file descriptor $(omc.socket.fd)",
             " and starting new OMC instance. This may leave the old OMC",
-            "instance still running on your machine."
+            " instance still running on your machine."
         ))
         try
             closeOMCSession(omc)
