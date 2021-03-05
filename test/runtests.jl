@@ -444,10 +444,12 @@ DummyDocument() = DummyDocument(DummyInternal([]))
             end f;
             ```
             """
-            # TODO OpenModelica 1.17.0-dev unfortunately uses x2 = 0.0,
-            # which is wrong => hope that this get's fixed
             if getVersion(omc) >= Tuple([1, 17, 0])
                 expectedstr = replace(expectedstr, "y := 1.0 + x" => "y := x + 1.0")
+                # FIXME OpenModelica 1.17.0-dev unfortunately uses x2 = 0.0,
+                # which is wrong => if this is fixed, the following line must
+                # be removed
+                expectedstr = replace(expectedstr, "input Real x2 = 1.0" => "input Real x2 = 0.0")
             end
             expected = Markdown.parse(expectedstr)
             @test expected == funclist
