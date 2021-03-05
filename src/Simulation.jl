@@ -308,7 +308,7 @@ function avoidStartupFreeze(omc:: OMCSession)
                 e
             ))
         end
-        return OMCSession()
+        return safeOMCSession()
     end
     status = :started
     timeout = 0.1
@@ -324,6 +324,31 @@ function avoidStartupFreeze(omc:: OMCSession)
         if status == :timedout
             omc = reconnect(omc)
         end
+    end
+    return omc
+end
+
+function safeOMCSession()
+    created = false
+    tries = 0
+    omc = nothing
+    while !created && tries <= 10
+        tries += 1
+        try
+            omc = OMCSession()
+            created = true
+        catch e
+            if !isa(e, ZMQ.StateError)
+                rethrow(e)
+            end
+            @warn(string(
+                "OMCSession() constructor errored, attempting retry no $tries/10:\n",
+                e
+            ))
+        end
+    end
+    if !created
+        throw(MoSTError("OMCSession could not be created after $tries retries", ""))
     end
     return omc
 end
@@ -351,7 +376,7 @@ function setupOMCSession(outdir, modeldir; quiet=false, checkunits=true)
         mkpath(outdir)
     end
     # create sessions
-    omc = OMCSession()
+    omc = safeOMCSession()
     # sleep for a short while, because otherwise first ZMQ call may freeze
     omc = avoidStartupFreeze(omc)
     # move to output directory
