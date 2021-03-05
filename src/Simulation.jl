@@ -59,12 +59,19 @@ function loadModel(omc:: OMCSession, name:: String; ismodel=true, check=true, in
     if !success || length(es) > 0
         throw(MoSTError("Could not load $name", es))
     end
-    if !ismodel
-        return
-    end
-    success = sendExpression(omc, "isModel($name)")
-    if !success
+    # loadModel will only fail if the *toplevel* class does not exist
+    # => check that the full class name could actually be loaded
+    if !isloaded(omc, name)
         throw(MoSTError("Model $name not found in MODELICAPATH", ""))
+    end
+    if !ismodel
+        @warn(string(
+            "The keyword parameter ismodel is deprecated since the existance",
+            " of a model/class is now checked with new isloaded() function",
+            " which does not fail like isModel() did.",
+            " You can simply drop this argument as it is no longer required."
+        ))
+        return
     end
     if !check
         return
@@ -82,6 +89,20 @@ function loadModel(omc:: OMCSession, name:: String; ismodel=true, check=true, in
     if length(es) > 0
         throw(MoSTError("Model $name could not be instantiated", es))
     end
+end
+
+"""
+    isloaded(omc:: OMCSession, name:: String)
+
+Checks that the model/class/package/... `name` was correctly loaded and can
+be queried by other functions.
+"""
+function isloaded(omc:: OMCSession, name:: String)
+    # One of the few functions that we can use here is getClassRestriction,
+    # because it gives an empty string for nonexistent models and "model",
+    # "class", "connector", ... for other class types
+    classrest = sendExpression(omc, "getClassRestriction($name)")
+    return !isempty(classres)
 end
 
 """
