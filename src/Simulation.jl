@@ -40,14 +40,15 @@ ensure that as many errors in the model are caught and thrown as
     call does only fail if the toplevel model does not exist. E.g.,
     `loadModel(Modelica.FooBar)` would still return true, because `Modelica`
     could be loaded, although `FooBar` does not exist.
-* We then check with `isModel(name)` if the model actually exists.
+* We then check with `getClassRestriction(name)` if the model actually exists
+    (which is the case when the return value is nonempty).
 * With `checkModel(name)` we find errors such as missing or mistyped variables.
 * Finally, we use `instantiateModel(name)` which can sometimes find additional
     errors in the model structure (e.g. since Modelica 1.16, unit consistency
     checks are performed here).
 
-If `ismodel`, `check`, or `instantiate` are false, the loading process is
-stopped at the respective steps.
+If `check`, or `instantiate` are false, the loading process is stopped at the
+respective steps.
 """ # TODO: which errors are found by instantiateModel that checkModel does not find?
 function loadModel(omc:: OMCSession, name:: String; ismodel=true, check=true, instantiate=true)
     # only load model if it was not created by sending a class definition
