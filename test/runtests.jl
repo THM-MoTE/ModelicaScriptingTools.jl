@@ -209,6 +209,16 @@ DummyDocument() = DummyDocument(DummyInternal([]))
                 @test_throws expected loadModel(omc, "DoesNotExist")
             end
         end
+        @testset "filename" begin
+            @testset "Example" begin
+                loadModel(omc, "Example")
+                @test "Example.mo" == ModelicaScriptingTools.filename(omc, "Example")
+            end
+            @testset "<interactive>" begin
+                sendExpression(omc, "model Foo end Foo;")
+                @test "<interactive>" == ModelicaScriptingTools.filename(omc, "Foo")
+            end
+        end
         @testset "getSimulationSettings" begin
             loadModel(omc, "Example")
             @testset "read from model file" begin
