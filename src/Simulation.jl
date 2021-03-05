@@ -50,14 +50,18 @@ If `ismodel`, `check`, or `instantiate` are false, the loading process is
 stopped at the respective steps.
 """ # TODO: which errors are found by instantiateModel that checkModel does not find?
 function loadModel(omc:: OMCSession, name:: String; ismodel=true, check=true, instantiate=true)
-    success = sendExpression(omc, "loadModel($name)")
-    es = getErrorString(omc)
-    if isnothing(success)
-        # i have seen this happen, but do not know why it does occur
-        throw(MoSTError("Unexpected error: loadModel($name) returned nothing", es))
-    end
-    if !success || length(es) > 0
-        throw(MoSTError("Could not load $name", es))
+    # only load model if it was not created by sending a class definition
+    # string directly to the OMC
+    if filename(omc, name) != "<interactive>"
+        success = sendExpression(omc, "loadModel($name)")
+        es = getErrorString(omc)
+        if isnothing(success)
+            # i have seen this happen, but do not know why it does occur
+            throw(MoSTError("Unexpected error: loadModel($name) returned nothing", es))
+        end
+        if !success || length(es) > 0
+            throw(MoSTError("Could not load $name", es))
+        end
     end
     # loadModel will only fail if the *toplevel* class does not exist
     # => check that the full class name could actually be loaded
@@ -103,6 +107,19 @@ function isloaded(omc:: OMCSession, name:: String)
     # "class", "connector", ... for other class types
     classrest = sendExpression(omc, "getClassRestriction($name)")
     return !isempty(classres)
+end
+
+"""
+    filename(omc:: OMCSession, name:: String)
+
+Returns the file name where the model/class/package/... `name` is stored.
+If `name` was defined by directly sending a class definition to the OMC the
+return value will be `"<interactive>"`. If the model could not be found,
+the return value will be an empty string.
+"""
+function filename(omc:: OMCSession, name:: String)
+    res = sendExpression(omc, "getClassInformation($name)")
+    return res[6]
 end
 
 """
