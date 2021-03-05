@@ -212,7 +212,7 @@ DummyDocument() = DummyDocument(DummyInternal([]))
         @testset "filename" begin
             @testset "Example" begin
                 loadModel(omc, "Example")
-                @test "Example.mo" == ModelicaScriptingTools.filename(omc, "Example")
+                @test endswith(ModelicaScriptingTools.filename(omc, "Example"), "Example.mo")
             end
             @testset "<interactive>" begin
                 sendExpression(omc, "model Foo end Foo;")
