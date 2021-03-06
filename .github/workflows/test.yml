@@ -1,0 +1,48 @@
+name: Run tests
+
+on:
+  push:
+    branches: [ main ]
+    tags: 'v*'
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          - om-version: 1.16.2
+            os: ubuntu-latest
+          - om-version: 1.14.2
+            os: ubuntu-18.04
+      fail-fast: false # continue build with other versions when one version fails
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install Julia
+        uses: julia-actions/setup-julia@v1
+        with:
+          version: 1.5
+      - name: Install OpenModelica
+        uses: THM-MoTE/setup-openmodelica@v1
+        with:
+          version: ${{ matrix.om-version }}
+      - name: Install Julia requirements
+        run: julia --project=. -e 'ENV["PYTHON"]=""; using Pkg; Pkg.instantiate()'
+      - name: Run Julia test script
+        run: julia --project=. -e "using Pkg; Pkg.test(; coverage=true)"
+      - name: Run testsFailing
+        run: test/testFailing.sh
+      - name: Make docs
+        # only build docs from latest OpenModelica version
+        if: ${{ matrix.om-version == '1.16.2' }}
+        run: |
+          julia --project=docs/ -e 'ENV["PYTHON"]=""; using Pkg; Pkg.develop(PackageSpec(path=pwd())); Pkg.instantiate()'
+          julia --project=docs/ docs/make.jl
+      - name: Upload coverage report
+        # only upload coverage report from latest OpenModelica version
+        if: ${{ matrix.om-version == '1.16.2' }}
+        run: julia -e 'using Pkg; Pkg.add("Coverage"); using Coverage; Codecov.submit(process_folder())'
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}

@@ -18,6 +18,7 @@ withOMC
 ## Simulation
 
 ```@docs
+installAndLoad
 loadModel
 getSimulationSettings
 getVariableFilter
