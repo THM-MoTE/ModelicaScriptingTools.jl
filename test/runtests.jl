@@ -168,6 +168,7 @@ DummyDocument() = DummyDocument(DummyInternal([]))
         end
     end
     withOMC("out", "res") do omc
+        installAndLoad(omc, "Modelica"; version="3.2.3")
         @testset "getVersion" begin
             major, minor, patch = getVersion(omc)
             # just test that version is sensible (and we have correct types)
