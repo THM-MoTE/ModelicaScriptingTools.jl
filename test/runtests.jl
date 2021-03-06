@@ -40,20 +40,37 @@ DummyDocument() = DummyDocument(DummyInternal([]))
         @test "\"test\t\\data?\"" == mounescape(raw"\\\"test\t\\data\?\\\"")
     end
     @testset "uniquehierarchy" begin
-        funcnames = [
-            "a.b.c",
-            "x.y.c",
-            "ab.cd.ec",
-            "ab.cd\$c"
-        ]
-        hier = uniquehierarchy(funcnames)
-        expected = Dict(
-            "a.b.c" => "b.c",
-            "x.y.c" => "y.c",
-            "ab.cd.ec" => "ec",
-            "ab.cd\$c" => "cd.c"
-        )
-        @test expected == hier
+        @testset "simple" begin
+            funcnames = [
+                "a.b.c",
+                "x.y.c",
+                "ab.cd.ec",
+                "ab.cd\$c"
+            ]
+            hier = uniquehierarchy(funcnames)
+            expected = Dict(
+                "a.b.c" => "b.c",
+                "x.y.c" => "y.c",
+                "ab.cd.ec" => "ec",
+                "ab.cd\$c" => "cd.c"
+            )
+            @test expected == hier
+        end
+        @testset "string postfix != hierarchy postfix" begin
+            funcnames = [
+                "a.b.cd",
+                "x.y.d"
+            ]
+            # these two names share a postfix (d) on the string level,
+            # but they do not (cd vs d) on the hierarchical level
+            # => last part of the hierarchy is sufficient for uniqueness
+            hier = uniquehierarchy(funcnames)
+            expected = Dict(
+                "a.b.cd" => "cd",
+                "x.y.d" => "d",
+            )
+            @test expected == hier
+        end
     end
     @testset "replacefuncnames" begin
         input = """
@@ -82,6 +99,7 @@ DummyDocument() = DummyDocument(DummyInternal([]))
             x = Markdown.parse("""
             ```@modelica
             %modeldir=res
+            %libs=Modelica@3.2.3
             DocExample
             ```
             """).content[1]
@@ -92,13 +110,15 @@ DummyDocument() = DummyDocument(DummyInternal([]))
             )
             result = page.mapping[x]
             @test result isa Documenter.Documents.MultiOutput
-            @test length(result.content) == 5
-            @test result.content[1] isa Documenter.Documents.RawHTML
-            @test strip(result.content[1].code) == """
+            @test length(result.content) == 6
+            @test result.content[1] isa Markdown.Header{3}
+            @test result.content[1].text == ["DocExample"]
+            @test result.content[2] isa Documenter.Documents.RawHTML
+            @test strip(result.content[2].code) == """
             <p>This is an example documentation for the DocExample class.</p>"""
-            @test result.content[2] isa Markdown.Code
-            @test replace(result.content[2].code, r"\s+" => "") == replace(read("res/DocExample.mo", String), r"\s+" => "")
-            @test result.content[3] isa Documenter.Documents.RawHTML
+            @test result.content[3] isa Markdown.Code
+            @test replace(result.content[3].code, r"\s+" => "") == replace(read("res/DocExample.mo", String), r"\s+" => "")
+            @test result.content[4] isa Documenter.Documents.RawHTML
             expected = """
             <ol><li><math xmlns="http://www.w3.org/1998/Math/MathML">
             <mrow><msup><mrow><mrow><mi> r
@@ -111,50 +131,33 @@ DummyDocument() = DummyDocument(DummyInternal([]))
             </mi></mrow><mo>,</mo><mrow><mi> k
             </mi></mrow><mo>)</mo></mrow></mrow></mrow>
             </math></ol>"""
-            @test replace(result.content[3].code, r"\s+" => "") == replace(expected, r"\s+" => "")
-            @test result.content[4] isa Markdown.MD
-            @test result.content[4] == Markdown.parse("""Functions:
-
-            ```modelica
-            function f
-              input Real x;
-              input Real y;
-              output Real res;
-            algorithm
-              res := x ^ y + y;
-            end f;
-            ```
-
-            ```modelica
-            function g
-              input Real x;
-              output Real y;
-            algorithm
-              y := 2.0 * x;
-            end g;
-            ```""")
+            @test replace(result.content[4].code, r"\s+" => "") == replace(expected, r"\s+" => "")
+            @test result.content[5] isa Markdown.MD
+            @test occursin("```modelica\nfunction f", string(result.content[5]))
+            @test occursin("```modelica\nfunction g", string(result.content[5]))
             variables14 = Markdown.parse("""
-            | name | unit | value |                  label |
-            | ----:| ----:| -----:| ----------------------:|
-            |    r |  "V" |   0.0 |         some potential |
-            |  foo |      |       | second sample variable |
-            |    k |      |   2.0 |         some parameter |
+            | name | unit |                  label | value |
+            | ----:| ----:| ----------------------:| -----:|
+            |    r |  "V" |         some potential |   0.0 |
+            |  foo |      | second sample variable |       |
+            |    k |      |         some parameter |   2.0 |
             """)
             variables16 = Markdown.parse("""
-            | name | unit | value |                  label |
-            | ----:| ----:| -----:| ----------------------:|
-            |  foo |      |       | second sample variable |
-            |    r |  "V" |   0.0 |         some potential |
-            |    k |      |   2.0 |         some parameter |
+            | name | unit |                  label | value |
+            | ----:| ----:| ----------------------:| -----:|
+            |  foo |      | second sample variable |       |
+            |    r |  "V" |         some potential |   0.0 |
+            |    k |      |         some parameter |   2.0 |
             """)
-            @test result.content[5] isa Markdown.MD
-            @test result.content[5] in [variables14, variables16]
+            @test result.content[6] isa Markdown.MD
+            @test result.content[6] in [variables14, variables16]
         end
         @testset "Example (model without functions)" begin
             # only checks if models without functions pose errors
             x = Markdown.parse("""
             ```@modelica
             %modeldir=res
+            %libs=Modelica@3.2.3
             Example
             ```
             """).content[1]
@@ -167,6 +170,7 @@ DummyDocument() = DummyDocument(DummyInternal([]))
         end
     end
     withOMC("out", "res") do omc
+        installAndLoad(omc, "Modelica"; version="3.2.3")
         @testset "getVersion" begin
             major, minor, patch = getVersion(omc)
             # just test that version is sensible (and we have correct types)
@@ -181,27 +185,41 @@ DummyDocument() = DummyDocument(DummyInternal([]))
             end
             @testset "load existing model with syntax error" begin
                 modelfile = joinpath(pwd(), "res/SyntaxError.mo")
-                expected = MoSTError(
-                    "Could not load SyntaxError",
-                    string("[$modelfile:6:3-6:3:writable] Error: Missing token: SEMICOLON\n",
-                    "Error: Failed to load package SyntaxError (default) using MODELICAPATH $mopath.\n")
-                )
-                @test_throws expected loadModel(omc, "SyntaxError")
+                try
+                    loadModel(omc, "SyntaxError")
+                catch actual
+                    @test isa(actual, MoSTError)
+                    @test actual.msg == "Could not load SyntaxError"
+                    @test occursin("Missing token: SEMICOLON", actual.omc)
+                    @test occursin("$modelfile:6:3-6:3", actual.omc)
+                end
             end
             @testset "load existing model with instantiation error" begin
                 modelfile = joinpath(pwd(), "res/UndefinedVariable.mo")
-                expected = MoSTError(
-                    "Model check of UndefinedVariable failed",
-                    string("\n[$modelfile:3:3-3:13:writable] Error: Variable r not found in scope UndefinedVariable.\n",
-                    "Error: Error occurred while flattening model UndefinedVariable\n")
-                )
-                @test_throws expected loadModel(omc, "UndefinedVariable")
+                try
+                    loadModel(omc, "UndefinedVariable")
+                catch actual
+                    @test isa(actual, MoSTError)
+                    @test actual.msg == "Model check of UndefinedVariable failed"
+                    @test occursin("Error: Variable r not found in scope UndefinedVariable", actual.omc)
+                    @test occursin("$modelfile:3:3-3:13", actual.omc)
+                end
             end
             @testset "load non-existent model" begin
                 expected = MoSTError(
                     "Could not load DoesNotExist",
                     "Error: Failed to load package DoesNotExist (default) using MODELICAPATH $mopath.\n")
                 @test_throws expected loadModel(omc, "DoesNotExist")
+            end
+        end
+        @testset "filename" begin
+            @testset "Example" begin
+                loadModel(omc, "Example")
+                @test endswith(ModelicaScriptingTools.filename(omc, "Example"), "Example.mo")
+            end
+            @testset "<interactive>" begin
+                sendExpression(omc, "model Foo end Foo;")
+                @test "<interactive>" == ModelicaScriptingTools.filename(omc, "Foo")
             end
         end
         @testset "getSimulationSettings" begin
@@ -230,45 +248,26 @@ DummyDocument() = DummyDocument(DummyInternal([]))
             end
             @testset "simulate model with arithmetic error" begin
                 loadModel(omc, "ArithmeticError")
-                expected = MoSTError(
-                    "Simulation of ArithmeticError failed",
-                    string("Simulation execution failed for model: ArithmeticError\n",
-                    "LOG_SUCCESS       | info    | The initialization finished successfully without homotopy method.\n",
-                    "assert            | debug   | division by zero at time 1.000000000200016, (a=1) / (b=0), ",
-                    "where divisor b expression is: x\n")
-                )
-                @test_throws expected simulate(omc, "ArithmeticError")
+                try
+                    simulate(omc, "ArithmeticError")
+                catch actual
+                    @test isa(actual, MoSTError)
+                    @test actual.msg == "Simulation of ArithmeticError failed"
+                    @test occursin("Simulation execution failed for model: ArithmeticError", actual.omc)
+                    @test occursin("division by zero at time 1.0", actual.omc)
+                end
             end
             @testset "simulate model with initialization warning" begin
                 loadModel(omc, "MissingInitialValue")
-                expected = MoSTError(
-                    "Simulation of MissingInitialValue failed",
-                    string("Warning: The initial conditions are not fully specified. ",
-                    "For more information set -d=initialization. ",
-                    "In OMEdit Tools->Options->Simulation->OMCFlags, ",
-                    "in OMNotebook call setCommandLineOptions(\"-d=initialization\").\n"
-                    )
-                )
-                @test_throws expected simulate(omc, "MissingInitialValue")
+                try
+                    simulate(omc, "MissingInitialValue")
+                catch actual
+                    @test isa(actual, MoSTError)
+                    @test actual.msg == "Simulation of MissingInitialValue failed"
+                    @test occursin("Warning: The initial conditions are not fully specified.", actual.omc)
+                end
             end
             @testset "simulate model with inconsistent units" begin
-                expected = if getVersion(omc) >= Tuple([1, 16, 0])
-                    MoSTError(
-                        "Model InconsistentUnits could not be instantiated",
-                        string("Warning: The following equation is INCONSISTENT due to specified unit information:  sub.alias = r;",
-                        "\nWarning: The units of following sub-expressions need to be equal:",
-                        "\n- sub-expression \"r\" has unit \"A\"",
-                        "\n- sub-expression \"sub.alias\" has unit \"V\"\n")
-                    )
-                else
-                    MoSTError(
-                        "Simulation of InconsistentUnits failed",
-                        string("Warning: The following equation is INCONSISTENT due to specified unit information: sub.alias = r",
-                        "\nThe units of following sub-expressions need to be equal:",
-                        "\n- sub-expression \"r\" has unit \"A\"",
-                        "\n- sub-expression \"sub.alias\" has unit \"V\"\n")
-                    )
-                end
                 try
                     # OpenModelica 1.16 error occurs here
                     loadModel(omc, "InconsistentUnits")
@@ -276,12 +275,14 @@ DummyDocument() = DummyDocument(DummyInternal([]))
                     simulate(omc, "InconsistentUnits")
                 catch actual
                     @test isa(actual, MoSTError)
-                    @test actual.msg == expected.msg
-                    # replace start of line that contains error location
-                    actomc = replace(actual.omc, r"^\[.*\]\s+" => "")
-                    for (a, e) in zip(split(actomc, "\n"), split(expected.omc, "\n"))
-                        @test a == e
-                    end
+                    @test actual.msg in [
+                        "Simulation of InconsistentUnits failed",
+                        "Model InconsistentUnits could not be instantiated"
+                    ]
+                    @test occursin("Warning: The following equation is INCONSISTENT", actual.omc)
+                    @test occursin("sub.alias = r", actual.omc)
+                    @test occursin("sub-expression \"r\" has unit \"A\"", actual.omc)
+                    @test occursin("sub-expression \"sub.alias\" has unit \"V\"", actual.omc)
                 end
             end
         end
@@ -363,8 +364,8 @@ DummyDocument() = DummyDocument(DummyInternal([]))
                 eqs = [replacefuncnames(e, funcdict) for e in eqs]
                 prefixes = [commonhierarchy(e, adict) for e in eqs]
                 de = [deprefix(e, p) for (e, p) in zip(eqs, prefixes)]
-                @test ["x", "_f", "_b", "_f", "_b"] == findidentifiers(de[1])
-                @test ["_b", "_f", "x", "g", "x"] == findidentifiers(de[2])
+                @test ["x", "f", "_b", "f", "_b"] == findidentifiers(de[1])
+                @test ["_b", "f", "x", "g", "x"] == findidentifiers(de[2])
             end
         end
         @testset "getvariables" begin
@@ -394,6 +395,10 @@ DummyDocument() = DummyDocument(DummyInternal([]))
                     "DocExample.f" "function(x :: Real * y :: Real) => Real" "function DocExample.f\n  input Real x;\n  input Real y;\n  output Real res;\nalgorithm\n  res := x ^ y + y;\nend DocExample.f;\n\n\n";
                     "DocExample.g" "function(x :: Real) => Real" "function DocExample.g\n  input Real x;\n  output Real y;\nalgorithm\n  y := 2.0 * x;\nend DocExample.g;\n\n\n"
                 ]
+                # seems like OpenModelica < 1.17.0 changes order of terms in equations
+                if getVersion(omc) >= Tuple([1, 17, 0])
+                    expected[2, 3] = replace(expected[2, 3], "y := 2.0 * x" => "y := x * 2.0")
+                end
                 @test expected == getfunctions(omc, "DocExample")
             end
             @testset "FunctionNames" begin
@@ -404,6 +409,16 @@ DummyDocument() = DummyDocument(DummyInternal([]))
                     "FunctionNames.Submodel\$sm.g", "FunctionNames.Submodel\$sm.f.inf",
                     "FunctionNames.f.inf", "FunctionNames.f2.inf"
                 ]
+                # OpenModelica > 1.17.0 seems to drop the subclass names from
+                # function names
+                # Also it does no longer treat FunctionNames.sm.f.inf as
+                # separate function.
+                if getVersion(omc) >= Tuple([1, 17, 0])
+                    expected = [
+                        "FunctionNames.f", "FunctionNames.f2", "FunctionNames.f.inf",
+                        "FunctionNames.f2.inf", "FunctionNames.sm.f", "FunctionNames.sm.g"
+                    ]
+                end
                 @test expected == funcs[:, 1]
             end
         end
@@ -411,7 +426,7 @@ DummyDocument() = DummyDocument(DummyInternal([]))
             loadModel(omc, "FunctionNames")
             funcs = getfunctions(omc, "FunctionNames")
             funclist = functionlist(funcs)
-            expected = Markdown.parse("""Functions:
+            expectedstr = """Functions:
 
             ```modelica
             function inf
@@ -433,15 +448,23 @@ DummyDocument() = DummyDocument(DummyInternal([]))
             ```
 
             ```modelica
-            function sm.f
+            function f
               input Real x1;
               input Real x2 = 1.0;
               output Real y;
             algorithm
               y := 2.0 * x1 + inf(x2, 1.0);
-            end sm.f;
+            end f;
             ```
-            """)
+            """
+            if getVersion(omc) >= Tuple([1, 17, 0])
+                expectedstr = replace(expectedstr, "y := 1.0 + x" => "y := x + 1.0")
+                # FIXME OpenModelica 1.17.0-dev unfortunately uses x2 = 0.0,
+                # which is wrong => if this is fixed, the following line must
+                # be removed
+                expectedstr = replace(expectedstr, "input Real x2 = 1.0" => "input Real x2 = 0.0")
+            end
+            expected = Markdown.parse(expectedstr)
             @test expected == funclist
         end
     end

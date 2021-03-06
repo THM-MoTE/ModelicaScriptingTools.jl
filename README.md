@@ -1,6 +1,6 @@
 # ModelicaScriptingTools.jl
 
-[![Build Status](https://travis-ci.com/THM-MoTE/ModelicaScriptingTools.jl.svg?branch=master)](https://travis-ci.com/THM-MoTE/ModelicaScriptingTools.jl)
+[![Run tests](https://github.com/THM-MoTE/ModelicaScriptingTools.jl/actions/workflows/test.yml/badge.svg)](https://github.com/THM-MoTE/ModelicaScriptingTools.jl/actions/workflows/test.yml)
 [![codecov](https://codecov.io/gh/THM-MoTE/ModelicaScriptingTools.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/THM-MoTE/ModelicaScriptingTools.jl)
 [![Documentation stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://thm-mote.github.io/ModelicaScriptingTools.jl/dev/)
 

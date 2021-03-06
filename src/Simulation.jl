@@ -40,31 +40,44 @@ ensure that as many errors in the model are caught and thrown as
     call does only fail if the toplevel model does not exist. E.g.,
     `loadModel(Modelica.FooBar)` would still return true, because `Modelica`
     could be loaded, although `FooBar` does not exist.
-* We then check with `isModel(name)` if the model actually exists.
+* We then check with `getClassRestriction(name)` if the model actually exists
+    (which is the case when the return value is nonempty).
 * With `checkModel(name)` we find errors such as missing or mistyped variables.
 * Finally, we use `instantiateModel(name)` which can sometimes find additional
     errors in the model structure (e.g. since Modelica 1.16, unit consistency
     checks are performed here).
 
-If `ismodel`, `check`, or `instantiate` are false, the loading process is
-stopped at the respective steps.
+If `check`, or `instantiate` are false, the loading process is stopped at the
+respective steps.
 """ # TODO: which errors are found by instantiateModel that checkModel does not find?
 function loadModel(omc:: OMCSession, name:: String; ismodel=true, check=true, instantiate=true)
-    success = sendExpression(omc, "loadModel($name)")
-    es = getErrorString(omc)
-    if isnothing(success)
-        # i have seen this happen, but do not know why it does occur
-        throw(MoSTError("Unexpected error: loadModel($name) returned nothing", es))
+    # only load model if it was not created by sending a class definition
+    # string directly to the OMC
+    if filename(omc, name) != "<interactive>"
+        success = sendExpression(omc, "loadModel($name)")
+        es = getErrorString(omc)
+        if isnothing(success)
+            # i have seen this happen, but do not know why it does occur
+            throw(MoSTError("Unexpected error: loadModel($name) returned nothing", es))
+        end
+        if !success || length(es) > 0
+            throw(MoSTError("Could not load $name", es))
+        end
     end
-    if !success || length(es) > 0
-        throw(MoSTError("Could not load $name", es))
+    # loadModel will only fail if the *toplevel* class does not exist
+    # => check that the full class name could actually be loaded
+    if !isloaded(omc, name)
+        throw(MoSTError("Model $name not found in MODELICAPATH", ""))
     end
     if !ismodel
+        @warn(string(
+            "The keyword parameter ismodel is deprecated since the existance",
+            " of a model/class is now checked with new isloaded() function",
+            " which does not fail like isModel() did.",
+            " You can simply replace `ismodel=false` with `check=false`,",
+            " which will now have the same effect."
+        ))
         return
-    end
-    success = sendExpression(omc, "isModel($name)")
-    if !success
-        throw(MoSTError("Model $name not found in MODELICAPATH", ""))
     end
     if !check
         return
@@ -82,6 +95,33 @@ function loadModel(omc:: OMCSession, name:: String; ismodel=true, check=true, in
     if length(es) > 0
         throw(MoSTError("Model $name could not be instantiated", es))
     end
+end
+
+"""
+    isloaded(omc:: OMCSession, name:: String)
+
+Checks that the model/class/package/... `name` was correctly loaded and can
+be queried by other functions.
+"""
+function isloaded(omc:: OMCSession, name:: String)
+    # One of the few functions that we can use here is getClassRestriction,
+    # because it gives an empty string for nonexistent models and "model",
+    # "class", "connector", ... for other class types
+    classrest = sendExpression(omc, "getClassRestriction($name)")
+    return !isempty(classrest)
+end
+
+"""
+    filename(omc:: OMCSession, name:: String)
+
+Returns the file name where the model/class/package/... `name` is stored.
+If `name` was defined by directly sending a class definition to the OMC the
+return value will be `"<interactive>"`. If the model could not be found,
+the return value will be an empty string.
+"""
+function filename(omc:: OMCSession, name:: String)
+    res = sendExpression(omc, "getClassInformation($name)")
+    return res[6]
 end
 
 """
@@ -290,6 +330,16 @@ function simulate(omc:: OMCSession, name::String, settings:: Dict{String, Any})
 end
 simulate(omc:: OMCSession, name::String) = simulate(omc, name, getSimulationSettings(omc, name))
 
+"""
+    avoidStartupFreeze(omc:: OMCSession)
+
+Helper function to avoid freezes that can occur when the first message is sent
+to a newly created OMCSession.
+
+The current strategy for this is to detect the freeze, discard the frozen
+session and create a new session, repeating this process until a non-frozen
+connection is obtained.
+"""
 function avoidStartupFreeze(omc:: OMCSession)
     # TODO if this does not work, we can try this instead:
     #      https://github.com/JuliaInterop/ZMQ.jl/issues/198#issuecomment-576689600
@@ -298,7 +348,7 @@ function avoidStartupFreeze(omc:: OMCSession)
         @warn(string(
             "Discarding frozen connection to OMC with file descriptor $(omc.socket.fd)",
             " and starting new OMC instance. This may leave the old OMC",
-            "instance still running on your machine."
+            " instance still running on your machine."
         ))
         try
             closeOMCSession(omc)
@@ -308,7 +358,7 @@ function avoidStartupFreeze(omc:: OMCSession)
                 e
             ))
         end
-        return OMCSession()
+        return safeOMCSession()
     end
     status = :started
     timeout = 0.1
@@ -328,6 +378,39 @@ function avoidStartupFreeze(omc:: OMCSession)
     return omc
 end
 
+"""
+    safeOMCSession()
+
+Helper function to avoid ZMQ.StateError that can occur when calling
+`OMCSession()`.
+
+The current strategy is to simply retry the connector call up to 10 times.
+"""
+function safeOMCSession()
+    created = false
+    tries = 0
+    omc = nothing
+    while !created && tries <= 10
+        tries += 1
+        try
+            omc = OMCSession()
+            created = true
+        catch e
+            if !isa(e, ZMQ.StateError)
+                rethrow(e)
+            end
+            @warn(string(
+                "OMCSession() constructor errored, attempting retry no $tries/10:\n",
+                e
+            ))
+        end
+    end
+    if !created
+        throw(MoSTError("OMCSession could not be created after $tries retries", ""))
+    end
+    return omc
+end
+
 
 """
     setupOMCSession(outdir, modeldir; quiet=false, checkunits=true)
@@ -339,7 +422,6 @@ Creates an `OMCSession` and prepares it by preforming the following steps:
 * add `modeldir` to the MODELICAPATH
 * enable unit checking with the OMC command line option
     `--unitChecking` (unless `checkunits` is false)
-* load the modelica standard library (`loadModel(Modelica)`)
 
 If `quiet` is false, the resulting MODELICAPATH is printed to stdout.
 
@@ -351,7 +433,7 @@ function setupOMCSession(outdir, modeldir; quiet=false, checkunits=true)
         mkpath(outdir)
     end
     # create sessions
-    omc = OMCSession()
+    omc = safeOMCSession()
     # sleep for a short while, because otherwise first ZMQ call may freeze
     omc = avoidStartupFreeze(omc)
     # move to output directory
@@ -376,14 +458,27 @@ function setupOMCSession(outdir, modeldir; quiet=false, checkunits=true)
         opts = sendExpression(omc, "getCommandLineOptions()")
         println("Using command line options: $opts")
     end
-    # load Modelica standard library
-    installAndLoad(omc, "Modelica")
     return omc
 end
 
+"""
+    installAndLoad(omc:: OMCSession, lib:: AbstractString; version="latest")
+
+Loads the Modelica library `lib` in version `version` and also installs it
+if necessary.
+"""
 function installAndLoad(omc:: OMCSession, lib:: AbstractString; version="latest")
     lmver = version
     instver = version
+    if getVersion(omc) < Tuple([1,16,0]) && version != "latest"
+        # OpenModelica 1.14.2 does not have installPackage
+        # => try to load default version and fail on error
+        @warn(string(
+            "Cannot install specific version $version of library $lib on OpenModelica < 1.16.0",
+            " Attempting to load default version if it is installed."
+        ))
+        version = "latest"
+    end
     if version == "latest"
         lmver = "default"
         instver = ""
@@ -391,16 +486,20 @@ function installAndLoad(omc:: OMCSession, lib:: AbstractString; version="latest"
     sendExpression(omc, "loadModel($lib, {\"$lmver\"})")
     es = getErrorString(omc)
     if length(es) > 0 # can happen on OpenModelica 1.16 if MSL is not installed by default
+        if getVersion(omc) < Tuple([1,16,0])
+            throw(MoSTError("Cannot load library $lib with version $version on OpenModelica < 1.16.0", es))
+        end
         sendExpression(omc, "installPackage($lib, \"$instver\")")
-        sendExpression(omc, "loadModel($lib, {\"$lmver\"})")
-        # need to "consume" error string so that it will not turn up in subsequenct calls
         # expected content: "Notification: Package installed successfully" for Modelica, ModelicaServices and Complex
         es = getErrorString(omc)
-        @warn(string(
-            "loadModel($lib, {\"$lmver\"}) failed, attempting to install Modelica standard library\n",
-            "Error string after install:\n",
-            es
-        ))
+        if !occursin("Package installed successfully", es)
+            throw(MoSTError("Failed to install library $lib with version $version", es))
+        end
+        sendExpression(omc, "loadModel($lib, {\"$lmver\"})")
+        es = getErrorString(omc)
+        if length(es) > 0
+            throw(MoSTError("Failed to load library $lib with version $version after successful installation"))
+        end
     end
 end
 

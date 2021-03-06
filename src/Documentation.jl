@@ -62,7 +62,11 @@ function getfunctions(omc:: OMCSession, model:: String)
     for i in 1:size(funcs)[1]
         # removes function name from end of header (i.e. from return type)
         if endswith(funcs[i,2], funcs[i,1])
-            funcs[i,2] = funcs[i,2][1:end-length(funcs[i,1])-1]
+            funcs[i,2] = funcs[i,2][1:end-length(funcs[i,1])]
+        end
+        # removes trailing dot from function type (present in versions < 1.17.0)
+        if endswith(funcs[i,2], ".")
+            funcs[i,2] = funcs[i,2][1:end-1]
         end
         funcs[i, 3] = replace(funcs[i, 3], "\"Inline if necessary\"" => "")
     end
@@ -150,8 +154,12 @@ function uniquehierarchy(names:: Array{<: AbstractString})
     remaining = Set(keys(restoredollar))
     i = 1
     while !isempty(remaining)
+        # count names ending with .postfix
+        # == 0: Postfix is full name of one of the elements => must be unique
+        # == 1: Postfix is unique
+        #  > 1: Postfix is not unique => continue
         namesdone = filter(
-            x -> count(a -> endswith(a, postfix(x, i)), remaining) == 1,
+            x -> count(a -> endswith(a, '.' * postfix(x, i)), remaining) <= 1,
             remaining
         )
         for n in namesdone
@@ -323,7 +331,8 @@ function Documenter.Selectors.runner(::Type{ModelicaBlocks}, x, page, doc)
             "noequations" => nullary("noequations"),
             "noinfo" => nullary("noinfo"),
             "omcargs" => unary("omcargs"),
-            "headlevel" => unary("headlevel")
+            "headlevel" => unary("headlevel"),
+            "libs" => unary("libs")
         )
         magicvalues = Dict()
         # get list of models and magic values
@@ -361,10 +370,22 @@ function Documenter.Selectors.runner(::Type{ModelicaBlocks}, x, page, doc)
             withOMC(outdir, modeldir) do omc
                 omcargs = get(magicvalues, "omcargs", "")
                 sendExpression(omc, "setCommandLineOptions(\"$(moescape(omcargs))\")")
+                for libstr in split(get(magicvalues, "libs", ""), " ")
+                    if isempty(libstr)
+                        continue
+                    end
+                    if occursin("@", libstr)
+                        lib, version = split(libstr, "@")
+                    else
+                        lib = libstr
+                        version = "latest"
+                    end
+                    installAndLoad(omc, lib; version=version)
+                end
                 for (model) in modelnames
                     # TODO automatically decide what to do based on class type
                     # load model without all extra checks
-                    loadModel(omc, model; ismodel=false)
+                    loadModel(omc, model; check=false)
                     # add header to result
                     hn = get(magicvalues, "headlevel", 3)
                     header = Documenter.Utilities.mdparse("$("#"^hn) $model")

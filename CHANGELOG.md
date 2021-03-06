@@ -8,6 +8,46 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+[nothing]
+
+### Changed
+
+[nothing]
+
+### Fixed
+
+[nothing]
+
+## [1.1.0-alpha.4] - 05.03.2021
+
+### Added
+
+[nothing]
+
+### Changed
+
+* Documenter.jl extension now rethrows all errors which are not `MoSTError`s
+* Class documentation starts with heading containing the class name
+* Switched order of label and value columns in variable tables for better readability
+* Switched from Travis CI to GitHub actions
+* Made some unit tests less strict to avoid failing tests due to small changes between OpenModelica versions
+* `testFailing.sh` now uses `--project` parameter instead of local import
+* added alternative expected results for OpenModelica > 1.17.0
+* the parameter `ismodel` of `loadModel` is deprecated, since we now can check if a model was loaded successfully using `getClassRestriction()` instead.
+
+### Fixed
+
+* `BoundError` in `commonprefix` when length of reference is exceeded
+* `commonprefix` stopped one character to early
+* `Manifest.toml` now gives relative link for `ModelicaScriptingTools`
+* `uniquehierarchy` did not consider two distinct postfixes as unique if one was a postfix of the other on the string level
+* retries creating `OMCSession` up to 10 times if an `ZMQ.StateError` is encountered
+* models created by directly sending a definition string to the OMC could not be tested using `testmodel`
+
+## [1.1.0-alpha.3] - 19.11.2020
+
+### Added
+
 * Support for OpenModelica 1.16.0
   - uses `--unitChecking` instead of `--preOptModules+=unitChecking`
   - ignores strange new warning `Warning: function Unit.unitString failed for "MASTER()".`

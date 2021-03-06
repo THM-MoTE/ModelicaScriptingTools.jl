@@ -1,6 +1,4 @@
 # tests that tests in regressionTest fail if regression reference data does not fit simulation data
-# TODO find out if we can somehow run this with Pkg so we don't have to do the local import
-push!(LOAD_PATH,joinpath(dirname(@__FILE__),"../src/"))
 using ModelicaScriptingTools
 using Test
 using CSV
@@ -29,6 +27,7 @@ end
 
 MoST.withOMC(outdir, modeldir) do omc
     # setup simulation and reference data
+    MoST.installAndLoad(omc, "Modelica"; version="3.2.3")
     MoST.loadModel(omc, "TwoVarExample")
     MoST.simulate(omc, "TwoVarExample")
     cp("$outdir/TwoVarExample_res.csv", "$outdir/TwoVarExample_res.bak.csv"; force=true)
