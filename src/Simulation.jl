@@ -470,6 +470,15 @@ if necessary.
 function installAndLoad(omc:: OMCSession, lib:: AbstractString; version="latest")
     lmver = version
     instver = version
+    if getVersion(omc) < Tuple([1,16,0]) && version != "latest"
+        # OpenModelica 1.14.2 does not have installPackage
+        # => try to load default version and fail on error
+        @warn(string(
+            "Cannot install specific version $version of library $lib on OpenModelica < 1.16.0",
+            " Attempting to load default version if it is installed."
+        ))
+        version = "latest"
+    end
     if version == "latest"
         lmver = "default"
         instver = ""
@@ -477,16 +486,20 @@ function installAndLoad(omc:: OMCSession, lib:: AbstractString; version="latest"
     sendExpression(omc, "loadModel($lib, {\"$lmver\"})")
     es = getErrorString(omc)
     if length(es) > 0 # can happen on OpenModelica 1.16 if MSL is not installed by default
+        if getVersion(omc) < Tuple([1,16,0])
+            throw(MoSTError("Cannot load library $lib with version $version on OpenModelica < 1.16.0", es))
+        end
         sendExpression(omc, "installPackage($lib, \"$instver\")")
-        sendExpression(omc, "loadModel($lib, {\"$lmver\"})")
-        # need to "consume" error string so that it will not turn up in subsequenct calls
         # expected content: "Notification: Package installed successfully" for Modelica, ModelicaServices and Complex
         es = getErrorString(omc)
-        @warn(string(
-            "loadModel($lib, {\"$lmver\"}) failed, attempting to install Modelica standard library\n",
-            "Error string after install:\n",
-            es
-        ))
+        if !occursin("Package installed successfully", es)
+            throw(MoSTError("Failed to install library $lib with version $version", es))
+        end
+        sendExpression(omc, "loadModel($lib, {\"$lmver\"})")
+        es = getErrorString(omc)
+        if length(es) > 0
+            throw(MoSTError("Failed to load library $lib with version $version after successful installation"))
+        end
     end
 end
 
