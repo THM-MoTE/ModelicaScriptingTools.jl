@@ -331,7 +331,8 @@ function Documenter.Selectors.runner(::Type{ModelicaBlocks}, x, page, doc)
             "noequations" => nullary("noequations"),
             "noinfo" => nullary("noinfo"),
             "omcargs" => unary("omcargs"),
-            "headlevel" => unary("headlevel")
+            "headlevel" => unary("headlevel"),
+            "libs" => unary("libs")
         )
         magicvalues = Dict()
         # get list of models and magic values
@@ -369,6 +370,15 @@ function Documenter.Selectors.runner(::Type{ModelicaBlocks}, x, page, doc)
             withOMC(outdir, modeldir) do omc
                 omcargs = get(magicvalues, "omcargs", "")
                 sendExpression(omc, "setCommandLineOptions(\"$(moescape(omcargs))\")")
+                for libstr in split(get(magicvalues, "libs", ""), " ")
+                    if occursin("@", libstr)
+                        lib, version = split(libstr, "@")
+                    else
+                        lib = libstr
+                        version = "latest"
+                    end
+                    installAndLoad(omc, lib; version=version)
+                end
                 for (model) in modelnames
                     # TODO automatically decide what to do based on class type
                     # load model without all extra checks

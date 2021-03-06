@@ -99,6 +99,7 @@ DummyDocument() = DummyDocument(DummyInternal([]))
             x = Markdown.parse("""
             ```@modelica
             %modeldir=res
+            %libs=Modelica@3.2.3
             DocExample
             ```
             """).content[1]
