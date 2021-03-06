@@ -40,6 +40,8 @@ jobs:
         run: |
           julia --project=docs/ -e 'ENV["PYTHON"]=""; using Pkg; Pkg.develop(PackageSpec(path=pwd())); Pkg.instantiate()'
           julia --project=docs/ docs/make.jl
+        env:
+          DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }}
       - name: Upload coverage report
         # only upload coverage report from latest OpenModelica version
         if: ${{ matrix.om-version == '1.16.2' }}
