@@ -371,6 +371,9 @@ function Documenter.Selectors.runner(::Type{ModelicaBlocks}, x, page, doc)
                 omcargs = get(magicvalues, "omcargs", "")
                 sendExpression(omc, "setCommandLineOptions(\"$(moescape(omcargs))\")")
                 for libstr in split(get(magicvalues, "libs", ""), " ")
+                    if isempty(libstr)
+                        continue
+                    end
                     if occursin("@", libstr)
                         lib, version = split(libstr, "@")
                     else
