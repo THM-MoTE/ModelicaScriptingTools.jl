@@ -55,6 +55,7 @@ The following shows the documentation of the model `DocExample.mo` in the folder
 %outdir=../../test/out
 %modeldir = ../../test/res
 %omcargs = -d=newInst,nfAPI
+%libs = Modelica@3.2.3
 DocExample
 ```
 
