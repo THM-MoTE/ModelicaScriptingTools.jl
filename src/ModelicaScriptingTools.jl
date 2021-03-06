@@ -5,6 +5,7 @@ using Test: @test
 using CSV: CSV
 using OMJulia: OMCSession, sendExpression, Parser
 using ZMQ: send, recv # only needed for sendExpressionRaw which is a workaround for OMJulia bugs
+import ZMQ # for accessing ZMQ.StateError
 using DataFrames: DataFrame
 using PyCall: PyNULL, pyimport_conda, pyimport, @py_str
 using Markdown: Markdown
