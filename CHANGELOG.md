@@ -18,6 +18,19 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 [nothing]
 
+## [1.1.0-alpha.5] - 2021-05-12
+
+### Added
+
+* magic line `%libs` for installing library dependencies in Documenter.jl extension
+
+### Changed
+
+* `installAndLoad` is now part of exported API
+* no longer installs MSL by default to avoid version conflicts
+* deploys docs with `DOCUMENTER_KEY`
+* makes test for non-existent model less strict
+
 ## [1.1.0-alpha.4] - 05.03.2021
 
 ### Added
