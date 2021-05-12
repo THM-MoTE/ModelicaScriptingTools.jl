@@ -28,6 +28,10 @@ jobs:
         uses: THM-MoTE/setup-openmodelica@v1
         with:
           version: ${{ matrix.om-version }}
+      # FIXME: this needs to be removed once the following fix has been ported to OM 1.16
+      # https://github.com/OpenModelica/OpenModelica/pull/7351
+      - name: Install Modelica standard library
+        run: sudo apt-get install omlib-modelica-3.2.3
       - name: Install Julia requirements
         run: julia --project=. -e 'ENV["PYTHON"]=""; using Pkg; Pkg.instantiate()'
       - name: Run Julia test script
