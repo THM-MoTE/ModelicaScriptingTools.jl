@@ -12,7 +12,7 @@ jobs:
     strategy:
       matrix:
         include:
-          - om-version: 1.16.2
+          - om-version: 1.16.5
             os: ubuntu-latest
           - om-version: 1.14.2
             os: ubuntu-18.04
