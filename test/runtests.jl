@@ -206,10 +206,13 @@ DummyDocument() = DummyDocument(DummyInternal([]))
                 end
             end
             @testset "load non-existent model" begin
-                expected = MoSTError(
-                    "Could not load DoesNotExist",
-                    "Error: Failed to load package DoesNotExist (default) using MODELICAPATH $mopath.\n")
-                @test_throws expected loadModel(omc, "DoesNotExist")
+                try
+                    loadModel(omc, "DoesNotExist")
+                catch actual
+                    @test isa(actual, MoSTError)
+                    @test actual.msg == "Could not load DoesNotExist"
+                    @test occursin("Error: Failed to load package DoesNotExist (default)", actual.omc)
+                end
             end
         end
         @testset "filename" begin
