@@ -31,7 +31,7 @@ jobs:
       # FIXME: this needs to be removed once the following fix has been ported to OM 1.16
       # https://github.com/OpenModelica/OpenModelica/pull/7351
       - name: Install Modelica standard library
-        run: sudo apt-get install omlib-modelica-3.2.3
+        run: sudo apt-get install omlib-modelica-3.0
       - name: Install Julia requirements
         run: julia --project=. -e 'ENV["PYTHON"]=""; using Pkg; Pkg.instantiate()'
       - name: Run Julia test script
