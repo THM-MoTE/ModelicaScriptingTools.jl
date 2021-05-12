@@ -498,7 +498,7 @@ function installAndLoad(omc:: OMCSession, lib:: AbstractString; version="latest"
         sendExpression(omc, "loadModel($lib, {\"$lmver\"})")
         es = getErrorString(omc)
         if length(es) > 0
-            throw(MoSTError("Failed to load library $lib with version $version after successful installation"))
+            throw(MoSTError("Failed to load library $lib with version $version after successful installation", es))
         end
     end
 end
