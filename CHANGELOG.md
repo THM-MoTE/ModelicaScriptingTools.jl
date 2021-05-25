@@ -18,6 +18,46 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 [nothing]
 
+## [1.1.0] - 2021-05-25
+
+This is a high-level summary of the changes introduced in 1.1.0.alpha.1-5.
+
+### Added
+
+* Documenter.jl extension for documenting Modelica models in HTML format including
+  * MathML rendering of all equations, grouped by model structure
+  * table of all variables and parameters
+  * HTML documentation in `annotation(Documentaion(info=...))`
+* Support for OpenModelica 1.16, 1.17 and 1.18
+* `installAndLoad()` function to explicitly install Modelica libraries
+* `getVersion()` function to switch behavior based on OpenModelica version
+
+### Changed
+
+* uses custom release script instead of TagBot
+* the override argument now behaves more intuitively (see v1.1.0-alpha.2)
+* code is split into multiple files due to increased library size
+* tests for error messages are less strict in order to better test for multiple OpenModelica versions
+* Swtiched from Travis CI to GitHub actions
+* `setupOMCSession` and `withOMC` now create the output directory if it does not already exist
+* Modelica Standard Library is no longer loaded automatically, but must be loaded explicitly with `installAndLoad`
+* documentation is deployed using `DOCUMENTER_KEY`
+
+### Fixed
+
+* tries to minimize freezes due to ZMQ errors in OMJulia
+* models created by directly sending a definition string to the OMC could not be tested using `testmodel`
+
+### Deprecated
+
+* the parameter `ismodel` of `loadModel`, since we now can check if a model was loaded successfully using `getClassRestriction()` instead
+
+### Dependencies added
+
+* `Documenter`, since it MoST.jl now includes a Documenter extension for Modelica models
+* `PyCall`, since the Documenter.jl extension requires the use of a XSLT stylesheet which is processed using the python package `lxml`
+  * Note: there is currently no XSLT-capable Julia package that I am are aware of
+
 ## [1.1.0-alpha.5] - 2021-05-12
 
 ### Added
