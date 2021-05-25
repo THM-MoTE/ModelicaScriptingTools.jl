@@ -169,3 +169,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Fixed
 
 [nothing]
+
+
+[Unreleased]: https://github.com/CSchoel/ModelicaScriptingTools.jl/compare/v1.1.0-alpha.5..HEAD
+[1.1.0]: https://github.com/CSchoel/ModelicaScriptingTools.jl/compare/v1.1.0-alpha.5..v1.1.0
+[1.1.0-alpha.5]: https://github.com/CSchoel/ModelicaScriptingTools.jl/compare/v1.1.0-alpha.4..v1.1.0-alpha.5
+[1.1.0-alpha.4]: https://github.com/CSchoel/ModelicaScriptingTools.jl/compare/v1.1.0-alpha.3..v1.1.0-alpha.4
+[1.1.0-alpha.3]: https://github.com/CSchoel/ModelicaScriptingTools.jl/compare/v1.1.0-alpha.2..v1.1.0-alpha.3
+[1.1.0-alpha.2]: https://github.com/CSchoel/ModelicaScriptingTools.jl/compare/v1.1.0-alpha.1..v1.1.0-alpha.2
+[1.1.0-alpha.1]: https://github.com/CSchoel/ModelicaScriptingTools.jl/compare/v1.0.0..v1.1.0-alpha.1
+[1.0.0]: https://github.com/CSchoel/ModelicaScriptingTools.jl/compare/v0.9.0..v1.0.0
+[0.9.0]: https://github.com/CSchoel/ModelicaScriptingTools.jl/compare/v0.8.0..v0.9.0
+[0.8.0]: https://github.com/CSchoel/ModelicaScriptingTools.jl/releases/tag/v0.8.0
